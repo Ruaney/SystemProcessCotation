@@ -5,7 +5,7 @@ public static class CommandLineHelper{
         if(args.Length != 3){
             throw new ArgumentException("Número incorreto de parâmetros. Esperado: 3 parâmetros");
         }
-        var stockSymbol = args[0].ToUpper();
+        var stockSymbol = args[0].ToUpper().Trim();
         if(!double.TryParse(args[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var  sellPrice)){
             throw new ArgumentException($"Preço de venda inválido: {args[1]}. Use formato decimal com ponto (ex: 22.67)");
         }
