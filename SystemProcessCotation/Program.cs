@@ -7,68 +7,58 @@ using MailKit;
 using MimeKit;
 using System.Threading;
 using DotNetEnv;
+using System.Threading.Tasks;
 
 public class Program
 {
-    
-    public static void Main(string[] args)
+
+    public static async Task Main(string[] args)
     {
-        DotNetEnv.Env.Load("../../../.env");
-        string from = Environment.GetEnvironmentVariable("FROM") ?? throw new InvalidOperationException("FROM environment variable not set");
-        string to = Environment.GetEnvironmentVariable("TO") ?? throw new InvalidOperationException("TO environment variable not set");
-        string smtpServer = Environment.GetEnvironmentVariable("SMTP") ?? throw new InvalidOperationException("SMTP environment variable not set");
-        string smtpPort = Environment.GetEnvironmentVariable("SMTP_PORT") ?? throw new InvalidOperationException("SMTP_PORT environment variable not set");
-        string password = Environment.GetEnvironmentVariable("PASSWORD") ?? throw new InvalidOperationException("PASSWORD environment variable not set");
-        string ativo = "PETR4";
-        double priceToSell = 22.67;
-        double priceToBuy = 22.40;
-    
-        Console.WriteLine($"From: {from}, To: {to}, SMTP: {smtpServer}, Port: {smtpPort}");
-
-        void sendEmailSMTP(string message)
+        try
         {
-            try
-            {
-                var client = new System.Net.Mail.SmtpClient(smtpServer, int.Parse(smtpPort))
-                {
-                    Credentials = new NetworkCredential(from, password),
-                    EnableSsl = true
-                };
-              
-                client.Send(from, to, "System Cotation Alert", message);
-                Console.WriteLine("Email sent successfully!");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error sending email: {ex.Message}");
-            }
+            args = new string [] {"PETR4", "22.67", "22.59"};
+            TradingSettings tradingSettings = CommandLineHelper.ParseArguments(args);
+
+            var configService = ConfigurationService.Instance;
+            var appSettings = configService.GetAppSettings(tradingSettings);
+            Console.WriteLine($"Monitorando: {appSettings.SmtpSettings.Host}");
+            RunMonitoringAsync(appSettings);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro no monitoramento: {ex.Message}");
+            await Task.Delay(3000);
         }
 
-        double getCotation(string cotation)
-        {
-            Random random = new Random();
-            double currentPrice = random.NextDouble() * (23.0 - 22.0) + 22.0;
-            Console.WriteLine($"Cotação atual de {cotation}: {currentPrice:F2}");
-            return currentPrice;
-        }
 
+    }
+    private static double getCotation(string cotation)
+    {
+        Random random = new Random();
+        double currentPrice = random.NextDouble() * (23.0 - 22.0) + 22.0;
+        Console.WriteLine($"Cotação atual de {cotation}: {currentPrice:F2}");
+        return currentPrice;
+    }
+
+    private static void RunMonitoringAsync(AppSettings appSettings)
+    {
+        var settings = appSettings.TradingSettings;
         while (true)
         {
-            Thread.Sleep(2000);
-            var cotation = getCotation(ativo);
-            if (cotation >= priceToSell)
+
+            Thread.Sleep(3000);
+            var cotation = getCotation(settings.StockSymbol);
+            if (cotation >= settings.PriceToSell)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Target: {priceToSell} Venda {ativo} a {cotation:F2}");
+                Console.WriteLine($"Target: {settings.PriceToSell} Venda {settings.StockSymbol} a {cotation:F2}");
                 Console.ResetColor();
-                sendEmailSMTP($"Target: {priceToSell} Venda {ativo} na cotação atual: {cotation:F2}");
             }
-            else if (cotation <= priceToBuy)
+            else if (cotation <= settings.PriceToBuy)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Target: {priceToBuy} Compra {ativo} a {cotation:F2}");
+                Console.WriteLine($"Target: {settings.PriceToBuy} Compra {settings.StockSymbol} a {cotation:F2}");
                 Console.ResetColor();
-                sendEmailSMTP($"Target: {priceToBuy} Compra {ativo} na cotação atual: {cotation:F2}");
             }
         }
     }
