@@ -1,2 +1,0 @@
-to=ruan.ramos@hotmail.com
-smtp=

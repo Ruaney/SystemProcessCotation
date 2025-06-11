@@ -2,7 +2,7 @@
 
 namespace SystemProcessCotation
 {
-    internal class EmailService: IEmailService
+    internal class EmailService
     {
         public void SendEmail(string email, string subject, string body)
         {

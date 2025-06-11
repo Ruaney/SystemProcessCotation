@@ -13,7 +13,7 @@ public class SmtpSettings
         FileInfo file = new FileInfo("config.txt");
         if (file.Exists)
         {
-            Console.WriteLine(file.);
+            Console.WriteLine(file);
         }
     }
 }
