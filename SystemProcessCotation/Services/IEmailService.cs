@@ -1,4 +1,4 @@
 public interface IEmailService
 {
-    Task sendAsync(string to, string subject, string htmlBody, CancellationToken ct = default);
+    void SendAlert(string to, string from, string subject, string message, SmtpSettings settings);
 }

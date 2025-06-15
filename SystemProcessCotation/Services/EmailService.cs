@@ -1,12 +1,29 @@
 //import in c# style
 
-namespace SystemProcessCotation
+using System.Net;
+using System.Net.Mail;
+using MimeKit;
+
+public class EmailService : IEmailService
 {
-    internal class EmailService
+
+    public void SendAlert(string to, string from, string subject, string message, SmtpSettings settings)
     {
-        public void SendEmail(string email, string subject, string body)
+        try
         {
-           
+            using var client = new SmtpClient(settings.Host, settings.Port)
+            {
+                Credentials = new NetworkCredential(settings.Username, settings.Password),
+                EnableSsl = settings.EnableSsl
+            };
+
+            using var mailMessage = new MailMessage(from, to, subject, message);
+            client.Send(mailMessage);
+            Console.WriteLine("Email enviado");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error ao enviar email: {ex}");
         }
     }
 }

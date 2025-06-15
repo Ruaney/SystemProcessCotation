@@ -1,20 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Net.Mail;
-using MailKit.Net.Smtp;
-using MailKit;
-using MimeKit;
-using System.Threading;
-using DotNetEnv;
-using System.Threading.Tasks;
-using SystemProcessCotation;
-using System.Xml.Schema;
+﻿using SystemProcessCotation;
 
 public class Program
 {
 
-    public static async Task Main(string[] args)
+    public static async Task Main(string[] args) 
     {
         try
         {
@@ -23,23 +12,21 @@ public class Program
 
             var configService = ConfigurationService.Instance;
             var appSettings = configService.GetAppSettings(tradingSettings);
-            var cotationService = new CotationService();
-            RunMonitoringAsync(appSettings, cotationService);
+            await RunMonitoringAsync(appSettings);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Erro no aplicação: {ex.Message}");
             await Task.Delay(3000);
         }
-
-
     }
 
-    private static async Task RunMonitoringAsync(AppSettings appSettings, CotationService cotationService)
+    private static async Task RunMonitoringAsync(AppSettings appSettings)
     {
         var settings = appSettings.TradingSettings;
         var tradingService = new TradingService();
-
+        var cotationService = new CotationService(); 
+        var emailService = new EmailService();
 
         var alertCount = 0;
         while (true)
@@ -59,13 +46,12 @@ public class Program
 
                 if (alert != null)
                 {
-                    Console.WriteLine("Alerta enviado! ");
+                    emailService.SendAlert(appSettings.SmtpSettings.ToAddress, appSettings.SmtpSettings.FromAddress, alert.GetSubject(), alert.GetMessage(), appSettings.SmtpSettings);
                     alertCount++;
                 }
-                Console.WriteLine("Total de alertas: " + alertCount);
+                Console.WriteLine("Total de alertas enviados: " + alertCount);
                 Thread.Sleep(3000);
                 Console.Clear();
-
             }
             catch (Exception ex)
             {
