@@ -1,6 +1,6 @@
 # System Process Cotation
 
-![Demo](assets/demo.gif)
+![Demo](SystemProcessCotation/assets/demo.gif)
 
 Monitoração de preços que envia alertas por email de quando comprar/vender ao atingir um limite.
 
