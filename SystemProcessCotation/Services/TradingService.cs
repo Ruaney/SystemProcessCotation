@@ -12,7 +12,12 @@ public class TradingService : ITradingService
             return Task.FromResult<TradingAlert?>(null);
         }
         TradingAlert? alert = null;
-
+        if (cotation.Price < settings.PriceToBuy && cotation.Price < settings.PriceToSell)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Atenção: Informe um preço de compra e venda entre o preço atual do ativo para maior consistência dos alertas.");
+            Console.ResetColor();
+        }
         if (cotation.Price >= settings.PriceToSell)
         {
             alert = new TradingAlert
@@ -25,7 +30,7 @@ public class TradingService : ITradingService
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"Venda: {cotation.Symbol} R$ {cotation.Price:F2} (target: R$ {settings.PriceToSell:F2})");
             Console.ResetColor();
-        }   
+        }
         else if (cotation.Price <= settings.PriceToBuy)
         {
             alert = new TradingAlert
@@ -48,7 +53,7 @@ public class TradingService : ITradingService
         }
         return Task.FromResult<TradingAlert?>(null);
     }
-   
+
     private bool ShouldSendAlert(TradingAlert alert)
     {
         var alertKey = $"{alert.Symbol}_{alert.Type}";
@@ -58,8 +63,8 @@ public class TradingService : ITradingService
         }
         return true;
     }
-    
-    
+
+
     private void RecordAlert(TradingAlert alert)
     {
         var alertKey = $"{alert.Symbol}_{alert.Type}";

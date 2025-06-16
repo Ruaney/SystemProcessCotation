@@ -42,6 +42,7 @@ public class Program
                 var cotation = await cotationService.GetCotationAsync(settings.StockSymbol);
 
                 var alert = await tradingService.AnalyzeCotationAsync(cotation, settings);
+                
                 if (alert != null && lastPrice != cotation.Price)
                 {
                     emailService.SendAlert(appSettings.SmtpSettings.ToAddress, appSettings.SmtpSettings.FromAddress, alert.GetSubject(), alert.GetMessage(), appSettings.SmtpSettings);
@@ -55,6 +56,7 @@ public class Program
             catch (Exception ex)
             {
                 Console.WriteLine($"Erro no monitoramento: {ex.Message}");
+                break;
             }
         }
     }

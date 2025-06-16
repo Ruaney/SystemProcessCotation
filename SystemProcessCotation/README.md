@@ -4,6 +4,11 @@
 
 Monitoração de preços que envia alertas por email de quando comprar/vender ao atingir um limite.
 
+### features extras:
++ mensagens mais detalhadas no console
++ sistema só envia um novo alerta se o preço mudar, evitando spam
++ intervalo para as verificações da cotação
+
 ### como executar
 dotnet run **Ativo preçoVenda preçoCompra**
 

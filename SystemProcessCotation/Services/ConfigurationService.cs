@@ -43,7 +43,7 @@ public class ConfigurationService : IConfigurationService
 
     private void LoadEnvironmentVariable()
     {
-        DotNetEnv.Env.Load("../../../.env");
+        DotNetEnv.Env.Load(".env");
     }
     private SmtpSettings LoadSmtpSettings()
     {
