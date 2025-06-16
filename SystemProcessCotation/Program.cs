@@ -1,9 +1,8 @@
-﻿using SystemProcessCotation;
-
+﻿
 public class Program
 {
 
-    public static async Task Main(string[] args) 
+    public static async Task Main(string[] args)
     {
         try
         {
@@ -25,9 +24,9 @@ public class Program
     {
         var settings = appSettings.TradingSettings;
         var tradingService = new TradingService();
-        var cotationService = new CotationService(); 
+        var cotationService = new CotationService();
         var emailService = new EmailService();
-
+        double lastPrice = 0.0;
         var alertCount = 0;
         while (true)
         {
@@ -38,16 +37,17 @@ public class Program
                 Console.WriteLine($"Ativo: {settings.StockSymbol}");
                 Console.WriteLine($"Venda quando >= R$ {settings.PriceToSell:F2}");
                 Console.WriteLine($"Compra quando <= R$ {settings.PriceToBuy:F2}");
-                Console.WriteLine($"Alerta para: {appSettings.SmtpSettings.ToAddress}");
+                Console.WriteLine($"Enviar alerta para: {appSettings.SmtpSettings.ToAddress}");
                 Console.WriteLine("--------------------------------");
 
                 var cotation = await cotationService.GetCotationAsync(settings.StockSymbol);
-                var alert = await tradingService.AnalyzeCotationAsync(cotation, settings);
 
-                if (alert != null)
+                var alert = await tradingService.AnalyzeCotationAsync(cotation, settings);
+                if (alert != null && lastPrice != cotation.Price)
                 {
                     emailService.SendAlert(appSettings.SmtpSettings.ToAddress, appSettings.SmtpSettings.FromAddress, alert.GetSubject(), alert.GetMessage(), appSettings.SmtpSettings);
                     alertCount++;
+                    lastPrice = cotation.Price;
                 }
                 Console.WriteLine("Total de alertas enviados: " + alertCount);
                 Thread.Sleep(3000);

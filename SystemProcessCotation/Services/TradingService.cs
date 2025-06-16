@@ -25,7 +25,7 @@ public class TradingService : ITradingService
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"Venda: {cotation.Symbol} R$ {cotation.Price:F2} (target: R$ {settings.PriceToSell:F2})");
             Console.ResetColor();
-        }
+        }   
         else if (cotation.Price <= settings.PriceToBuy)
         {
             alert = new TradingAlert
@@ -58,7 +58,8 @@ public class TradingService : ITradingService
         }
         return true;
     }
-
+    
+    
     private void RecordAlert(TradingAlert alert)
     {
         var alertKey = $"{alert.Symbol}_{alert.Type}";

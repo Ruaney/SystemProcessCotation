@@ -1,40 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HtmlAgilityPack;
 
-namespace SystemProcessCotation
+public class CotationService : ICotationService
 {
-    internal class CotationService : ICotationService
+    private readonly HttpClient _httpClient;
+    public CotationService()
     {
-        private readonly Random _random = new();
-        private readonly Dictionary<string, double> _lastPrices = new();
-        private double lastPrice = 0.0;
-
-     
-        public async Task<CotationResult> GetCotationAsync(string symbol)
-        {
-            var currentPrice = SimulatePriceMovement();
-
-            var result = new CotationResult
-            {
-                Symbol = symbol,
-                Price = currentPrice,
-                Timestamp = DateTime.Now
-            };
-            Console.WriteLine($"Cotação {symbol}: R$ {currentPrice:F2} ({DateTime.Now:HH:mm:ss})");
-
-            return await Task.FromResult(result);
-        }
-
-
-        private double SimulatePriceMovement()
-        {
-            Random random = new Random();
-            double currentPrice = random.NextDouble() * (23.0 - 22.0) + 22.0;
-            return currentPrice;
-        }
-
+        _httpClient = new HttpClient();
+        _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
     }
+    public async Task<CotationResult> GetCotationAsync(string symbol)
+    {
+        try
+        {
+            var url = $"https://www.fundamentus.com.br/detalhes.php?papel={symbol}";
+            var response = await _httpClient.GetStringAsync(url);
+            var doc = new HtmlDocument();
+            doc.LoadHtml(response);
+            var cotationNode = doc.DocumentNode.SelectSingleNode("//table[1]//tr[1]//td[@class='data destaque w3']/span[@class='txt']");
+
+            if (cotationNode != null)
+            {
+                var cotationText = cotationNode.InnerText.Trim();
+                if (decimal.TryParse(cotationText.Replace(",", "."), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out decimal price))
+                {
+                    var result = new CotationResult
+                    {
+                        Symbol = symbol,
+                        Price = (double)price,
+                        Timestamp = DateTime.Now
+                    };
+                    Console.WriteLine($"Cotação {symbol}: R$ {price:F2} ({DateTime.Now:HH:mm:ss})");
+                    return result;
+                }
+
+            }
+            throw new Exception($"Não foi possivel extrair a cotação para {symbol}");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Erro ao buscar cotação: {ex}");
+        }
+    }
+
 }
