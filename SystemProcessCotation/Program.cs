@@ -6,7 +6,6 @@ public class Program
     {
         try
         {
-            args = new string[] { "AALR3", "22.67", "22.59" };
             TradingSettings tradingSettings = CommandLineHelper.ParseArguments(args);
 
             var configService = ConfigurationService.Instance;
