@@ -33,7 +33,7 @@ Set-ExecutionPolicy Unrestricted
 
 ### Executar com um script pronto
 ```powershell
-.\script.ps1 PETR4 35.00 30.00
+cd .\SystemProcessCotation\ ; .\script.ps1 PETR4 32.54 32.51
 ``` 
 
 ### Confiuração
