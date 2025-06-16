@@ -10,10 +10,10 @@ public class TradingAlert{
     public DateTime Timestamp {get;set;} = DateTime.Now;
     
     public string GetMessage(){
-        var action = Type == AlertType.Buy? "Comprar" : "Vender";
+        var action = Type == AlertType.Buy? "Compra" : "Venda";
         return $"Alerta de {action} - {Symbol}\n\n"+
         $"Preço atual: R$ {CurrentPrice:F2}\n"+
-        $"Preço de referência: R$ {TargetPrice:F2}\n"+
+        $"Preço de referência configurado: R$ {TargetPrice:F2}\n"+
         $"Recomendação: {action} {Symbol} \n"+
         $"Horário: {Timestamp:dd/MM/yyyy HH:mm:ss}";
     }
