@@ -2,7 +2,6 @@ using System.ComponentModel;
 
 public class TradingService : ITradingService
 {
-    private readonly HashSet<string> _recentAlerts = new();
     private readonly TimeSpan _alertCooldown = TimeSpan.FromMinutes(1);
     private readonly Dictionary<string, DateTime> _lastAlertTimes = new();
     public Task<TradingAlert?> AnalyzeCotationAsync(CotationResult cotation, TradingSettings settings)
