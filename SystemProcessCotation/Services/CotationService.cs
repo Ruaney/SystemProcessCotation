@@ -1,13 +1,14 @@
-﻿using HtmlAgilityPack;
+using HtmlAgilityPack;
 
 public class CotationService : ICotationService
 {
     private readonly HttpClient _httpClient;
-    public CotationService()
+
+    public CotationService(HttpClient httpClient)
     {
-        _httpClient = new HttpClient();
-        _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+        _httpClient = httpClient;
     }
+
     public async Task<CotationResult> GetCotationAsync(string symbol, CancellationToken cancellationToken = default)
     {
         try
@@ -23,16 +24,13 @@ public class CotationService : ICotationService
                 var cotationText = cotationNode.InnerText.Trim();
                 if (decimal.TryParse(cotationText.Replace(",", "."), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out decimal price))
                 {
-                    var result = new CotationResult
+                    return new CotationResult
                     {
                         Symbol = symbol,
                         Price = (double)price,
                         Timestamp = DateTime.Now
                     };
-                    Console.WriteLine($"Cotação {symbol}: R$ {price:F2} ({DateTime.Now:HH:mm:ss})");
-                    return result;
                 }
-
             }
             throw new Exception($"Não foi possivel extrair a cotação para {symbol}");
         }
@@ -45,5 +43,4 @@ public class CotationService : ICotationService
             throw new Exception($"Erro ao buscar cotação: {ex}");
         }
     }
-
 }

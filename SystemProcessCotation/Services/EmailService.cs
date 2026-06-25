@@ -21,8 +21,6 @@ public class EmailService : IEmailService
             await client.AuthenticateAsync(settings.Username, settings.Password, cancellationToken);
             await client.SendAsync(mailMessage, cancellationToken);
             await client.DisconnectAsync(true, cancellationToken);
-
-            Console.WriteLine("Email enviado");
         }
         catch (Exception ex)
         {

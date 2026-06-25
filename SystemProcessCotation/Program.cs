@@ -1,80 +1,68 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using StackExchange.Redis;
 
 public class Program
 {
-
     public static async Task Main(string[] args)
     {
-        using var cts = new CancellationTokenSource();
-        Console.CancelKeyPress += (_, e) =>
+        // Segredos de SMTP continuam vindo do .env (quando presente).
+        if (File.Exists(".env"))
         {
-            e.Cancel = true;
-            cts.Cancel();
-            Console.WriteLine("\nEncerrando o monitoramento...");
-        };
+            DotNetEnv.Env.Load();
+        }
 
-        try
-        {
-            TradingSettings tradingSettings = CommandLineHelper.ParseArguments(args);
+        var builder = Host.CreateApplicationBuilder();
 
-            var configService = ConfigurationService.Instance;
-            var appSettings = configService.GetAppSettings(tradingSettings);
-            await RunMonitoringAsync(appSettings, cts.Token);
-        }
-        catch (OperationCanceledException)
+        // Ativo/preços: argumentos de linha de comando têm prioridade (compatibilidade
+        // com `dotnet run PETR4 22.67 22.59`); senão, lê a seção "Trading".
+        var tradingSettings = ResolveTradingSettings(args, builder.Configuration);
+        builder.Services.AddSingleton(tradingSettings);
+
+        // SMTP opcional: ausente => NotificationWorker apenas registra os alertas.
+        builder.Services.AddSingleton(new ConfigurationService().LoadSmtpSettings());
+
+        // Conexão única com o Redis (barramento + estado dos alertas).
+        var redisConnectionString = builder.Configuration.GetValue<string>("Redis:ConnectionString") ?? "localhost:6379";
+        builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
-            Console.WriteLine("Monitoramento encerrado.");
-        }
-        catch (Exception ex)
+            var options = ConfigurationOptions.Parse(redisConnectionString);
+            options.AbortOnConnectFail = false; // tolera o Redis subir depois (docker compose).
+            return ConnectionMultiplexer.Connect(options);
+        });
+
+        builder.Services.AddSingleton<IEventBus, RedisEventBus>();
+        builder.Services.AddSingleton<IAlertStateStore, RedisAlertStateStore>();
+        builder.Services.AddSingleton<ITradingService, TradingService>();
+        builder.Services.AddSingleton<IEmailService, EmailService>();
+        builder.Services.AddHttpClient<ICotationService, CotationService>(client =>
         {
-            Console.WriteLine($"Erro no aplicação: {ex.Message}");
-            await Task.Delay(3000);
-        }
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+        });
+
+        builder.Services.AddHostedService<CotationWorker>();
+        builder.Services.AddHostedService<TradingWorker>();
+        builder.Services.AddHostedService<NotificationWorker>();
+
+        var host = builder.Build();
+        await host.RunAsync();
     }
 
-    private static async Task RunMonitoringAsync(AppSettings appSettings, CancellationToken cancellationToken)
+    private static TradingSettings ResolveTradingSettings(string[] args, IConfiguration configuration)
     {
-        var settings = appSettings.TradingSettings;
-        var tradingService = new TradingService();
-        var cotationService = new CotationService();
-        var emailService = new EmailService();
-        var checkInterval = settings.CheckIntervalMs > 0 ? settings.CheckIntervalMs : 3000;
-        double lastPrice = 0.0;
-        var alertCount = 0;
-        while (!cancellationToken.IsCancellationRequested)
+        if (args.Length == 3)
         {
-            try
-            {
-                Console.WriteLine("Sistema de cotação");
-                Console.WriteLine("--------------------------------");
-                Console.WriteLine($"Ativo: {settings.StockSymbol}");
-                Console.WriteLine($"Venda quando >= R$ {settings.PriceToSell:F2}");
-                Console.WriteLine($"Compra quando <= R$ {settings.PriceToBuy:F2}");
-                Console.WriteLine($"Enviar alerta para: {appSettings.SmtpSettings.ToAddress}");
-                Console.WriteLine("--------------------------------");
-
-                var cotation = await cotationService.GetCotationAsync(settings.StockSymbol, cancellationToken);
-
-                var alert = await tradingService.AnalyzeCotationAsync(cotation, settings, cancellationToken);
-
-                if (alert != null && lastPrice != cotation.Price)
-                {
-                    await emailService.SendAlertAsync(appSettings.SmtpSettings.ToAddress, appSettings.SmtpSettings.FromAddress, alert.GetSubject(), alert.GetMessage(), appSettings.SmtpSettings, cancellationToken);
-                    alertCount++;
-                    lastPrice = cotation.Price;
-                }
-                Console.WriteLine("Total de alertas enviados: " + alertCount);
-                await Task.Delay(checkInterval, cancellationToken);
-                Console.Clear();
-            }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erro no monitoramento: {ex.Message}");
-                break;
-            }
+            return CommandLineHelper.ParseArguments(args);
         }
+
+        var section = configuration.GetSection("Trading");
+        return new TradingSettings
+        {
+            StockSymbol = (section.GetValue<string>("StockSymbol") ?? "PETR4").ToUpperInvariant(),
+            PriceToSell = section.GetValue<double>("PriceToSell"),
+            PriceToBuy = section.GetValue<double>("PriceToBuy"),
+            CheckIntervalMs = section.GetValue<int>("CheckIntervalMs")
+        };
     }
 }

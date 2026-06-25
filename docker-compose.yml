@@ -1,0 +1,28 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: cotation-redis
+    ports:
+      - "6379:6379"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cotation-worker
+    depends_on:
+      - redis
+    environment:
+      # O barramento e o estado dos alertas usam este Redis.
+      - Redis__ConnectionString=redis:6379
+      # SMTP é opcional: sem credenciais, os alertas são apenas registrados em log.
+      # Para enviar email de verdade, descomente e preencha:
+      # - HOST=smtp.gmail.com
+      # - PORT=587
+      # - USERNAME=seu_usuario
+      # - PASSWORD=sua_senha_de_app
+      # - FROM=de@exemplo.com
+      # - TO=para@exemplo.com
+    # Ativo e preços (venda / compra). Limiares abaixo forçam um alerta de VENDA
+    # para fins de demonstração; ajuste para o seu caso real.
+    command: ["PETR4", "1.00", "0.50"]
