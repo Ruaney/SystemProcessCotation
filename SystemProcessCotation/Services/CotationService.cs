@@ -8,12 +8,12 @@ public class CotationService : ICotationService
         _httpClient = new HttpClient();
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
     }
-    public async Task<CotationResult> GetCotationAsync(string symbol)
+    public async Task<CotationResult> GetCotationAsync(string symbol, CancellationToken cancellationToken = default)
     {
         try
         {
             var url = $"https://www.fundamentus.com.br/detalhes.php?papel={symbol}";
-            var response = await _httpClient.GetStringAsync(url);
+            var response = await _httpClient.GetStringAsync(url, cancellationToken);
             var doc = new HtmlDocument();
             doc.LoadHtml(response);
             var cotationNode = doc.DocumentNode.SelectSingleNode("//table[1]//tr[1]//td[@class='data destaque w3']/span[@class='txt']");
@@ -35,6 +35,10 @@ public class CotationService : ICotationService
 
             }
             throw new Exception($"Não foi possivel extrair a cotação para {symbol}");
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {

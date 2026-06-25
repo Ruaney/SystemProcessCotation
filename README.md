@@ -8,6 +8,8 @@ Monitoração de preços que envia alertas por email de quando comprar/vender ao
 + mensagens mais detalhadas no console
 + sistema só envia um novo alerta se o preço mudar, evitando spam
 + intervalo para as verificações da cotação
++ envio de email totalmente assíncrono (MailKit), sem bloquear o loop de monitoramento
++ encerramento gracioso com Ctrl+C (cancelamento via CancellationToken)
 
 ### como executar
 dotnet run **Ativo preçoVenda preçoCompra**

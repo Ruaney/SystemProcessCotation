@@ -4,8 +4,9 @@ public class TradingService : ITradingService
 {
     private readonly TimeSpan _alertCooldown = TimeSpan.FromMinutes(1);
     private readonly Dictionary<string, DateTime> _lastAlertTimes = new();
-    public Task<TradingAlert?> AnalyzeCotationAsync(CotationResult cotation, TradingSettings settings)
+    public Task<TradingAlert?> AnalyzeCotationAsync(CotationResult cotation, TradingSettings settings, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         if (!cotation.IsValid)
         {
             return Task.FromResult<TradingAlert?>(null);
