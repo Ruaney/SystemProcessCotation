@@ -1,25 +1,26 @@
-//import in c# style
-
-using System.Net;
-using System.Net.Mail;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 using MimeKit;
 
 public class EmailService : IEmailService
 {
-
-    public void SendAlert(string to, string from, string subject, string message, SmtpSettings settings)
+    public async Task SendAlertAsync(string to, string from, string subject, string message, SmtpSettings settings, CancellationToken cancellationToken = default)
     {
         try
         {
-            using var client = new SmtpClient(settings.Host, settings.Port)
-            {
-                Credentials = new NetworkCredential(settings.Username, settings.Password),
-                EnableSsl = settings.EnableSsl
-            };
+            var mailMessage = new MimeMessage();
+            mailMessage.From.Add(MailboxAddress.Parse(from));
+            mailMessage.To.Add(MailboxAddress.Parse(to));
+            mailMessage.Subject = subject;
+            mailMessage.Body = new TextPart("plain") { Text = message };
 
-            using var mailMessage = new MailMessage(from, to, subject, message);
-            client.Send(mailMessage);
-            Console.WriteLine("Email enviado");
+            using var client = new SmtpClient();
+            var secureOption = settings.EnableSsl ? SecureSocketOptions.Auto : SecureSocketOptions.None;
+
+            await client.ConnectAsync(settings.Host, settings.Port, secureOption, cancellationToken);
+            await client.AuthenticateAsync(settings.Username, settings.Password, cancellationToken);
+            await client.SendAsync(mailMessage, cancellationToken);
+            await client.DisconnectAsync(true, cancellationToken);
         }
         catch (Exception ex)
         {

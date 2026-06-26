@@ -1,3 +1,4 @@
-public interface IConfigurationService{
-    AppSettings GetAppSettings(TradingSettings tradingSettings);
+public interface IConfigurationService
+{
+    SmtpSettings LoadSmtpSettings();
 }

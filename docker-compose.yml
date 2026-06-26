@@ -1,0 +1,45 @@
+services:
+  localstack:
+    image: localstack/localstack:3
+    container_name: cotation-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sns,sqs
+      # URLs de fila no formato de caminho, resolvíveis dentro da rede do compose.
+      - SQS_ENDPOINT_STRATEGY=path
+
+  redis:
+    image: redis:7-alpine
+    container_name: cotation-redis
+    ports:
+      - "6379:6379"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cotation-worker
+    depends_on:
+      - localstack
+      - redis
+    environment:
+      # Barramento SNS/SQS via LocalStack.
+      - Aws__ServiceUrl=http://localstack:4566
+      - Aws__Region=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+      # Estado dos alertas (preço/cooldown).
+      - Redis__ConnectionString=redis:6379
+      # SMTP é opcional: sem credenciais, os alertas são apenas registrados em log.
+      # Para enviar email de verdade, descomente e preencha:
+      # - HOST=smtp.gmail.com
+      # - PORT=587
+      # - USERNAME=seu_usuario
+      # - PASSWORD=sua_senha_de_app
+      # - FROM=de@exemplo.com
+      # - TO=para@exemplo.com
+    # Ativo e preços (venda / compra). Limiares abaixo forçam um alerta de VENDA
+    # para fins de demonstração; ajuste para o seu caso real.
+    command: ["PETR4", "1.00", "0.50"]

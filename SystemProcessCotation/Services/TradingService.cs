@@ -1,22 +1,34 @@
-using System.ComponentModel;
+using Microsoft.Extensions.Logging;
 
+/// <summary>
+/// Regra de negócio pura: decide se a cotação dispara um alerta de compra ou venda.
+/// A deduplicação (preço mudou + cooldown) ficou a cargo do <see cref="IAlertStateStore"/>,
+/// consumido pelo <see cref="TradingWorker"/>.
+/// </summary>
 public class TradingService : ITradingService
 {
-    private readonly TimeSpan _alertCooldown = TimeSpan.FromMinutes(1);
-    private readonly Dictionary<string, DateTime> _lastAlertTimes = new();
-    public Task<TradingAlert?> AnalyzeCotationAsync(CotationResult cotation, TradingSettings settings)
+    private readonly ILogger<TradingService> _logger;
+
+    public TradingService(ILogger<TradingService> logger)
     {
+        _logger = logger;
+    }
+
+    public Task<TradingAlert?> AnalyzeCotationAsync(CotationResult cotation, TradingSettings settings, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!cotation.IsValid)
         {
             return Task.FromResult<TradingAlert?>(null);
         }
-        TradingAlert? alert = null;
+
         if (cotation.Price < settings.PriceToBuy && cotation.Price < settings.PriceToSell)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Atenção: Informe um preço de compra e venda entre o preço atual do ativo para maior consistência dos alertas.");
-            Console.ResetColor();
+            _logger.LogWarning("Informe preços de compra/venda em torno do preço atual do ativo para alertas mais consistentes.");
         }
+
+        TradingAlert? alert = null;
         if (cotation.Price >= settings.PriceToSell)
         {
             alert = new TradingAlert
@@ -26,9 +38,7 @@ public class TradingService : ITradingService
                 CurrentPrice = cotation.Price,
                 TargetPrice = settings.PriceToSell
             };
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Venda: {cotation.Symbol} R$ {cotation.Price:F2} (target: R$ {settings.PriceToSell:F2})");
-            Console.ResetColor();
+            _logger.LogInformation("VENDA: {Symbol} R$ {Price:F2} (alvo: R$ {Target:F2})", cotation.Symbol, cotation.Price, settings.PriceToSell);
         }
         else if (cotation.Price <= settings.PriceToBuy)
         {
@@ -39,34 +49,9 @@ public class TradingService : ITradingService
                 CurrentPrice = cotation.Price,
                 TargetPrice = settings.PriceToBuy
             };
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"COMPRA: {cotation.Symbol} R$ {cotation.Price:F2} (target: R$ {settings.PriceToBuy:F2})");
-            Console.ResetColor();
+            _logger.LogInformation("COMPRA: {Symbol} R$ {Price:F2} (alvo: R$ {Target:F2})", cotation.Symbol, cotation.Price, settings.PriceToBuy);
         }
 
-        if (alert != null && ShouldSendAlert(alert))
-        {
-            RecordAlert(alert);
-            return Task.FromResult(alert);
-        }
-        return Task.FromResult<TradingAlert?>(null);
-    }
-
-    private bool ShouldSendAlert(TradingAlert alert)
-    {
-        var alertKey = $"{alert.Symbol}_{alert.Type}";
-        if (_lastAlertTimes.TryGetValue(alertKey, out var lastTime))
-        {
-            return DateTime.Now - lastTime >= _alertCooldown;
-        }
-        return true;
-    }
-
-
-    private void RecordAlert(TradingAlert alert)
-    {
-        var alertKey = $"{alert.Symbol}_{alert.Type}";
-        _lastAlertTimes[alertKey] = DateTime.Now;
+        return Task.FromResult(alert);
     }
 }
