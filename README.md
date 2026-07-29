@@ -1,127 +1,162 @@
 # System Process Cotation
 
-Monitoração de preços que envia alertas por email de quando comprar/vender ao atingir um limite.
+> Event-driven stock-price monitor built in **.NET 9 / C#**. It continuously tracks an asset's price and sends a **buy/sell email alert** when the price crosses a target threshold.
 
-O sistema é **assíncrono e orientado a eventos**: roda como um conjunto de *workers*
-em segundo plano que se comunicam por um **barramento de mensagens AWS (SNS + SQS)**.
+![Demo](SystemProcessCotation/assets/demo.gif)
 
-### features
-+ arquitetura desacoplada com **.NET Generic Host** + 3 `BackgroundService`
-+ **AWS SNS + SQS** como barramento: tópicos SNS (fan-out) entregando em filas SQS (durável)
-+ **estado dos alertas no Redis** (preço/cooldown) — sem estado em memória
-+ envio de email totalmente assíncrono (MailKit), sem bloquear o monitoramento
-+ só envia um novo alerta se o preço mudar e fora do cooldown, evitando spam
-+ encerramento gracioso (Ctrl+C / SIGTERM) gerenciado pelo host
-+ pronto para rodar com **Docker Compose** (LocalStack + Redis + worker) — sem conta AWS
+---
 
-## Arquitetura
+## What this project demonstrates
 
-Três workers em um único processo, conectados por SNS/SQS. Cada canal é um **tópico SNS**
-com uma **fila SQS** inscrita: o produtor publica no tópico (`sns:Publish`) e o consumidor
-faz long-poll na fila (`sqs:ReceiveMessage` + `DeleteMessage`).
+Beyond the feature itself, the codebase is a compact showcase of production-style backend patterns:
+
+- **Event-driven pipeline** — three decoupled background workers communicating over a message bus (producer → analyzer → notifier).
+- **Pub/Sub messaging** — an SNS (topics) + SQS (queues) event bus, runnable fully offline via **LocalStack** or against real AWS.
+- **Clean architecture & DI** — every component sits behind an interface and is wired through the .NET Generic Host container; business rules are isolated from I/O.
+- **Stateful deduplication** — **Redis** stores the last alert price and a cooldown window, so users aren't spammed with repeated alerts.
+- **Graceful degradation** — with no SMTP configured, alerts are logged instead of emailed, so the whole system is demoable without credentials.
+- **Containerized** — a single `docker compose up` spins up the app, Redis, and the LocalStack AWS emulator.
+
+---
+
+## Architecture
 
 ```
-CotationWorker ─publish▶ SNS "cotations" ─▶ SQS "cotations" ─▶ TradingWorker ─publish▶ SNS "alerts" ─▶ SQS "alerts" ─▶ NotificationWorker
- (busca cotação)             (tópico)            (fila)          (decide compra/venda)      (tópico)         (fila)        (envia email / loga)
+                 ┌──────────────────┐   publishes   ┌──────────────┐
+  price source   │  CotationWorker  │ ────────────▶ │   cotations  │
+ (web scrape) ──▶│    (producer)    │               │   (bus topic)│
+                 └──────────────────┘               └──────┬───────┘
+                                                           │ subscribes
+                                                           ▼
+                 ┌──────────────────┐   Redis dedup  ┌──────────────┐
+    email    ◀───│ NotificationWkr  │ ◀───────────── │ TradingWorker│
+   (MailKit)     │   (consumer)     │   publishes    │(analyzer)    │
+                 └──────────────────┘  ┌──────────┐  └──────┬───────┘
+                          ▲            │  alerts   │◀────────┘
+                          └────────────│ (bus topic)│
+                                       └──────────┘
 ```
 
-- **CotationWorker** (produtor): a cada intervalo busca a cotação e publica no tópico `cotations`.
-- **TradingWorker** (consumidor/produtor): consome a fila `cotations`, decide compra/venda,
-  aplica a deduplicação (preço mudou + cooldown) via Redis e publica no tópico `alerts`.
-- **NotificationWorker** (consumidor): consome a fila `alerts` e envia o email;
-  sem SMTP configurado, apenas registra o alerta.
+1. **CotationWorker** (producer) — on a fixed interval, fetches the asset's current price and publishes it to the `cotations` channel.
+2. **TradingWorker** (analyzer) — subscribes to `cotations`, applies the buy/sell rule, filters out repeats via a Redis cooldown, and publishes qualifying `alerts`.
+3. **NotificationWorker** (consumer) — subscribes to `alerts` and sends the email (or logs it if SMTP is off).
 
-> O `SnsSqsInitializer` provisiona tópicos, filas e inscrições no startup (idempotente,
-> com retry para o cold start do LocalStack) antes de qualquer worker publicar/consumir.
+---
 
-## O sistema funcionando
+## Tech stack
 
-Saída real de `docker compose up` (limiares de demonstração forçando um alerta de VENDA):
+| Area | Technology |
+|------|-----------|
+| Runtime | .NET 9, C# |
+| Hosting / DI | `Microsoft.Extensions.Hosting` (Generic Host, `BackgroundService`) |
+| Messaging | AWS **SNS + SQS** (`AWSSDK`), LocalStack for local dev |
+| State | **Redis** (`StackExchange.Redis`) |
+| Email | **MailKit** (SMTP) |
+| Price scraping | `HttpClient` + **HtmlAgilityPack** |
+| Config | `appsettings.json`, command-line args, `.env` (`DotNetEnv`) |
+| Infra | Docker, Docker Compose |
 
-```text
-info: SnsSqsInitializer[0]
-      Provisionando tópicos SNS e filas SQS...
-info: SnsSqsInitializer[0]
-      Barramento SNS/SQS pronto (canais: 'cotations', 'alerts')
-info: CotationWorker[0]
-      Monitorando PETR4 | venda >= R$ 1.00 | compra <= R$ 0.50 | intervalo 3000ms
-info: Microsoft.Hosting.Lifetime[0]
-      Application started. Press Ctrl+C to shut down.
-info: SnsSqsEventBus[0]
-      Consumindo a fila SQS 'cotations'
-info: SnsSqsEventBus[0]
-      Consumindo a fila SQS 'alerts'
-info: CotationWorker[0]
-      Cotação PETR4: R$ 38.29
-info: TradingService[0]
-      VENDA: PETR4 R$ 38.29 (alvo: R$ 1.00)
-info: TradingWorker[0]
-      Alerta de Sell para PETR4 a R$ 38.29 → publicando em 'alerts'
-warn: NotificationWorker[0]
-      SMTP não configurado — alerta apenas registrado.
-      Assunto: Alerta VENDA - PETR4 - R$ 38.29
-      Alerta de Venda - PETR4
+> **Note on the price source:** prices are scraped from a public Brazilian equities page (Fundamentus). Scrapers are inherently fragile — treat the fetch layer as a swappable adapter behind `ICotationService`, and plug in a proper market-data API for production use.
 
-      Preço atual: R$ 38.29
-      Preço de referência configurado: R$ 1.00
-      Recomendação: Venda PETR4
-      Horário: 25/06/2026 21:22:40
-info: CotationWorker[0]
-      Cotação PETR4: R$ 38.29
-info: TradingService[0]
-      VENDA: PETR4 R$ 38.29 (alvo: R$ 1.00)   ← preço repetido: NÃO gera novo alerta (dedup no Redis)
-```
+---
 
-Tópicos, filas e inscrições criados (via `awslocal` no LocalStack):
+## Getting started
 
-```text
-$ awslocal sns list-topics
-  arn:aws:sns:us-east-1:000000000000:cotations
-  arn:aws:sns:us-east-1:000000000000:alerts
-$ awslocal sqs list-queues
-  .../000000000000/cotations
-  .../000000000000/alerts
-$ awslocal sns list-subscriptions   # protocolo sqs em ambos os tópicos
-```
+### Option 1 — Docker Compose (recommended)
 
-## Como executar
-
-### Com Docker Compose (recomendado)
-
-Sobe LocalStack (SNS/SQS), Redis e o worker juntos — não precisa de conta AWS:
+Brings up the worker, Redis, and LocalStack together:
 
 ```bash
 docker compose up --build
 ```
 
-O ativo e os preços são passados em `docker-compose.yml` (`command: ["PETR4", "1.00", "0.50"]`).
+The default thresholds in `docker-compose.yml` are set to force a demo **SELL** alert. Adjust the asset and prices there for your own scenario.
 
-### Localmente
+### Option 2 — Run locally with .NET
 
-É preciso ter SNS/SQS (LocalStack) e Redis acessíveis:
+You'll need the **.NET 9 SDK**, plus Redis and LocalStack (or real AWS) reachable at the addresses in `appsettings.json`.
 
 ```bash
-docker run -p 4566:4566 localstack/localstack:3   # SNS + SQS
-docker run -p 6379:6379 redis:7-alpine            # estado dos alertas
-dotnet run --project SystemProcessCotation PETR4 22.67 22.59
+cd SystemProcessCotation
+
+# Usage: dotnet run <ASSET> <sellPrice> <buyPrice>
+dotnet run PETR4 22.67 22.59
 ```
 
-Sem argumentos, o ativo e os preços são lidos da seção `Trading` em `appsettings.json`.
+Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json`.
 
-### Gerar executável
+### Build a standalone executable
 
 ```bash
 dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true
+
+# then run it:
+bin\Release\net9.0\win-x64\publish\SystemProcessCotation.exe PETR4 35.00 30.00
 ```
 
-## Configuração
+### Run via the PowerShell helper script
 
-- **AWS / SNS+SQS**: seção `Aws` em `appsettings.json` ou variáveis `Aws__*`.
-  Com `Aws:ServiceUrl` definido (ex.: `http://localstack:4566`) usa LocalStack com
-  credenciais de teste; deixe vazio para usar a **AWS real** (cadeia padrão de credenciais
-  e `Aws:Region`).
-- **Redis**: `Redis:ConnectionString` em `appsettings.json` ou `Redis__ConnectionString`
-  (o compose já aponta para `redis:6379`).
-- **SMTP (opcional)**: renomeie `.env.example` para `.env` e preencha os campos
-  (`HOST`, `PORT`, `USERNAME`, `PASSWORD`, `FROM`, `TO`). Sem SMTP, os alertas
-  são apenas registrados em log.
+```powershell
+Set-ExecutionPolicy Unrestricted   # once, if scripts are blocked
+cd .\SystemProcessCotation\
+.\script.ps1 PETR4 32.54 32.51
+```
+
+---
+
+## Configuration
+
+### Trading & infrastructure — `appsettings.json`
+
+```jsonc
+{
+  "Aws":   { "Region": "us-east-1", "ServiceUrl": "http://localhost:4566" },
+  "Redis": { "ConnectionString": "localhost:6379" },
+  "Trading": {
+    "StockSymbol": "PETR4",
+    "PriceToSell": 999.0,     // alert when price >= this
+    "PriceToBuy":  0.01,      // alert when price <= this
+    "CheckIntervalMs": 5000   // polling interval
+  }
+}
+```
+
+- Leave `Aws:ServiceUrl` empty to target **real AWS** (uses the default credential chain); set it to the LocalStack URL for offline runs.
+
+### Email (SMTP) — optional
+
+SMTP is **optional**. Without it, alerts are written to the log instead of emailed. To enable email, copy `.env.example` to `.env` and fill in:
+
+```env
+HOST=smtp.gmail.com
+PORT=587
+USERNAME=your_user
+PASSWORD=your_app_password
+FROM=from@example.com
+TO=to@example.com
+```
+
+---
+
+## Project structure
+
+```
+SystemProcessCotation/
+├── Program.cs                # Host + DI wiring, config resolution
+├── Workers/                  # BackgroundService pipeline
+│   ├── CotationWorker.cs     #   producer: fetch & publish prices
+│   ├── TradingWorker.cs      #   analyzer: buy/sell rule + Redis dedup
+│   └── NotificationWorker.cs #   consumer: send/log email
+├── Bus/                      # SNS/SQS event bus + provisioning
+├── Services/                 # Cotation, Trading, Email, Redis state, Config
+├── Interfaces/               # Contracts for every service (clean architecture)
+├── Models/                   # CotationResult, TradingAlert
+├── Utils/                    # Command-line parsing
+└── appsettings.json
+```
+
+---
+
+## License
+
+Released for portfolio and educational purposes. Feel free to explore and adapt.
