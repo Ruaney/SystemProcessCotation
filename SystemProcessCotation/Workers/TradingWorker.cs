@@ -7,13 +7,14 @@ using Microsoft.Extensions.Logging;
 /// </summary>
 public class TradingWorker : BackgroundService
 {
-    private static readonly TimeSpan AlertCooldown = TimeSpan.FromMinutes(1);
+    private const int DefaultAlertCooldownSeconds = 60;
 
     private readonly IEventBus _bus;
     private readonly ITradingService _tradingService;
     private readonly IAlertStateStore _state;
     private readonly ILogger<TradingWorker> _logger;
     private readonly TradingSettings _settings;
+    private readonly TimeSpan _alertCooldown;
 
     public TradingWorker(IEventBus bus, ITradingService tradingService, IAlertStateStore state, ILogger<TradingWorker> logger, TradingSettings settings)
     {
@@ -22,6 +23,8 @@ public class TradingWorker : BackgroundService
         _state = state;
         _logger = logger;
         _settings = settings;
+        _alertCooldown = TimeSpan.FromSeconds(
+            settings.AlertCooldownSeconds > 0 ? settings.AlertCooldownSeconds : DefaultAlertCooldownSeconds);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -38,7 +41,7 @@ public class TradingWorker : BackgroundService
             return;
         }
 
-        if (!await _state.ShouldAlertAsync(alert, AlertCooldown))
+        if (!await _state.ShouldAlertAsync(alert, _alertCooldown))
         {
             _logger.LogDebug("Alerta de {Type} para {Symbol} ignorado (preço repetido ou em cooldown)", alert.Type, alert.Symbol);
             return;

@@ -10,6 +10,7 @@ public class CommandLineHelperTests
         Assert.Equal("PETR4", settings.StockSymbol);
         Assert.Equal(35.50, settings.PriceToSell);
         Assert.Equal(30.25, settings.PriceToBuy);
+        Assert.Equal(60, settings.AlertCooldownSeconds);
     }
 
     [Fact]

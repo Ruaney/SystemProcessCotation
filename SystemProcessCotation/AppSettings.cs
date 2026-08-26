@@ -10,4 +10,5 @@ public class TradingSettings
     public double PriceToSell { get; set; }
     public double PriceToBuy { get; set; }
     public int CheckIntervalMs { get; set; }
+    public int AlertCooldownSeconds { get; set; } = 60;
 }

@@ -109,7 +109,8 @@ public class Program
             StockSymbol = (section.GetValue<string>("StockSymbol") ?? "PETR4").ToUpperInvariant(),
             PriceToSell = section.GetValue<double>("PriceToSell"),
             PriceToBuy = section.GetValue<double>("PriceToBuy"),
-            CheckIntervalMs = section.GetValue<int>("CheckIntervalMs")
+            CheckIntervalMs = section.GetValue<int>("CheckIntervalMs"),
+            AlertCooldownSeconds = section.GetValue<int?>("AlertCooldownSeconds") ?? 60
         };
     }
 }
