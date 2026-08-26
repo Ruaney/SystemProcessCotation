@@ -116,7 +116,8 @@ cd .\SystemProcessCotation\
     "StockSymbol": "PETR4",
     "PriceToSell": 999.0,     // alert when price >= this
     "PriceToBuy":  0.01,      // alert when price <= this
-    "CheckIntervalMs": 5000   // polling interval
+    "CheckIntervalMs": 5000,  // polling interval
+    "AlertCooldownSeconds": 60 // suppress repeated alerts
   }
 }
 ```
@@ -126,6 +127,10 @@ cd .\SystemProcessCotation\
 ### Email (SMTP) — optional
 
 SMTP is **optional**. Without it, alerts are written to the log instead of emailed. To enable email, copy `.env.example` to `.env` and fill in:
+
+```bash
+cp .env.example .env
+```
 
 ```env
 HOST=smtp.gmail.com
