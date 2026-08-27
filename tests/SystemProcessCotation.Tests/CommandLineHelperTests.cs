@@ -10,6 +10,7 @@ public class CommandLineHelperTests
         Assert.Equal("PETR4", settings.StockSymbol);
         Assert.Equal(35.50, settings.PriceToSell);
         Assert.Equal(30.25, settings.PriceToBuy);
+        Assert.Equal(3000, settings.CheckIntervalMs);
         Assert.Equal(60, settings.AlertCooldownSeconds);
     }
 
@@ -38,5 +39,39 @@ public class CommandLineHelperTests
             () => global::CommandLineHelper.ParseArguments(["PETR4", "35.00", "0"]));
 
         Assert.Contains("maiores que zero", exception.Message);
+    }
+
+    [Fact]
+    public void NormalizeAndValidate_NormalizesSymbolAndDefaultsTiming()
+    {
+        var settings = new global::TradingSettings
+        {
+            StockSymbol = " petr4 ",
+            PriceToSell = 35.50,
+            PriceToBuy = 30.25,
+            CheckIntervalMs = 0,
+            AlertCooldownSeconds = -1
+        };
+
+        settings.NormalizeAndValidate();
+
+        Assert.Equal("PETR4", settings.StockSymbol);
+        Assert.Equal(3000, settings.CheckIntervalMs);
+        Assert.Equal(60, settings.AlertCooldownSeconds);
+    }
+
+    [Fact]
+    public void NormalizeAndValidate_RejectsInvalidConfiguredThresholds()
+    {
+        var settings = new global::TradingSettings
+        {
+            StockSymbol = "PETR4",
+            PriceToSell = 30.00,
+            PriceToBuy = 30.00
+        };
+
+        var exception = Assert.Throws<ArgumentException>(() => settings.NormalizeAndValidate());
+
+        Assert.Contains("venda deve ser maior", exception.Message);
     }
 }
