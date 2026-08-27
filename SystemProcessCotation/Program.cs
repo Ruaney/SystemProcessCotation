@@ -98,7 +98,7 @@ public class Program
 
     private static TradingSettings ResolveTradingSettings(string[] args, IConfiguration configuration)
     {
-        if (args.Length == 3)
+        if (args.Length > 0)
         {
             return CommandLineHelper.ParseArguments(args);
         }
@@ -111,6 +111,6 @@ public class Program
             PriceToBuy = section.GetValue<double>("PriceToBuy"),
             CheckIntervalMs = section.GetValue<int>("CheckIntervalMs"),
             AlertCooldownSeconds = section.GetValue<int?>("AlertCooldownSeconds") ?? 60
-        };
+        }.NormalizeAndValidate();
     }
 }
