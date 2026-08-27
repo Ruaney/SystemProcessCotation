@@ -53,13 +53,12 @@ public class CotationService : ICotationService
 
     private static string NormalizeSymbol(string symbol)
     {
-        var normalizedSymbol = symbol.Trim().ToUpperInvariant();
-        if (string.IsNullOrWhiteSpace(normalizedSymbol))
+        if (string.IsNullOrWhiteSpace(symbol))
         {
             throw new ArgumentException("O código do ativo é obrigatório.", nameof(symbol));
         }
 
-        return normalizedSymbol;
+        return symbol.Trim().ToUpperInvariant();
     }
 
     private static string? ExtractCotationText(HtmlDocument doc)
