@@ -22,9 +22,13 @@ public class EmailService : IEmailService
             await client.SendAsync(mailMessage, cancellationToken);
             await client.DisconnectAsync(true, cancellationToken);
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
-            throw new Exception($"Error ao enviar email: {ex}");
+            throw new InvalidOperationException("Erro ao enviar email.", ex);
         }
     }
 }
