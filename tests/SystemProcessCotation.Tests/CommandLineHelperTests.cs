@@ -15,6 +15,15 @@ public class CommandLineHelperTests
     }
 
     [Fact]
+    public void ParseArguments_AcceptsBrazilianDecimalSeparator()
+    {
+        var settings = global::CommandLineHelper.ParseArguments(["PETR4", "35,50", "30,25"]);
+
+        Assert.Equal(35.50, settings.PriceToSell);
+        Assert.Equal(30.25, settings.PriceToBuy);
+    }
+
+    [Fact]
     public void ParseArguments_RejectsEmptySymbol()
     {
         var exception = Assert.Throws<ArgumentException>(
