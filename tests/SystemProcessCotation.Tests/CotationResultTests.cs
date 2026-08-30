@@ -22,6 +22,21 @@ public class CotationResultTests
         Assert.False(cotation.IsValid);
     }
 
+    [Theory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity)]
+    public void IsValid_ReturnsFalseWhenPriceIsNotFinite(double price)
+    {
+        var cotation = new global::CotationResult
+        {
+            Symbol = "PETR4",
+            Price = price
+        };
+
+        Assert.False(cotation.IsValid);
+    }
+
     [Fact]
     public void IsValid_ReturnsTrueWhenSymbolAndPriceArePresent()
     {
