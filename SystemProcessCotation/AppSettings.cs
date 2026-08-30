@@ -23,9 +23,9 @@ public class TradingSettings
             throw new ArgumentException("O código do ativo é obrigatório.");
         }
 
-        if (PriceToSell <= 0 || PriceToBuy <= 0)
+        if (!double.IsFinite(PriceToSell) || !double.IsFinite(PriceToBuy) || PriceToSell <= 0 || PriceToBuy <= 0)
         {
-            throw new ArgumentException("Os preços devem ser maiores que zero.");
+            throw new ArgumentException("Os preços devem ser maiores que zero e finitos.");
         }
 
         if (PriceToSell <= PriceToBuy)

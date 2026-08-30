@@ -92,4 +92,23 @@ public class CommandLineHelperTests
 
         Assert.Contains("venda deve ser maior", exception.Message);
     }
+
+    [Theory]
+    [InlineData(double.NaN, 30.00)]
+    [InlineData(double.PositiveInfinity, 30.00)]
+    [InlineData(35.00, double.NaN)]
+    [InlineData(35.00, double.PositiveInfinity)]
+    public void NormalizeAndValidate_RejectsNonFiniteThresholds(double sellPrice, double buyPrice)
+    {
+        var settings = new global::TradingSettings
+        {
+            StockSymbol = "PETR4",
+            PriceToSell = sellPrice,
+            PriceToBuy = buyPrice
+        };
+
+        var exception = Assert.Throws<ArgumentException>(() => settings.NormalizeAndValidate());
+
+        Assert.Contains("finitos", exception.Message);
+    }
 }
