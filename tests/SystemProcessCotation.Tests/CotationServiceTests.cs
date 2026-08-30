@@ -31,6 +31,32 @@ public class CotationServiceTests
     }
 
     [Fact]
+    public async Task GetCotationAsync_ParsesCurrencyFormattedPrice()
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>Cotação</td>
+                            <td><span class="txt">R$ 1.234,56</span></td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(1234.56, result.Price);
+    }
+
+    [Fact]
     public async Task GetCotationAsync_ThrowsWhenResponseIsNotSuccessful()
     {
         using var client = new HttpClient(new StubHttpMessageHandler(_ =>
