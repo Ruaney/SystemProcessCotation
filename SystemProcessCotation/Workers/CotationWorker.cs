@@ -38,6 +38,10 @@ public class CotationWorker : BackgroundService
                     _logger.LogInformation("Cotação {Symbol}: R$ {Price:F2}", cotation.Symbol, cotation.Price);
                     await _bus.PublishAsync(Channels.Cotations, cotation, stoppingToken);
                 }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Erro ao obter/publicar cotação");
