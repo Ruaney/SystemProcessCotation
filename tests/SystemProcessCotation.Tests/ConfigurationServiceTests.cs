@@ -41,4 +41,18 @@ public class ConfigurationServiceTests : IDisposable
 
         Assert.Equal(expected, settings.EnableSsl);
     }
+
+    [Theory]
+    [InlineData("-1")]
+    [InlineData("0")]
+    [InlineData("65536")]
+    [InlineData("not-a-port")]
+    public void LoadSmtpSettings_NormalizesInvalidPortsToZero(string portValue)
+    {
+        Environment.SetEnvironmentVariable("PORT", portValue);
+
+        var settings = new global::ConfigurationService().LoadSmtpSettings();
+
+        Assert.Equal(0, settings.Port);
+    }
 }
