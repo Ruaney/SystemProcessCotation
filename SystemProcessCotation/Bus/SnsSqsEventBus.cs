@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 public class SnsSqsEventBus : IEventBus
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private const int MaxQueueNameLength = 80;
 
     private readonly IAmazonSimpleNotificationService _sns;
     private readonly IAmazonSQS _sqs;
@@ -31,6 +32,8 @@ public class SnsSqsEventBus : IEventBus
 
     public async Task PublishAsync<T>(string channel, T message, CancellationToken cancellationToken = default)
     {
+        channel = ValidateChannel(channel);
+
         var topicArn = await GetOrCreateTopicArnAsync(channel, cancellationToken);
         var payload = JsonSerializer.Serialize(message, JsonOptions);
         await _sns.PublishAsync(new PublishRequest { TopicArn = topicArn, Message = payload }, cancellationToken);
@@ -39,6 +42,9 @@ public class SnsSqsEventBus : IEventBus
 
     public async Task SubscribeAsync<T>(string channel, Func<T, CancellationToken, Task> handler, CancellationToken cancellationToken = default)
     {
+        channel = ValidateChannel(channel);
+        ArgumentNullException.ThrowIfNull(handler);
+
         var queueUrl = await EnsureChannelAsync(channel, cancellationToken);
         _logger.LogInformation("Consumindo a fila SQS '{Channel}'", channel);
 
@@ -91,8 +97,32 @@ public class SnsSqsEventBus : IEventBus
     /// Garante (de forma idempotente, com retry para o cold start do LocalStack) que o
     /// tópico SNS, a fila SQS e a inscrição entre eles existem. Retorna a URL da fila.
     /// </summary>
-    public Task<string> EnsureChannelAsync(string channel, CancellationToken cancellationToken) =>
-        RetryAsync(() => SetupChannelAsync(channel, cancellationToken), channel, cancellationToken);
+    public Task<string> EnsureChannelAsync(string channel, CancellationToken cancellationToken)
+    {
+        channel = ValidateChannel(channel);
+        return RetryAsync(() => SetupChannelAsync(channel, cancellationToken), channel, cancellationToken);
+    }
+
+    private static string ValidateChannel(string channel)
+    {
+        if (string.IsNullOrWhiteSpace(channel))
+        {
+            throw new ArgumentException("O canal do barramento é obrigatório.", nameof(channel));
+        }
+
+        var normalized = channel.Trim();
+        if (normalized.Length > MaxQueueNameLength)
+        {
+            throw new ArgumentException($"O canal do barramento deve ter no máximo {MaxQueueNameLength} caracteres.", nameof(channel));
+        }
+
+        if (normalized.Any(c => !char.IsLetterOrDigit(c) && c is not '-' and not '_'))
+        {
+            throw new ArgumentException("O canal do barramento deve conter apenas letras, números, '-' ou '_'.", nameof(channel));
+        }
+
+        return normalized;
+    }
 
     private async Task<string> SetupChannelAsync(string channel, CancellationToken ct)
     {
