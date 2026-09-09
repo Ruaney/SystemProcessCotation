@@ -63,10 +63,7 @@ public class Program
 
         builder.Services.AddSingleton<ITradingService, TradingService>();
         builder.Services.AddSingleton<IEmailService, EmailService>();
-        builder.Services.AddHttpClient<ICotationService, CotationService>(client =>
-        {
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
-        });
+        builder.Services.AddHttpClient<ICotationService, CotationService>();
 
         // O inicializador provisiona SNS/SQS antes de qualquer worker publicar/consumir.
         builder.Services.AddHostedService<SnsSqsInitializer>();

@@ -4,6 +4,9 @@ using System.Text;
 
 public class CotationService : ICotationService
 {
+    private const string BrowserUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
+    private const string PreferredLanguages = "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7";
+
     private readonly HttpClient _httpClient;
 
     public CotationService(HttpClient httpClient)
@@ -19,7 +22,14 @@ public class CotationService : ICotationService
         {
             var url = $"https://www.fundamentus.com.br/detalhes.php?papel={Uri.EscapeDataString(normalizedSymbol)}";
 
-            using var response = await _httpClient.GetAsync(url, cancellationToken);
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.TryAddWithoutValidation("User-Agent", BrowserUserAgent);
+            request.Headers.TryAddWithoutValidation("Accept-Language", PreferredLanguages);
+
+            using var response = await _httpClient.SendAsync(
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var html = await response.Content.ReadAsStringAsync(cancellationToken);
