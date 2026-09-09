@@ -24,13 +24,13 @@ public class CotationService : ICotationService
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
 
-            var cotationText = ExtractCotationText(doc);
-            if (cotationText is not null && PriceParser.TryParse(cotationText, out var price))
+            var price = ExtractCotationPrice(doc);
+            if (price > 0)
             {
                 return new CotationResult
                 {
                     Symbol = normalizedSymbol,
-                    Price = price,
+                    Price = price.Value,
                     Timestamp = DateTime.UtcNow
                 };
             }
@@ -57,24 +57,24 @@ public class CotationService : ICotationService
         return symbol.Trim().ToUpperInvariant();
     }
 
-    private static string? ExtractCotationText(HtmlDocument doc)
+    private static double? ExtractCotationPrice(HtmlDocument doc)
     {
         var selectors = new[]
         {
-            "//td[normalize-space()='Cotação']/following-sibling::td[1]//span[contains(@class,'txt')]",
-            "//table[1]//tr[1]//td[contains(@class,'data') and contains(@class,'destaque') and contains(@class,'w3')]//span[contains(@class,'txt')]"
+            "//td[normalize-space()='Cotação']/following-sibling::td[1]",
+            "//table[1]//td[contains(@class,'data') and contains(@class,'destaque') and contains(@class,'w3')]//span[contains(@class,'txt')]"
         };
 
         foreach (var selector in selectors)
         {
             var node = doc.DocumentNode.SelectSingleNode(selector);
-            if (node is not null)
+            var text = node?.InnerText.Trim();
+            if (!string.IsNullOrWhiteSpace(text) && PriceParser.TryParse(text, out var price) && price > 0)
             {
-                return node.InnerText.Trim();
+                return price;
             }
         }
 
         return null;
     }
-
 }
