@@ -94,6 +94,23 @@ public class CommandLineHelperTests
     }
 
     [Theory]
+    [InlineData("PETR 4")]
+    [InlineData("PETR-4")]
+    public void NormalizeAndValidate_RejectsSymbolsWithInvalidCharacters(string symbol)
+    {
+        var settings = new global::TradingSettings
+        {
+            StockSymbol = symbol,
+            PriceToSell = 35.00,
+            PriceToBuy = 30.00
+        };
+
+        var exception = Assert.Throws<ArgumentException>(() => settings.NormalizeAndValidate());
+
+        Assert.Contains("letras e números", exception.Message);
+    }
+
+    [Theory]
     [InlineData(double.NaN, 30.00)]
     [InlineData(double.PositiveInfinity, 30.00)]
     [InlineData(35.00, double.NaN)]

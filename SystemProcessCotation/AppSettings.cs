@@ -17,11 +17,7 @@ public class TradingSettings
 
     public TradingSettings NormalizeAndValidate()
     {
-        var normalizedSymbol = StockSymbol?.Trim().ToUpperInvariant();
-        if (string.IsNullOrWhiteSpace(normalizedSymbol))
-        {
-            throw new ArgumentException("O código do ativo é obrigatório.");
-        }
+        var normalizedSymbol = global::StockSymbol.NormalizeOrThrow(StockSymbol, nameof(StockSymbol));
 
         if (!double.IsFinite(PriceToSell) || !double.IsFinite(PriceToBuy) || PriceToSell <= 0 || PriceToBuy <= 0)
         {

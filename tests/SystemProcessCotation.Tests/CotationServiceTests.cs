@@ -251,6 +251,20 @@ public class CotationServiceTests
         await Assert.ThrowsAsync<ArgumentException>(() => service.GetCotationAsync(" "));
     }
 
+    [Theory]
+    [InlineData("PETR 4")]
+    [InlineData("PETR-4")]
+    public async Task GetCotationAsync_RejectsSymbolsWithInvalidCharacters(string symbol)
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            throw new InvalidOperationException("HTTP should not be called for invalid symbols.")));
+        var service = new global::CotationService(client);
+
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => service.GetCotationAsync(symbol));
+
+        Assert.Contains("letras e números", exception.Message);
+    }
+
     private sealed class StubHttpMessageHandler : HttpMessageHandler
     {
         private readonly Func<HttpRequestMessage, HttpResponseMessage> _factory;

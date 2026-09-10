@@ -16,7 +16,7 @@ public class CotationService : ICotationService
 
     public async Task<CotationResult> GetCotationAsync(string symbol, CancellationToken cancellationToken = default)
     {
-        var normalizedSymbol = NormalizeSymbol(symbol);
+        var normalizedSymbol = StockSymbol.NormalizeOrThrow(symbol);
 
         try
         {
@@ -57,16 +57,6 @@ public class CotationService : ICotationService
         {
             throw new InvalidOperationException($"Erro ao buscar cotação para {normalizedSymbol}: {ex.Message}", ex);
         }
-    }
-
-    private static string NormalizeSymbol(string symbol)
-    {
-        if (string.IsNullOrWhiteSpace(symbol))
-        {
-            throw new ArgumentException("O código do ativo é obrigatório.", nameof(symbol));
-        }
-
-        return symbol.Trim().ToUpperInvariant();
     }
 
     private static double? ExtractCotationPrice(HtmlDocument doc)
