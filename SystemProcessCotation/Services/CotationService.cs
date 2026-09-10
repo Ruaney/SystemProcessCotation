@@ -122,7 +122,11 @@ public class CotationService : ICotationService
     private static bool IsCotationLabel(string value)
     {
         var normalized = NormalizeLabel(value);
-        return normalized is "cotacao" or "cotacaoatual" or "ultimacotacao";
+        return normalized is "cotacao"
+            or "cotacaoatual"
+            or "ultimacotacao"
+            or "precoatual"
+            or "valoratual";
     }
 
     private static string NormalizeLabel(string value)

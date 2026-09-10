@@ -172,6 +172,34 @@ public class CotationServiceTests
         Assert.Equal(31.42, result.Price);
     }
 
+    [Theory]
+    [InlineData("Preço atual")]
+    [InlineData("Valor atual")]
+    public async Task GetCotationAsync_ParsesCurrentPriceLabelVariants(string label)
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent($"""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>{label}</td>
+                            <td>31,42</td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
     [Fact]
     public async Task GetCotationAsync_FallsBackWhenLabeledCotationCellIsBlank()
     {
