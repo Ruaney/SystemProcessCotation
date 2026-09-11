@@ -33,6 +33,15 @@ public class CommandLineHelperTests
     }
 
     [Fact]
+    public void ParseArguments_TreatsSingleThreeDigitSeparatorAsThousands()
+    {
+        var settings = global::CommandLineHelper.ParseArguments(["PETR4", "1.234", "1,200"]);
+
+        Assert.Equal(1234.00, settings.PriceToSell);
+        Assert.Equal(1200.00, settings.PriceToBuy);
+    }
+
+    [Fact]
     public void ParseArguments_RejectsEmptySymbol()
     {
         var exception = Assert.Throws<ArgumentException>(
