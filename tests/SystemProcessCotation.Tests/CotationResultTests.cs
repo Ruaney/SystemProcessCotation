@@ -23,6 +23,20 @@ public class CotationResultTests
     }
 
     [Theory]
+    [InlineData("PETR 4")]
+    [InlineData("PETR-4")]
+    public void IsValid_ReturnsFalseWhenSymbolHasInvalidCharacters(string symbol)
+    {
+        var cotation = new global::CotationResult
+        {
+            Symbol = symbol,
+            Price = 10.00
+        };
+
+        Assert.False(cotation.IsValid);
+    }
+
+    [Theory]
     [InlineData(double.NaN)]
     [InlineData(double.PositiveInfinity)]
     [InlineData(double.NegativeInfinity)]
@@ -42,7 +56,7 @@ public class CotationResultTests
     {
         var cotation = new global::CotationResult
         {
-            Symbol = "PETR4",
+            Symbol = " petr4 ",
             Price = 10.00
         };
 

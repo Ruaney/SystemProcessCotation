@@ -6,5 +6,5 @@ public class CotationResult
     public bool IsValid =>
         double.IsFinite(Price)
         && Price > 0
-        && !string.IsNullOrWhiteSpace(Symbol);
+        && StockSymbol.TryNormalize(Symbol, out _);
 }
