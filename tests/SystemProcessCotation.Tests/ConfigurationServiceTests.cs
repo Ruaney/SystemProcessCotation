@@ -2,7 +2,7 @@ namespace SystemProcessCotation.Tests;
 
 public class ConfigurationServiceTests
 {
-    private static readonly string[] SmtpVariables = ["HOST", "PORT", "FROM", "TO", "PASSWORD", "USERNAME"];
+    private static readonly string[] SmtpVariables = ["HOST", "PORT", "FROM", "TO", "PASSWORD", "USERNAME", "ENABLE_SSL"];
 
     [Fact]
     public void LoadSmtpSettings_TrimsEnvironmentValues()
@@ -17,6 +17,7 @@ public class ConfigurationServiceTests
             Environment.SetEnvironmentVariable("TO", " user@example.com ");
             Environment.SetEnvironmentVariable("USERNAME", " alerts@example.com ");
             Environment.SetEnvironmentVariable("PASSWORD", " secret ");
+            Environment.SetEnvironmentVariable("ENABLE_SSL", " false ");
 
             var settings = new global::ConfigurationService().LoadSmtpSettings();
 
@@ -26,6 +27,25 @@ public class ConfigurationServiceTests
             Assert.Equal("user@example.com", settings.ToAddress);
             Assert.Equal("alerts@example.com", settings.Username);
             Assert.Equal("secret", settings.Password);
+            Assert.False(settings.EnableSsl);
+        }
+        finally
+        {
+            RestoreEnvironment(previousValues);
+        }
+    }
+
+    [Fact]
+    public void LoadSmtpSettings_DefaultsEnableSslToTrueWhenFlagIsInvalid()
+    {
+        var previousValues = SaveEnvironment();
+
+        try
+        {
+            Environment.SetEnvironmentVariable("ENABLE_SSL", "maybe");
+
+            var settings = new global::ConfigurationService().LoadSmtpSettings();
+
             Assert.True(settings.EnableSsl);
         }
         finally

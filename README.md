@@ -139,6 +139,7 @@ USERNAME=your_user
 PASSWORD=your_app_password
 FROM=from@example.com
 TO=to@example.com
+ENABLE_SSL=true
 ```
 
 ---
