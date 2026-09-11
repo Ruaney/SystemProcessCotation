@@ -21,6 +21,17 @@ public class TradingServiceTests
     }
 
     [Fact]
+    public async Task AnalyzeCotationAsync_NormalizesSymbolOnAlert()
+    {
+        var alert = await _service.AnalyzeCotationAsync(
+            new global::CotationResult { Symbol = " petr4 ", Price = 35.00 },
+            new global::TradingSettings { PriceToSell = 35.00, PriceToBuy = 30.00 });
+
+        Assert.NotNull(alert);
+        Assert.Equal("PETR4", alert.Symbol);
+    }
+
+    [Fact]
     public async Task AnalyzeCotationAsync_ReturnsBuyAlertWhenPriceReachesBuyThreshold()
     {
         var alert = await _service.AnalyzeCotationAsync(
