@@ -175,6 +175,8 @@ public class CotationServiceTests
     [Theory]
     [InlineData("Preço atual")]
     [InlineData("Valor atual")]
+    [InlineData("Último preço")]
+    [InlineData("Ultimo valor")]
     public async Task GetCotationAsync_ParsesCurrentPriceLabelVariants(string label)
     {
         using var client = new HttpClient(new StubHttpMessageHandler(_ =>

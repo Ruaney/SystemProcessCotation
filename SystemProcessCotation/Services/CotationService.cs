@@ -125,6 +125,8 @@ public class CotationService : ICotationService
         return normalized is "cotacao"
             or "cotacaoatual"
             or "ultimacotacao"
+            or "ultimopreco"
+            or "ultimovalor"
             or "precoatual"
             or "valoratual";
     }
