@@ -68,7 +68,8 @@ public class SnsSqsEventBus : IEventBus
                 {
                     try
                     {
-                        var payload = JsonSerializer.Deserialize<T>(sqsMessage.Body, JsonOptions);
+                        var body = SqsMessageBody.ExtractPayload(sqsMessage.Body);
+                        var payload = JsonSerializer.Deserialize<T>(body, JsonOptions);
                         if (payload is not null)
                         {
                             await handler(payload, cancellationToken);
