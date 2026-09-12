@@ -79,11 +79,15 @@ You'll need the **.NET 9 SDK**, plus Redis and LocalStack (or real AWS) reachabl
 ```bash
 cd SystemProcessCotation
 
-# Usage: dotnet run <ASSET> <sellPrice> <buyPrice>
+# Usage: dotnet run <ASSET> <sellPrice> <buyPrice> [checkIntervalMs] [alertCooldownSeconds]
 dotnet run PETR4 22.67 22.59
 ```
 
-Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json`.
+Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json`. The optional `checkIntervalMs` and `alertCooldownSeconds` arguments let you tune demo cadence without editing configuration:
+
+```bash
+dotnet run PETR4 22.67 22.59 1000 15
+```
 
 ### Build a standalone executable
 

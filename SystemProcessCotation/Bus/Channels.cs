@@ -1,5 +1,5 @@
 /// <summary>
-/// Nomes dos canais do barramento de mensagens (Redis Pub/Sub).
+/// Nomes dos canais do barramento de mensagens (SNS/SQS).
 /// </summary>
 public static class Channels
 {

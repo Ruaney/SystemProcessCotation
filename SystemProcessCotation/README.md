@@ -10,10 +10,16 @@ Monitoração de preços que envia alertas por email de quando comprar/vender ao
 + intervalo para as verificações da cotação
 
 ### como executar
-dotnet run **Ativo preçoVenda preçoCompra**
+dotnet run **Ativo preçoVenda preçoCompra [intervaloMs] [cooldownSegundos]**
 
 ```bash
 dotnet run PETR4 22.67 22.59
+```
+
+Para uma demonstração mais rápida, informe também o intervalo de consulta e o cooldown entre alertas:
+
+```bash
+dotnet run PETR4 22.67 22.59 1000 15
 ```
 
 ### Gerar executável
