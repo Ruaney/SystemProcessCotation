@@ -76,6 +76,10 @@ public class SnsSqsEventBus : IEventBus
                         }
                         await _sqs.DeleteMessageAsync(queueUrl, sqsMessage.ReceiptHandle, cancellationToken);
                     }
+                    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                    {
+                        throw;
+                    }
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "Erro ao processar mensagem da fila '{Channel}'", channel);
