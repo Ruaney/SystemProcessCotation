@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 /// <summary>
 /// Carrega as configurações de SMTP a partir das variáveis de ambiente (.env).
@@ -37,11 +38,20 @@ public class ConfigurationService : IConfigurationService
             return parsed;
         }
 
-        return value.ToLowerInvariant() switch
+        return NormalizeFlagValue(value) switch
         {
-            "1" or "yes" or "sim" => true,
-            "0" or "no" or "nao" => false,
+            "1" or "yes" or "sim" or "on" or "enabled" => true,
+            "0" or "no" or "nao" or "off" or "disabled" => false,
             _ => defaultValue
         };
+    }
+
+    private static string NormalizeFlagValue(string value)
+    {
+        var decomposed = value.Normalize(NormalizationForm.FormD);
+        var chars = decomposed
+            .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark);
+
+        return string.Concat(chars).ToLowerInvariant();
     }
 }

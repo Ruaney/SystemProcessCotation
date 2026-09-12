@@ -54,6 +54,50 @@ public class ConfigurationServiceTests
         }
     }
 
+    [Theory]
+    [InlineData("não")]
+    [InlineData("off")]
+    [InlineData("disabled")]
+    public void LoadSmtpSettings_DisablesSslForFalseAliases(string value)
+    {
+        var previousValues = SaveEnvironment();
+
+        try
+        {
+            Environment.SetEnvironmentVariable("ENABLE_SSL", value);
+
+            var settings = new global::ConfigurationService().LoadSmtpSettings();
+
+            Assert.False(settings.EnableSsl);
+        }
+        finally
+        {
+            RestoreEnvironment(previousValues);
+        }
+    }
+
+    [Theory]
+    [InlineData("on")]
+    [InlineData("enabled")]
+    [InlineData("sim")]
+    public void LoadSmtpSettings_EnablesSslForTrueAliases(string value)
+    {
+        var previousValues = SaveEnvironment();
+
+        try
+        {
+            Environment.SetEnvironmentVariable("ENABLE_SSL", value);
+
+            var settings = new global::ConfigurationService().LoadSmtpSettings();
+
+            Assert.True(settings.EnableSsl);
+        }
+        finally
+        {
+            RestoreEnvironment(previousValues);
+        }
+    }
+
     private static Dictionary<string, string?> SaveEnvironment() =>
         SmtpVariables.ToDictionary(name => name, Environment.GetEnvironmentVariable);
 
