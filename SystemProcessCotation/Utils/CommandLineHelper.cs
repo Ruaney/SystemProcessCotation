@@ -2,9 +2,9 @@ public static class CommandLineHelper
 {
     public static TradingSettings ParseArguments(string[] args)
     {
-        if (args.Length != 3)
+        if (args.Length is < 3 or > 5)
         {
-            throw new ArgumentException("Número incorreto de parâmetros. Esperado: 3 parâmetros");
+            throw new ArgumentException("Número incorreto de parâmetros. Esperado: 3 a 5 parâmetros");
         }
 
         if (!PriceParser.TryParse(args[1], out var sellPrice))
@@ -17,12 +17,33 @@ public static class CommandLineHelper
             throw new ArgumentException($"Preço de compra inválido: {args[2]}. Use formato decimal com ponto ou vírgula (ex: 22.67 ou 22,67)");
         }
 
-        return new TradingSettings
+        var settings = new TradingSettings
         {
             StockSymbol = args[0],
             PriceToSell = sellPrice,
             PriceToBuy = buyPrice
-        }.NormalizeAndValidate();
+        };
+
+        if (args.Length >= 4)
+        {
+            settings.CheckIntervalMs = ParsePositiveInt(args[3], "intervalo de checagem");
+        }
+
+        if (args.Length >= 5)
+        {
+            settings.AlertCooldownSeconds = ParsePositiveInt(args[4], "cooldown de alerta");
+        }
+
+        return settings.NormalizeAndValidate();
     }
 
+    private static int ParsePositiveInt(string value, string fieldName)
+    {
+        if (int.TryParse(value, out var parsed) && parsed > 0)
+        {
+            return parsed;
+        }
+
+        throw new ArgumentException($"O {fieldName} deve ser um número inteiro maior que zero.");
+    }
 }

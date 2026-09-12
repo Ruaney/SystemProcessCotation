@@ -33,6 +33,27 @@ public class CommandLineHelperTests
     }
 
     [Fact]
+    public void ParseArguments_AcceptsOptionalTimingArguments()
+    {
+        var settings = global::CommandLineHelper.ParseArguments(["PETR4", "35.50", "30.25", "1000", "15"]);
+
+        Assert.Equal(1000, settings.CheckIntervalMs);
+        Assert.Equal(15, settings.AlertCooldownSeconds);
+    }
+
+    [Theory]
+    [InlineData("0")]
+    [InlineData("-1")]
+    [InlineData("fast")]
+    public void ParseArguments_RejectsInvalidCheckInterval(string interval)
+    {
+        var exception = Assert.Throws<ArgumentException>(
+            () => global::CommandLineHelper.ParseArguments(["PETR4", "35.50", "30.25", interval]));
+
+        Assert.Contains("intervalo de checagem", exception.Message);
+    }
+
+    [Fact]
     public void ParseArguments_TreatsSingleThreeDigitSeparatorAsThousands()
     {
         var settings = global::CommandLineHelper.ParseArguments(["PETR4", "1.234", "1,200"]);
