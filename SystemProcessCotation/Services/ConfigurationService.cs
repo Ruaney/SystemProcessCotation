@@ -12,22 +12,33 @@ public class ConfigurationService : IConfigurationService
     {
         return new SmtpSettings
         {
-            Host = GetEnv("HOST"),
-            Port = int.TryParse(GetEnv("PORT"), NumberStyles.Integer, CultureInfo.InvariantCulture, out var port) ? port : 0,
-            FromAddress = GetEnv("FROM"),
-            ToAddress = GetEnv("TO"),
-            Password = GetEnv("PASSWORD"),
-            Username = GetEnv("USERNAME"),
-            EnableSsl = GetEnvFlag("ENABLE_SSL", defaultValue: true)
+            Host = GetEnv("HOST", "SMTP_HOST"),
+            Port = int.TryParse(GetEnv("PORT", "SMTP_PORT"), NumberStyles.Integer, CultureInfo.InvariantCulture, out var port) ? port : 0,
+            FromAddress = GetEnv("FROM", "SMTP_FROM"),
+            ToAddress = GetEnv("TO", "SMTP_TO"),
+            Password = GetEnv("PASSWORD", "SMTP_PASSWORD"),
+            Username = GetEnv("USERNAME", "SMTP_USERNAME", "SMTP_USER"),
+            EnableSsl = GetEnvFlag(["ENABLE_SSL", "SMTP_ENABLE_SSL", "SMTP_SSL"], defaultValue: true)
         };
     }
 
-    private static string GetEnv(string name) =>
-        (Environment.GetEnvironmentVariable(name) ?? string.Empty).Trim();
-
-    private static bool GetEnvFlag(string name, bool defaultValue)
+    private static string GetEnv(params string[] names)
     {
-        var value = GetEnv(name);
+        foreach (var name in names)
+        {
+            var value = Environment.GetEnvironmentVariable(name);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value.Trim();
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static bool GetEnvFlag(string[] names, bool defaultValue)
+    {
+        var value = GetEnv(names);
         if (string.IsNullOrWhiteSpace(value))
         {
             return defaultValue;
