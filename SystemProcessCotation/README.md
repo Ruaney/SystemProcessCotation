@@ -10,6 +10,10 @@ Monitoração de preços que envia alertas por email de quando comprar/vender ao
 + intervalo para as verificações da cotação
 
 ### como executar
+```bash
+dotnet run -- --help
+```
+
 dotnet run **Ativo preçoVenda preçoCompra [intervaloMs] [cooldownSegundos]**
 
 ```bash
@@ -42,6 +46,8 @@ Set-ExecutionPolicy Unrestricted
 .\script.ps1 PETR4 35.00 30.00
 ``` 
 
-### Confiuração
+### Configuração
 
 Configure o SMTP renomeando `.env.example` para `.env` e edite os campos.
+
+As variáveis curtas (`HOST`, `PORT`, `USERNAME`, `PASSWORD`, `FROM`, `TO`, `ENABLE_SSL`) continuam funcionando. Também é possível usar aliases de deploy: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` ou `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, `SMTP_ENABLE_SSL` ou `SMTP_SSL`.
