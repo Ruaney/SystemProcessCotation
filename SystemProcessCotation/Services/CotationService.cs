@@ -111,12 +111,23 @@ public class CotationService : ICotationService
             }
 
             var valueCell = cell.SelectSingleNode("following-sibling::td[1]");
-            var text = valueCell?.InnerText.Trim();
+            var text = ExtractPriceText(valueCell);
             if (!string.IsNullOrWhiteSpace(text))
             {
                 yield return text;
             }
         }
+    }
+
+    private static string? ExtractPriceText(HtmlNode? valueCell)
+    {
+        if (valueCell is null)
+        {
+            return null;
+        }
+
+        var priceSpan = valueCell.SelectSingleNode(".//span[contains(concat(' ', normalize-space(@class), ' '), ' txt ')]");
+        return (priceSpan ?? valueCell).InnerText.Trim();
     }
 
     private static bool IsCotationLabel(string value)
