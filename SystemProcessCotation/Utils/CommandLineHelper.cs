@@ -1,10 +1,31 @@
 public static class CommandLineHelper
 {
+    public const string Usage = """
+        Uso: dotnet run <Ativo> <precoVenda> <precoCompra> [intervaloMs] [cooldownSegundos]
+
+        Exemplos:
+          dotnet run PETR4 22.67 22.59
+          dotnet run PETR4 22.67 22.59 1000 15
+        """;
+
+    public static bool IsHelpRequest(string[] args)
+    {
+        if (args.Length != 1)
+        {
+            return false;
+        }
+
+        var option = args[0].Trim();
+        return option.Equals("-h", StringComparison.OrdinalIgnoreCase)
+            || option.Equals("--help", StringComparison.OrdinalIgnoreCase)
+            || option.Equals("/?", StringComparison.OrdinalIgnoreCase);
+    }
+
     public static TradingSettings ParseArguments(string[] args)
     {
         if (args.Length is < 3 or > 5)
         {
-            throw new ArgumentException("Número incorreto de parâmetros. Esperado: 3 a 5 parâmetros");
+            throw new ArgumentException("Número incorreto de parâmetros. Esperado: 3 a 5 parâmetros. Use --help para ver exemplos.");
         }
 
         if (!PriceParser.TryParse(args[1], out var sellPrice))

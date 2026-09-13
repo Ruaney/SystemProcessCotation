@@ -2,6 +2,28 @@ namespace SystemProcessCotation.Tests;
 
 public class CommandLineHelperTests
 {
+    [Theory]
+    [InlineData("-h")]
+    [InlineData("--help")]
+    [InlineData("/?")]
+    public void IsHelpRequest_ReturnsTrueForHelpFlags(string flag)
+    {
+        Assert.True(global::CommandLineHelper.IsHelpRequest([flag]));
+    }
+
+    [Fact]
+    public void IsHelpRequest_ReturnsFalseWhenHelpFlagIsMixedWithRunArguments()
+    {
+        Assert.False(global::CommandLineHelper.IsHelpRequest(["PETR4", "--help", "30.00"]));
+    }
+
+    [Fact]
+    public void Usage_IncludesOptionalTimingArguments()
+    {
+        Assert.Contains("[intervaloMs]", global::CommandLineHelper.Usage);
+        Assert.Contains("[cooldownSegundos]", global::CommandLineHelper.Usage);
+    }
+
     [Fact]
     public void ParseArguments_NormalizesSymbolAndPrices()
     {

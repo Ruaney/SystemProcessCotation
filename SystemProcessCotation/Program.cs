@@ -11,6 +11,12 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        if (CommandLineHelper.IsHelpRequest(args))
+        {
+            Console.WriteLine(CommandLineHelper.Usage);
+            return;
+        }
+
         // Segredos de SMTP continuam vindo do .env (quando presente).
         if (File.Exists(".env"))
         {
