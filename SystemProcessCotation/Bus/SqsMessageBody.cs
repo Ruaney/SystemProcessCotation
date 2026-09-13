@@ -17,13 +17,13 @@ internal static class SqsMessageBody
                 return body;
             }
 
-            if (!document.RootElement.TryGetProperty("Type", out var type)
+            if (!TryGetPropertyIgnoreCase(document.RootElement, "Type", out var type)
                 || !string.Equals(type.GetString(), "Notification", StringComparison.OrdinalIgnoreCase))
             {
                 return body;
             }
 
-            if (document.RootElement.TryGetProperty("Message", out var message)
+            if (TryGetPropertyIgnoreCase(document.RootElement, "Message", out var message)
                 && message.ValueKind == JsonValueKind.String)
             {
                 return message.GetString() ?? body;
@@ -35,5 +35,20 @@ internal static class SqsMessageBody
         }
 
         return body;
+    }
+
+    private static bool TryGetPropertyIgnoreCase(JsonElement element, string name, out JsonElement value)
+    {
+        foreach (var property in element.EnumerateObject())
+        {
+            if (string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase))
+            {
+                value = property.Value;
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
     }
 }
