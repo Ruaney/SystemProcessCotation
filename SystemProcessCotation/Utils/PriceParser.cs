@@ -1,7 +1,9 @@
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 public static class PriceParser
 {
+    private static readonly Regex PriceTokenPattern = new(@"\d+(?:[.,]\d+)*", RegexOptions.Compiled);
     private static readonly CultureInfo BrazilianCulture = CultureInfo.GetCultureInfo("pt-BR");
     private static readonly CultureInfo InvariantCulture = CultureInfo.InvariantCulture;
     private const NumberStyles PriceStyles = NumberStyles.Float | NumberStyles.AllowThousands;
@@ -34,7 +36,10 @@ public static class PriceParser
             .Replace("R$", string.Empty, StringComparison.OrdinalIgnoreCase)
             .Replace("BRL", string.Empty, StringComparison.OrdinalIgnoreCase);
 
-        return string.Concat(withoutCurrency.Where(c => !char.IsWhiteSpace(c)));
+        var compact = string.Concat(withoutCurrency.Where(c => !char.IsWhiteSpace(c)));
+        var match = PriceTokenPattern.Match(compact);
+
+        return match.Success ? match.Value : compact;
     }
 
     private static CultureInfo[] PreferredCultures(string value)

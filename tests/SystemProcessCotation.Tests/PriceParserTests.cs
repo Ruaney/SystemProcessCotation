@@ -26,4 +26,15 @@ public class PriceParserTests
         Assert.True(parsed);
         Assert.Equal(expected, price);
     }
+
+    [Theory]
+    [InlineData("31,42 +0,50%", 31.42)]
+    [InlineData("R$ 1.234,56 (fechamento)", 1234.56)]
+    public void TryParse_UsesFirstPriceTokenFromMixedText(string value, double expected)
+    {
+        var parsed = global::PriceParser.TryParse(value, out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(expected, price);
+    }
 }
