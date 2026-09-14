@@ -28,6 +28,11 @@ internal static class SqsMessageBody
             {
                 return message.GetString() ?? body;
             }
+
+            if (message.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+            {
+                return message.GetRawText();
+            }
         }
         catch (JsonException)
         {
