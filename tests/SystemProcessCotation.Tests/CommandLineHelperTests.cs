@@ -2,6 +2,28 @@ namespace SystemProcessCotation.Tests;
 
 public class CommandLineHelperTests
 {
+    [Theory]
+    [InlineData("-h")]
+    [InlineData("--help")]
+    [InlineData("/?")]
+    public void IsHelpRequest_ReturnsTrueForHelpFlags(string flag)
+    {
+        Assert.True(global::CommandLineHelper.IsHelpRequest([flag]));
+    }
+
+    [Fact]
+    public void IsHelpRequest_ReturnsFalseWhenHelpFlagIsMixedWithRunArguments()
+    {
+        Assert.False(global::CommandLineHelper.IsHelpRequest(["PETR4", "--help", "30.00"]));
+    }
+
+    [Fact]
+    public void Usage_IncludesOptionalTimingArguments()
+    {
+        Assert.Contains("[intervaloMs]", global::CommandLineHelper.Usage);
+        Assert.Contains("[cooldownSegundos]", global::CommandLineHelper.Usage);
+    }
+
     [Fact]
     public void ParseArguments_NormalizesSymbolAndPrices()
     {
@@ -29,6 +51,36 @@ public class CommandLineHelperTests
         var settings = global::CommandLineHelper.ParseArguments(["PETR4", "R$ 1.234,56", "R$ 1.200,00"]);
 
         Assert.Equal(1234.56, settings.PriceToSell);
+        Assert.Equal(1200.00, settings.PriceToBuy);
+    }
+
+    [Fact]
+    public void ParseArguments_AcceptsOptionalTimingArguments()
+    {
+        var settings = global::CommandLineHelper.ParseArguments(["PETR4", "35.50", "30.25", "1000", "15"]);
+
+        Assert.Equal(1000, settings.CheckIntervalMs);
+        Assert.Equal(15, settings.AlertCooldownSeconds);
+    }
+
+    [Theory]
+    [InlineData("0")]
+    [InlineData("-1")]
+    [InlineData("fast")]
+    public void ParseArguments_RejectsInvalidCheckInterval(string interval)
+    {
+        var exception = Assert.Throws<ArgumentException>(
+            () => global::CommandLineHelper.ParseArguments(["PETR4", "35.50", "30.25", interval]));
+
+        Assert.Contains("intervalo de checagem", exception.Message);
+    }
+
+    [Fact]
+    public void ParseArguments_TreatsSingleThreeDigitSeparatorAsThousands()
+    {
+        var settings = global::CommandLineHelper.ParseArguments(["PETR4", "1.234", "1,200"]);
+
+        Assert.Equal(1234.00, settings.PriceToSell);
         Assert.Equal(1200.00, settings.PriceToBuy);
     }
 
@@ -91,6 +143,23 @@ public class CommandLineHelperTests
         var exception = Assert.Throws<ArgumentException>(() => settings.NormalizeAndValidate());
 
         Assert.Contains("venda deve ser maior", exception.Message);
+    }
+
+    [Theory]
+    [InlineData("PETR 4")]
+    [InlineData("PETR-4")]
+    public void NormalizeAndValidate_RejectsSymbolsWithInvalidCharacters(string symbol)
+    {
+        var settings = new global::TradingSettings
+        {
+            StockSymbol = symbol,
+            PriceToSell = 35.00,
+            PriceToBuy = 30.00
+        };
+
+        var exception = Assert.Throws<ArgumentException>(() => settings.NormalizeAndValidate());
+
+        Assert.Contains("letras e números", exception.Message);
     }
 
     [Theory]

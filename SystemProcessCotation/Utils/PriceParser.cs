@@ -46,6 +46,17 @@ public static class PriceParser
 
         var lastComma = value.LastIndexOf(',');
         var lastDot = value.LastIndexOf('.');
+
+        if (LooksLikeSingleThousandsSeparator(value, '.', lastDot, lastComma))
+        {
+            return [BrazilianCulture, InvariantCulture];
+        }
+
+        if (LooksLikeSingleThousandsSeparator(value, ',', lastComma, lastDot))
+        {
+            return [InvariantCulture, BrazilianCulture];
+        }
+
         var prefersBrazilian = lastComma >= 0 && lastComma > lastDot;
 
         return prefersBrazilian
@@ -53,19 +64,16 @@ public static class PriceParser
             : [InvariantCulture, BrazilianCulture];
     }
 
-    private static bool LooksLikeBrazilianThousands(string value)
+    private static bool LooksLikeSingleThousandsSeparator(string value, char separator, int separatorIndex, int otherSeparatorIndex)
     {
-        if (value.Contains(','))
+        if (separatorIndex <= 0 || otherSeparatorIndex >= 0 || value.IndexOf(separator) != separatorIndex)
         {
             return false;
         }
 
-        var unsignedValue = value.TrimStart('+', '-');
-        var groups = unsignedValue.Split('.');
-
-        return groups.Length > 1
-            && groups[0].Length is > 0 and <= 3
-            && groups.All(group => group.All(char.IsDigit))
-            && groups.Skip(1).All(group => group.Length == 3);
+        var digitsAfterSeparator = value.Length - separatorIndex - 1;
+        return digitsAfterSeparator == 3
+            && value[..separatorIndex].All(char.IsDigit)
+            && value[(separatorIndex + 1)..].All(char.IsDigit);
     }
 }

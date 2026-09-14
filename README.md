@@ -79,11 +79,17 @@ You'll need the **.NET 9 SDK**, plus Redis and LocalStack (or real AWS) reachabl
 ```bash
 cd SystemProcessCotation
 
-# Usage: dotnet run <ASSET> <sellPrice> <buyPrice>
+dotnet run -- --help
+
+# Usage: dotnet run <ASSET> <sellPrice> <buyPrice> [checkIntervalMs] [alertCooldownSeconds]
 dotnet run PETR4 22.67 22.59
 ```
 
-Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json`.
+Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json`. The optional `checkIntervalMs` and `alertCooldownSeconds` arguments let you tune demo cadence without editing configuration:
+
+```bash
+dotnet run PETR4 22.67 22.59 1000 15
+```
 
 ### Build a standalone executable
 
@@ -139,7 +145,10 @@ USERNAME=your_user
 PASSWORD=your_app_password
 FROM=from@example.com
 TO=to@example.com
+ENABLE_SSL=true
 ```
+
+The short SMTP keys above are still the default examples. The app also accepts common deployment aliases: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` or `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, and `SMTP_ENABLE_SSL` or `SMTP_SSL`.
 
 ---
 

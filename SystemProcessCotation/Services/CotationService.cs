@@ -16,7 +16,7 @@ public class CotationService : ICotationService
 
     public async Task<CotationResult> GetCotationAsync(string symbol, CancellationToken cancellationToken = default)
     {
-        var normalizedSymbol = NormalizeSymbol(symbol);
+        var normalizedSymbol = StockSymbol.NormalizeOrThrow(symbol);
 
         try
         {
@@ -57,16 +57,6 @@ public class CotationService : ICotationService
         {
             throw new InvalidOperationException($"Erro ao buscar cotação para {normalizedSymbol}: {ex.Message}", ex);
         }
-    }
-
-    private static string NormalizeSymbol(string symbol)
-    {
-        if (string.IsNullOrWhiteSpace(symbol))
-        {
-            throw new ArgumentException("O código do ativo é obrigatório.", nameof(symbol));
-        }
-
-        return symbol.Trim().ToUpperInvariant();
     }
 
     private static double? ExtractCotationPrice(HtmlDocument doc)
@@ -121,7 +111,7 @@ public class CotationService : ICotationService
             }
 
             var valueCell = cell.SelectSingleNode("following-sibling::td[1]");
-            var text = valueCell?.InnerText.Trim();
+            var text = ExtractPriceText(valueCell);
             if (!string.IsNullOrWhiteSpace(text))
             {
                 yield return text;
@@ -129,10 +119,27 @@ public class CotationService : ICotationService
         }
     }
 
+    private static string? ExtractPriceText(HtmlNode? valueCell)
+    {
+        if (valueCell is null)
+        {
+            return null;
+        }
+
+        var priceSpan = valueCell.SelectSingleNode(".//span[contains(concat(' ', normalize-space(@class), ' '), ' txt ')]");
+        return (priceSpan ?? valueCell).InnerText.Trim();
+    }
+
     private static bool IsCotationLabel(string value)
     {
         var normalized = NormalizeLabel(value);
-        return normalized is "cotacao" or "cotacaoatual" or "ultimacotacao";
+        return normalized is "cotacao"
+            or "cotacaoatual"
+            or "ultimacotacao"
+            or "ultimopreco"
+            or "ultimovalor"
+            or "precoatual"
+            or "valoratual";
     }
 
     private static string NormalizeLabel(string value)

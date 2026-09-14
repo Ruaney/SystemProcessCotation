@@ -23,11 +23,7 @@ public class TradingService : ITradingService
             return Task.FromResult<TradingAlert?>(null);
         }
 
-        if (!TryNormalizeSymbol(cotation.Symbol, out var normalizedSymbol))
-        {
-            _logger.LogWarning("Cotação ignorada por símbolo inválido: {Symbol}", cotation.Symbol);
-            return Task.FromResult<TradingAlert?>(null);
-        }
+        var symbol = StockSymbol.NormalizeOrThrow(cotation.Symbol);
 
         if (cotation.Price < settings.PriceToBuy && cotation.Price < settings.PriceToSell)
         {
@@ -40,22 +36,22 @@ public class TradingService : ITradingService
             alert = new TradingAlert
             {
                 Type = AlertType.Sell,
-                Symbol = normalizedSymbol,
+                Symbol = symbol,
                 CurrentPrice = cotation.Price,
                 TargetPrice = settings.PriceToSell
             };
-            _logger.LogInformation("VENDA: {Symbol} R$ {Price:F2} (alvo: R$ {Target:F2})", normalizedSymbol, cotation.Price, settings.PriceToSell);
+            _logger.LogInformation("VENDA: {Symbol} R$ {Price:F2} (alvo: R$ {Target:F2})", symbol, cotation.Price, settings.PriceToSell);
         }
         else if (cotation.Price <= settings.PriceToBuy)
         {
             alert = new TradingAlert
             {
                 Type = AlertType.Buy,
-                Symbol = normalizedSymbol,
+                Symbol = symbol,
                 CurrentPrice = cotation.Price,
                 TargetPrice = settings.PriceToBuy
             };
-            _logger.LogInformation("COMPRA: {Symbol} R$ {Price:F2} (alvo: R$ {Target:F2})", normalizedSymbol, cotation.Price, settings.PriceToBuy);
+            _logger.LogInformation("COMPRA: {Symbol} R$ {Price:F2} (alvo: R$ {Target:F2})", symbol, cotation.Price, settings.PriceToBuy);
         }
 
         return Task.FromResult(alert);

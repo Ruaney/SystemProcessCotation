@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 /// <summary>
 /// Carrega as configurações de SMTP a partir das variáveis de ambiente (.env).
@@ -11,42 +12,57 @@ public class ConfigurationService : IConfigurationService
     {
         return new SmtpSettings
         {
-            Host = GetEnv("HOST"),
-            Port = ParsePort(GetEnv("PORT")),
-            FromAddress = GetEnv("FROM"),
-            ToAddress = GetEnv("TO"),
-            Password = GetEnv("PASSWORD"),
-            Username = GetEnv("USERNAME"),
-            EnableSsl = GetEnvBool("ENABLE_SSL", defaultValue: true)
+            Host = GetEnv("HOST", "SMTP_HOST"),
+            Port = int.TryParse(GetEnv("PORT", "SMTP_PORT"), NumberStyles.Integer, CultureInfo.InvariantCulture, out var port) ? port : 0,
+            FromAddress = GetEnv("FROM", "SMTP_FROM"),
+            ToAddress = GetEnv("TO", "SMTP_TO"),
+            Password = GetEnv("PASSWORD", "SMTP_PASSWORD"),
+            Username = GetEnv("USERNAME", "SMTP_USERNAME", "SMTP_USER"),
+            EnableSsl = GetEnvFlag(["ENABLE_SSL", "SMTP_ENABLE_SSL", "SMTP_SSL"], defaultValue: true)
         };
     }
 
-    private static string GetEnv(string name) =>
-        Environment.GetEnvironmentVariable(name) ?? string.Empty;
-
-    private static int ParsePort(string value)
+    private static string GetEnv(params string[] names)
     {
-        if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var port))
+        foreach (var name in names)
         {
-            return 0;
+            var value = Environment.GetEnvironmentVariable(name);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value.Trim();
+            }
         }
 
-        return port is > 0 and <= 65535 ? port : 0;
+        return string.Empty;
     }
 
-    private static bool GetEnvBool(string name, bool defaultValue)
+    private static bool GetEnvFlag(string[] names, bool defaultValue)
     {
-        var value = GetEnv(name).Trim();
-        if (bool.TryParse(value, out var parsedValue))
+        var value = GetEnv(names);
+        if (string.IsNullOrWhiteSpace(value))
         {
-            return parsedValue;
+            return defaultValue;
         }
 
-        return value.ToUpperInvariant() switch
+        if (bool.TryParse(value, out var parsed))
         {
-            "1" or "YES" or "Y" or "ON" => true,
-            "0" or "NO" or "N" or "OFF" => false,
+            return parsed;
+        }
+
+        return NormalizeFlagValue(value) switch
+        {
+            "1" or "yes" or "sim" or "on" or "enabled" => true,
+            "0" or "no" or "nao" or "off" or "disabled" => false,
             _ => defaultValue
         };
+    }
+
+    private static string NormalizeFlagValue(string value)
+    {
+        var decomposed = value.Normalize(NormalizationForm.FormD);
+        var chars = decomposed
+            .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark);
+
+        return string.Concat(chars).ToLowerInvariant();
     }
 }

@@ -19,18 +19,22 @@ public class TradingAlert
     public string GetMessage()
     {
         var action = Type == AlertType.Buy ? "Compra" : "Venda";
-        return $"Alerta de {action} - {Symbol}\n\n" +
+        var symbol = FormatSymbol(Symbol);
+        return $"Alerta de {action} - {symbol}\n\n" +
             $"Preço atual: R$ {FormatPrice(CurrentPrice)}\n" +
             $"Preço de referência configurado: R$ {FormatPrice(TargetPrice)}\n" +
-            $"Recomendação: {action} {Symbol}\n" +
+            $"Recomendação: {action} {symbol}\n" +
             $"Horário (UTC): {Timestamp.ToUniversalTime():dd/MM/yyyy HH:mm:ss}";
     }
 
     public string GetSubject()
     {
         var action = Type == AlertType.Buy ? "COMPRA" : "VENDA";
-        return $"Alerta {action} - {Symbol} - R$ {FormatPrice(CurrentPrice)}";
+        return $"Alerta {action} - {FormatSymbol(Symbol)} - R$ {FormatPrice(CurrentPrice)}";
     }
+
+    private static string FormatSymbol(string? symbol) =>
+        (symbol ?? string.Empty).Trim().ToUpperInvariant();
 
     private static string FormatPrice(double price) =>
         price.ToString("N2", BrazilianCulture);

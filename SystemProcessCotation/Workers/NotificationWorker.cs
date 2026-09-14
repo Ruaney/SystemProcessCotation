@@ -43,6 +43,10 @@ public class NotificationWorker : BackgroundService
                 _smtp.ToAddress, _smtp.FromAddress, alert.GetSubject(), alert.GetMessage(), _smtp, cancellationToken);
             _logger.LogInformation("Email enviado para {To} → {Subject}", _smtp.ToAddress, alert.GetSubject());
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Falha ao enviar email de alerta");

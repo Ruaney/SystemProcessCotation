@@ -95,6 +95,32 @@ public class CotationServiceTests
     }
 
     [Fact]
+    public async Task GetCotationAsync_PrefersNestedPriceTextWhenCellHasVariation()
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>Cotação</td>
+                            <td><span class="txt">31,42</span><span>+0,50%</span></td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
+    [Fact]
     public async Task GetCotationAsync_ParsesPlainCotationCell()
     {
         using var client = new HttpClient(new StubHttpMessageHandler(_ =>
@@ -158,6 +184,36 @@ public class CotationServiceTests
                         <table>
                           <tr>
                             <td>Cotação atual</td>
+                            <td>31,42</td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
+    [Theory]
+    [InlineData("Preço atual")]
+    [InlineData("Valor atual")]
+    [InlineData("Último preço")]
+    [InlineData("Ultimo valor")]
+    public async Task GetCotationAsync_ParsesCurrentPriceLabelVariants(string label)
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent($"""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>{label}</td>
                             <td>31,42</td>
                           </tr>
                         </table>
@@ -249,6 +305,20 @@ public class CotationServiceTests
         var service = new global::CotationService(client);
 
         await Assert.ThrowsAsync<ArgumentException>(() => service.GetCotationAsync(" "));
+    }
+
+    [Theory]
+    [InlineData("PETR 4")]
+    [InlineData("PETR-4")]
+    public async Task GetCotationAsync_RejectsSymbolsWithInvalidCharacters(string symbol)
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            throw new InvalidOperationException("HTTP should not be called for invalid symbols.")));
+        var service = new global::CotationService(client);
+
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => service.GetCotationAsync(symbol));
+
+        Assert.Contains("letras e números", exception.Message);
     }
 
     private sealed class StubHttpMessageHandler : HttpMessageHandler
