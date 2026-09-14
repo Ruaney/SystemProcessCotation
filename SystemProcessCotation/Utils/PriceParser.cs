@@ -39,6 +39,11 @@ public static class PriceParser
 
     private static CultureInfo[] PreferredCultures(string value)
     {
+        if (LooksLikeBrazilianThousands(value))
+        {
+            return [BrazilianCulture, InvariantCulture];
+        }
+
         var lastComma = value.LastIndexOf(',');
         var lastDot = value.LastIndexOf('.');
 
