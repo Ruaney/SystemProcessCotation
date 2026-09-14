@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 public static class PriceParser
 {
-    private static readonly Regex PriceTokenPattern = new(@"\d+(?:[.,]\d+)*", RegexOptions.Compiled);
+    private static readonly Regex PriceTokenPattern = new(@"[-+]?\d+(?:[.,]\d+)*", RegexOptions.Compiled);
     private static readonly CultureInfo BrazilianCulture = CultureInfo.GetCultureInfo("pt-BR");
     private static readonly CultureInfo InvariantCulture = CultureInfo.InvariantCulture;
     private const NumberStyles PriceStyles = NumberStyles.Float | NumberStyles.AllowThousands;

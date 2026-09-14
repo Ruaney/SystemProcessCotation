@@ -37,4 +37,15 @@ public class PriceParserTests
         Assert.True(parsed);
         Assert.Equal(expected, price);
     }
+
+    [Theory]
+    [InlineData("-31,42", -31.42)]
+    [InlineData("R$ -1.234,56 suspenso", -1234.56)]
+    public void TryParse_PreservesLeadingSign(string value, double expected)
+    {
+        var parsed = global::PriceParser.TryParse(value, out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(expected, price);
+    }
 }
