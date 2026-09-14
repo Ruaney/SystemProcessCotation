@@ -148,7 +148,7 @@ TO=to@example.com
 ENABLE_SSL=true
 ```
 
-The short SMTP keys above are still the default examples. The app also accepts common deployment aliases: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` or `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, and `SMTP_ENABLE_SSL` or `SMTP_SSL`.
+The short SMTP keys above are still the default examples. The app also accepts common deployment aliases: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` / `SMTP_USER` / `SMTP_USER_NAME`, `SMTP_PASSWORD`, `SMTP_FROM` / `SMTP_FROM_ADDRESS`, `SMTP_TO` / `SMTP_TO_ADDRESS`, `SMTP_ENABLE_SSL` / `SMTP_SSL` / `SMTP_USE_SSL`, and equivalent `EMAIL_*` names.
 
 ---
 
