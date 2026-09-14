@@ -36,6 +36,11 @@ public static class PriceParser
 
     private static CultureInfo[] PreferredCultures(string value)
     {
+        if (LooksLikeBrazilianThousands(value))
+        {
+            return [BrazilianCulture, InvariantCulture];
+        }
+
         var lastComma = value.LastIndexOf(',');
         var lastDot = value.LastIndexOf('.');
         var prefersBrazilian = lastComma >= 0 && lastComma > lastDot;
@@ -43,5 +48,21 @@ public static class PriceParser
         return prefersBrazilian
             ? [BrazilianCulture, InvariantCulture]
             : [InvariantCulture, BrazilianCulture];
+    }
+
+    private static bool LooksLikeBrazilianThousands(string value)
+    {
+        if (value.Contains(','))
+        {
+            return false;
+        }
+
+        var unsignedValue = value.TrimStart('+', '-');
+        var groups = unsignedValue.Split('.');
+
+        return groups.Length > 1
+            && groups[0].Length is > 0 and <= 3
+            && groups.All(group => group.All(char.IsDigit))
+            && groups.Skip(1).All(group => group.Length == 3);
     }
 }

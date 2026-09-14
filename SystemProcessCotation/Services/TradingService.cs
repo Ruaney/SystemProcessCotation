@@ -23,6 +23,12 @@ public class TradingService : ITradingService
             return Task.FromResult<TradingAlert?>(null);
         }
 
+        if (!TryNormalizeSymbol(cotation.Symbol, out var normalizedSymbol))
+        {
+            _logger.LogWarning("Cotação ignorada por símbolo inválido: {Symbol}", cotation.Symbol);
+            return Task.FromResult<TradingAlert?>(null);
+        }
+
         if (cotation.Price < settings.PriceToBuy && cotation.Price < settings.PriceToSell)
         {
             _logger.LogWarning("Informe preços de compra/venda em torno do preço atual do ativo para alertas mais consistentes.");
@@ -34,24 +40,30 @@ public class TradingService : ITradingService
             alert = new TradingAlert
             {
                 Type = AlertType.Sell,
-                Symbol = cotation.Symbol,
+                Symbol = normalizedSymbol,
                 CurrentPrice = cotation.Price,
                 TargetPrice = settings.PriceToSell
             };
-            _logger.LogInformation("VENDA: {Symbol} R$ {Price:F2} (alvo: R$ {Target:F2})", cotation.Symbol, cotation.Price, settings.PriceToSell);
+            _logger.LogInformation("VENDA: {Symbol} R$ {Price:F2} (alvo: R$ {Target:F2})", normalizedSymbol, cotation.Price, settings.PriceToSell);
         }
         else if (cotation.Price <= settings.PriceToBuy)
         {
             alert = new TradingAlert
             {
                 Type = AlertType.Buy,
-                Symbol = cotation.Symbol,
+                Symbol = normalizedSymbol,
                 CurrentPrice = cotation.Price,
                 TargetPrice = settings.PriceToBuy
             };
-            _logger.LogInformation("COMPRA: {Symbol} R$ {Price:F2} (alvo: R$ {Target:F2})", cotation.Symbol, cotation.Price, settings.PriceToBuy);
+            _logger.LogInformation("COMPRA: {Symbol} R$ {Price:F2} (alvo: R$ {Target:F2})", normalizedSymbol, cotation.Price, settings.PriceToBuy);
         }
 
         return Task.FromResult(alert);
+    }
+
+    private static bool TryNormalizeSymbol(string? symbol, out string normalizedSymbol)
+    {
+        normalizedSymbol = (symbol ?? string.Empty).Trim().ToUpperInvariant();
+        return normalizedSymbol.All(char.IsLetterOrDigit);
     }
 }
