@@ -85,10 +85,11 @@ dotnet run -- --help
 dotnet run PETR4 22.67 22.59
 ```
 
-Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json`. The optional `checkIntervalMs` and `alertCooldownSeconds` arguments let you tune demo cadence without editing configuration:
+Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json`. The optional `checkIntervalMs` and `alertCooldownSeconds` arguments let you tune demo cadence without editing configuration. Bare numbers keep the original units; the interval also accepts `ms`, `s`, and `m`, while cooldown accepts `s` and `m`:
 
 ```bash
 dotnet run PETR4 22.67 22.59 1000 15
+dotnet run PETR4 22.67 22.59 1s 1m
 ```
 
 ### Build a standalone executable

@@ -22,6 +22,7 @@ public class CommandLineHelperTests
     {
         Assert.Contains("[intervaloMs]", global::CommandLineHelper.Usage);
         Assert.Contains("[cooldownSegundos]", global::CommandLineHelper.Usage);
+        Assert.Contains("1s 1m", global::CommandLineHelper.Usage);
     }
 
     [Fact]
@@ -64,6 +65,21 @@ public class CommandLineHelperTests
     }
 
     [Theory]
+    [InlineData("750ms", "45s", 750, 45)]
+    [InlineData("2s", "1m", 2000, 60)]
+    public void ParseArguments_AcceptsDurationSuffixesForTimingArguments(
+        string interval,
+        string cooldown,
+        int expectedInterval,
+        int expectedCooldown)
+    {
+        var settings = global::CommandLineHelper.ParseArguments(["PETR4", "35.50", "30.25", interval, cooldown]);
+
+        Assert.Equal(expectedInterval, settings.CheckIntervalMs);
+        Assert.Equal(expectedCooldown, settings.AlertCooldownSeconds);
+    }
+
+    [Theory]
     [InlineData("0")]
     [InlineData("-1")]
     [InlineData("fast")]
@@ -73,6 +89,15 @@ public class CommandLineHelperTests
             () => global::CommandLineHelper.ParseArguments(["PETR4", "35.50", "30.25", interval]));
 
         Assert.Contains("intervalo de checagem", exception.Message);
+    }
+
+    [Fact]
+    public void ParseArguments_RejectsMillisecondSuffixForCooldown()
+    {
+        var exception = Assert.Throws<ArgumentException>(
+            () => global::CommandLineHelper.ParseArguments(["PETR4", "35.50", "30.25", "1000", "500ms"]));
+
+        Assert.Contains("cooldown de alerta", exception.Message);
     }
 
     [Fact]

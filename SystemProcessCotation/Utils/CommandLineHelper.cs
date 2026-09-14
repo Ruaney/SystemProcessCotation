@@ -1,3 +1,5 @@
+using System.Globalization;
+
 public static class CommandLineHelper
 {
     public const string Usage = """
@@ -6,6 +8,7 @@ public static class CommandLineHelper
         Exemplos:
           dotnet run PETR4 22.67 22.59
           dotnet run PETR4 22.67 22.59 1000 15
+          dotnet run PETR4 22.67 22.59 1s 1m
         """;
 
     public static bool IsHelpRequest(string[] args)
@@ -47,24 +50,67 @@ public static class CommandLineHelper
 
         if (args.Length >= 4)
         {
-            settings.CheckIntervalMs = ParsePositiveInt(args[3], "intervalo de checagem");
+            settings.CheckIntervalMs = ParseCheckInterval(args[3]);
         }
 
         if (args.Length >= 5)
         {
-            settings.AlertCooldownSeconds = ParsePositiveInt(args[4], "cooldown de alerta");
+            settings.AlertCooldownSeconds = ParseCooldownSeconds(args[4]);
         }
 
         return settings.NormalizeAndValidate();
     }
 
-    private static int ParsePositiveInt(string value, string fieldName)
+    private static int ParseCheckInterval(string value) =>
+        ParsePositiveDuration(
+            value,
+            "intervalo de checagem",
+            1,
+            ("ms", 1),
+            ("s", 1000),
+            ("m", 60000));
+
+    private static int ParseCooldownSeconds(string value) =>
+        ParsePositiveDuration(
+            value,
+            "cooldown de alerta",
+            1,
+            ("s", 1),
+            ("m", 60));
+
+    private static int ParsePositiveDuration(
+        string value,
+        string fieldName,
+        int defaultUnitMultiplier,
+        params (string Suffix, int Multiplier)[] suffixes)
     {
-        if (int.TryParse(value, out var parsed) && parsed > 0)
+        var numberText = value.Trim();
+        var multiplier = defaultUnitMultiplier;
+
+        foreach (var (suffix, suffixMultiplier) in suffixes.OrderByDescending(item => item.Suffix.Length))
         {
-            return parsed;
+            if (!numberText.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            multiplier = suffixMultiplier;
+            numberText = numberText[..^suffix.Length].Trim();
+            break;
         }
 
-        throw new ArgumentException($"O {fieldName} deve ser um número inteiro maior que zero.");
+        if (!int.TryParse(numberText, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed) || parsed <= 0)
+        {
+            throw new ArgumentException($"O {fieldName} deve ser um número inteiro maior que zero.");
+        }
+
+        try
+        {
+            return checked(parsed * multiplier);
+        }
+        catch (OverflowException ex)
+        {
+            throw new ArgumentException($"O {fieldName} deve caber em um número inteiro.", ex);
+        }
     }
 }
