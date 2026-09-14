@@ -31,6 +31,44 @@ public class CotationServiceTests
     }
 
     [Fact]
+    public async Task GetCotationAsync_SendsFundamentusRequestHeaders()
+    {
+        string? requestUri = null;
+        string? userAgent = null;
+        string? acceptLanguage = null;
+
+        using var client = new HttpClient(new StubHttpMessageHandler(request =>
+        {
+            requestUri = request.RequestUri?.ToString();
+            userAgent = string.Join(" ", request.Headers.GetValues("User-Agent"));
+            acceptLanguage = string.Join(",", request.Headers.GetValues("Accept-Language"));
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>Cotação</td>
+                            <td>31,42</td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            };
+        }));
+        var service = new global::CotationService(client);
+
+        await service.GetCotationAsync(" petr4 ");
+
+        Assert.Equal("https://www.fundamentus.com.br/detalhes.php?papel=PETR4", requestUri);
+        Assert.Contains("Mozilla/5.0", userAgent);
+        Assert.Contains("pt-BR", acceptLanguage);
+    }
+
+    [Fact]
     public async Task GetCotationAsync_ParsesCurrencyFormattedPrice()
     {
         using var client = new HttpClient(new StubHttpMessageHandler(_ =>
@@ -54,6 +92,140 @@ public class CotationServiceTests
         var result = await service.GetCotationAsync("PETR4");
 
         Assert.Equal(1234.56, result.Price);
+    }
+
+    [Fact]
+    public async Task GetCotationAsync_ParsesPlainCotationCell()
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>Cotação</td>
+                            <td>31,42</td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
+    [Fact]
+    public async Task GetCotationAsync_ParsesCotationLabelWithoutAccentOrCaseMatch()
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>cotacao:</td>
+                            <td>31,42</td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
+    [Fact]
+    public async Task GetCotationAsync_ParsesCurrentCotationLabelVariant()
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>Cotação atual</td>
+                            <td>31,42</td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
+    [Fact]
+    public async Task GetCotationAsync_FallsBackWhenLabeledCotationCellIsBlank()
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>Cotação</td>
+                            <td>   </td>
+                            <td class="data destaque w3"><span class="txt">31,42</span></td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
+    [Fact]
+    public async Task GetCotationAsync_FallsBackWhenLabeledCotationCellIsMalformed()
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>Cotação</td>
+                            <td><span class="txt">indisponível</span></td>
+                          </tr>
+                          <tr>
+                            <td class="data destaque w3"><span class="txt">31,42</span></td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
     }
 
     [Fact]

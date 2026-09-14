@@ -28,11 +28,14 @@ public static class PriceParser
         return false;
     }
 
-    private static string Normalize(string? value) =>
-        (value ?? string.Empty)
+    private static string Normalize(string? value)
+    {
+        var withoutCurrency = (value ?? string.Empty)
             .Replace("R$", string.Empty, StringComparison.OrdinalIgnoreCase)
-            .Replace("\u00a0", string.Empty)
-            .Trim();
+            .Replace("BRL", string.Empty, StringComparison.OrdinalIgnoreCase);
+
+        return string.Concat(withoutCurrency.Where(c => !char.IsWhiteSpace(c)));
+    }
 
     private static CultureInfo[] PreferredCultures(string value)
     {

@@ -1,7 +1,12 @@
 using HtmlAgilityPack;
+using System.Globalization;
+using System.Text;
 
 public class CotationService : ICotationService
 {
+    private const string BrowserUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
+    private const string PreferredLanguages = "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7";
+
     private readonly HttpClient _httpClient;
 
     public CotationService(HttpClient httpClient)
@@ -17,20 +22,27 @@ public class CotationService : ICotationService
         {
             var url = $"https://www.fundamentus.com.br/detalhes.php?papel={Uri.EscapeDataString(normalizedSymbol)}";
 
-            using var response = await _httpClient.GetAsync(url, cancellationToken);
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.TryAddWithoutValidation("User-Agent", BrowserUserAgent);
+            request.Headers.TryAddWithoutValidation("Accept-Language", PreferredLanguages);
+
+            using var response = await _httpClient.SendAsync(
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var html = await response.Content.ReadAsStringAsync(cancellationToken);
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
 
-            var cotationText = ExtractCotationText(doc);
-            if (cotationText is not null && PriceParser.TryParse(cotationText, out var price))
+            var price = ExtractCotationPrice(doc);
+            if (price > 0)
             {
                 return new CotationResult
                 {
                     Symbol = normalizedSymbol,
-                    Price = price,
+                    Price = price.Value,
                     Timestamp = DateTime.UtcNow
                 };
             }
@@ -57,24 +69,79 @@ public class CotationService : ICotationService
         return symbol.Trim().ToUpperInvariant();
     }
 
-    private static string? ExtractCotationText(HtmlDocument doc)
+    private static double? ExtractCotationPrice(HtmlDocument doc)
     {
-        var selectors = new[]
+        foreach (var text in ExtractCotationCandidates(doc))
         {
-            "//td[normalize-space()='Cotação']/following-sibling::td[1]//span[contains(@class,'txt')]",
-            "//table[1]//tr[1]//td[contains(@class,'data') and contains(@class,'destaque') and contains(@class,'w3')]//span[contains(@class,'txt')]"
-        };
-
-        foreach (var selector in selectors)
-        {
-            var node = doc.DocumentNode.SelectSingleNode(selector);
-            if (node is not null)
+            if (PriceParser.TryParse(text, out var price) && price > 0)
             {
-                return node.InnerText.Trim();
+                return price;
             }
         }
 
         return null;
     }
 
+    private static IEnumerable<string> ExtractCotationCandidates(HtmlDocument doc)
+    {
+        foreach (var labeledPrice in ExtractValuesAfterCotationLabels(doc))
+        {
+            yield return labeledPrice;
+        }
+
+        var selectors = new[]
+        {
+            "//table[1]//td[contains(@class,'data') and contains(@class,'destaque') and contains(@class,'w3')]//span[contains(@class,'txt')]"
+        };
+
+        foreach (var selector in selectors)
+        {
+            var node = doc.DocumentNode.SelectSingleNode(selector);
+            var text = node?.InnerText.Trim();
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                yield return text;
+            }
+        }
+    }
+
+    private static IEnumerable<string> ExtractValuesAfterCotationLabels(HtmlDocument doc)
+    {
+        var cells = doc.DocumentNode.SelectNodes("//td");
+        if (cells is null)
+        {
+            yield break;
+        }
+
+        foreach (var cell in cells)
+        {
+            if (!IsCotationLabel(cell.InnerText))
+            {
+                continue;
+            }
+
+            var valueCell = cell.SelectSingleNode("following-sibling::td[1]");
+            var text = valueCell?.InnerText.Trim();
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                yield return text;
+            }
+        }
+    }
+
+    private static bool IsCotationLabel(string value)
+    {
+        var normalized = NormalizeLabel(value);
+        return normalized is "cotacao" or "cotacaoatual" or "ultimacotacao";
+    }
+
+    private static string NormalizeLabel(string value)
+    {
+        var decomposed = value.Normalize(NormalizationForm.FormD);
+        var chars = decomposed
+            .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+            .Where(char.IsLetterOrDigit);
+
+        return string.Concat(chars).ToLowerInvariant();
+    }
 }
