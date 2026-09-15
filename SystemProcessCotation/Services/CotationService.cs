@@ -138,7 +138,9 @@ public class CotationService : ICotationService
             or "ultimacotacao"
             or "ultimopreco"
             or "ultimovalor"
+            or "preco"
             or "precoatual"
+            or "valor"
             or "valoratual";
     }
 

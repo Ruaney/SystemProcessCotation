@@ -224,7 +224,9 @@ public class CotationServiceTests
     }
 
     [Theory]
+    [InlineData("Preço")]
     [InlineData("Preço atual")]
+    [InlineData("Valor")]
     [InlineData("Valor atual")]
     [InlineData("Último preço")]
     [InlineData("Ultimo valor")]
