@@ -67,8 +67,16 @@ public static class CommandLineHelper
             "intervalo de checagem",
             1,
             ("ms", 1),
+            ("millisecond", 1),
+            ("milliseconds", 1),
             ("s", 1000),
-            ("m", 60000));
+            ("sec", 1000),
+            ("second", 1000),
+            ("seconds", 1000),
+            ("m", 60000),
+            ("min", 60000),
+            ("minute", 60000),
+            ("minutes", 60000));
 
     private static int ParseCooldownSeconds(string value) =>
         ParsePositiveDuration(
@@ -76,7 +84,13 @@ public static class CommandLineHelper
             "cooldown de alerta",
             1,
             ("s", 1),
-            ("m", 60));
+            ("sec", 1),
+            ("second", 1),
+            ("seconds", 1),
+            ("m", 60),
+            ("min", 60),
+            ("minute", 60),
+            ("minutes", 60));
 
     private static int ParsePositiveDuration(
         string value,

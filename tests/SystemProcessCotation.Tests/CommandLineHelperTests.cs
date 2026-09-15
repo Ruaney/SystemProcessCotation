@@ -80,6 +80,22 @@ public class CommandLineHelperTests
     }
 
     [Theory]
+    [InlineData("2sec", "1min", 2000, 60)]
+    [InlineData("1second", "2minutes", 1000, 120)]
+    [InlineData("500milliseconds", "45seconds", 500, 45)]
+    public void ParseArguments_AcceptsLongDurationSuffixesForTimingArguments(
+        string interval,
+        string cooldown,
+        int expectedInterval,
+        int expectedCooldown)
+    {
+        var settings = global::CommandLineHelper.ParseArguments(["PETR4", "35.50", "30.25", interval, cooldown]);
+
+        Assert.Equal(expectedInterval, settings.CheckIntervalMs);
+        Assert.Equal(expectedCooldown, settings.AlertCooldownSeconds);
+    }
+
+    [Theory]
     [InlineData("0")]
     [InlineData("-1")]
     [InlineData("fast")]
