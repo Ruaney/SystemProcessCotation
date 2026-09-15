@@ -1,9 +1,12 @@
 public static class StockSymbol
 {
+    private const int MaxLength = 12;
+
     public static bool TryNormalize(string? symbol, out string normalized)
     {
         normalized = symbol?.Trim().ToUpperInvariant() ?? string.Empty;
         return !string.IsNullOrWhiteSpace(normalized)
+            && normalized.Length <= MaxLength
             && normalized.All(IsTickerCharacter);
     }
 
@@ -17,6 +20,11 @@ public static class StockSymbol
         if (string.IsNullOrWhiteSpace(normalized))
         {
             throw new ArgumentException("O código do ativo é obrigatório.", paramName);
+        }
+
+        if (normalized.Length > MaxLength)
+        {
+            throw new ArgumentException($"O código do ativo deve ter no máximo {MaxLength} caracteres.", paramName);
         }
 
         throw new ArgumentException("O código do ativo deve conter apenas letras e números.", paramName);

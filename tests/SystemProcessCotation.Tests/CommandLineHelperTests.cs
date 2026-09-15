@@ -187,6 +187,21 @@ public class CommandLineHelperTests
         Assert.Contains("letras e números", exception.Message);
     }
 
+    [Fact]
+    public void NormalizeAndValidate_RejectsOverlyLongSymbols()
+    {
+        var settings = new global::TradingSettings
+        {
+            StockSymbol = "VERYLONGASSET1",
+            PriceToSell = 35.00,
+            PriceToBuy = 30.00
+        };
+
+        var exception = Assert.Throws<ArgumentException>(() => settings.NormalizeAndValidate());
+
+        Assert.Contains("máximo", exception.Message);
+    }
+
     [Theory]
     [InlineData(double.NaN, 30.00)]
     [InlineData(double.PositiveInfinity, 30.00)]
