@@ -85,7 +85,7 @@ dotnet run -- --help
 dotnet run PETR4 22.67 22.59
 ```
 
-Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json`. The optional `checkIntervalMs` and `alertCooldownSeconds` arguments let you tune demo cadence without editing configuration. Bare numbers keep the original units; the interval also accepts `ms`, `s`, and `m`, while cooldown accepts `s` and `m`:
+Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json`. The optional `checkIntervalMs` and `alertCooldownSeconds` arguments let you tune demo cadence without editing configuration. Bare numbers keep the original units; the interval also accepts `ms` / `milliseconds`, `s` / `sec` / `seconds`, and `m` / `min` / `minutes`, while cooldown accepts the second and minute suffixes:
 
 ```bash
 dotnet run PETR4 22.67 22.59 1000 15
@@ -149,7 +149,7 @@ TO=to@example.com
 ENABLE_SSL=true
 ```
 
-The short SMTP keys above are still the default examples. The app also accepts common deployment aliases: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` / `SMTP_USER` / `SMTP_USER_NAME`, `SMTP_PASSWORD`, `SMTP_FROM` / `SMTP_FROM_ADDRESS`, `SMTP_TO` / `SMTP_TO_ADDRESS`, `SMTP_ENABLE_SSL` / `SMTP_SSL` / `SMTP_USE_SSL`, and equivalent `EMAIL_*` names.
+The short SMTP keys above are still the default examples. The app also accepts common deployment aliases: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` / `SMTP_USER` / `SMTP_USER_NAME`, `SMTP_PASSWORD`, `SMTP_FROM` / `SMTP_FROM_ADDRESS`, `SMTP_TO` / `SMTP_TO_ADDRESS`, `SMTP_ENABLE_SSL` / `SMTP_SSL` / `SMTP_USE_SSL`, equivalent `EMAIL_*` names, and `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME` / `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_FROM`, `MAIL_TO`, `MAIL_ENABLE_SSL` / `MAIL_SSL`.
 
 ---
 

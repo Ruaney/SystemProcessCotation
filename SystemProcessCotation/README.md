@@ -24,6 +24,7 @@ Para uma demonstração mais rápida, informe também o intervalo de consulta e 
 
 ```bash
 dotnet run PETR4 22.67 22.59 1000 15
+dotnet run PETR4 22.67 22.59 1second 1min
 ```
 
 ### Gerar executável
@@ -50,4 +51,4 @@ Set-ExecutionPolicy Unrestricted
 
 Configure o SMTP renomeando `.env.example` para `.env` e edite os campos.
 
-As variáveis curtas (`HOST`, `PORT`, `USERNAME`, `PASSWORD`, `FROM`, `TO`, `ENABLE_SSL`) continuam funcionando. Também é possível usar aliases de deploy: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` ou `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, `SMTP_ENABLE_SSL` ou `SMTP_SSL`.
+As variáveis curtas (`HOST`, `PORT`, `USERNAME`, `PASSWORD`, `FROM`, `TO`, `ENABLE_SSL`) continuam funcionando. Também é possível usar aliases de deploy: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` ou `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, `SMTP_ENABLE_SSL` ou `SMTP_SSL`, além dos equivalentes `EMAIL_*` e `MAIL_*`.
