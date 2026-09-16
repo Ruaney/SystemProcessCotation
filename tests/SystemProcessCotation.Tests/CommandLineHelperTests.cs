@@ -23,6 +23,7 @@ public class CommandLineHelperTests
         Assert.Contains("[intervaloMs]", global::CommandLineHelper.Usage);
         Assert.Contains("[cooldownSegundos]", global::CommandLineHelper.Usage);
         Assert.Contains("1s 1m", global::CommandLineHelper.Usage);
+        Assert.Contains("1segundo 1minuto", global::CommandLineHelper.Usage);
     }
 
     [Fact]
@@ -84,6 +85,22 @@ public class CommandLineHelperTests
     [InlineData("1second", "2minutes", 1000, 120)]
     [InlineData("500milliseconds", "45seconds", 500, 45)]
     public void ParseArguments_AcceptsLongDurationSuffixesForTimingArguments(
+        string interval,
+        string cooldown,
+        int expectedInterval,
+        int expectedCooldown)
+    {
+        var settings = global::CommandLineHelper.ParseArguments(["PETR4", "35.50", "30.25", interval, cooldown]);
+
+        Assert.Equal(expectedInterval, settings.CheckIntervalMs);
+        Assert.Equal(expectedCooldown, settings.AlertCooldownSeconds);
+    }
+
+    [Theory]
+    [InlineData("750milissegundos", "45seg", 750, 45)]
+    [InlineData("2segundos", "1minuto", 2000, 60)]
+    [InlineData("1segundo", "2minutos", 1000, 120)]
+    public void ParseArguments_AcceptsPortugueseDurationSuffixesForTimingArguments(
         string interval,
         string cooldown,
         int expectedInterval,

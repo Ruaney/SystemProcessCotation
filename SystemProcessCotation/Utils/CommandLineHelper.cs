@@ -9,6 +9,7 @@ public static class CommandLineHelper
           dotnet run PETR4 22.67 22.59
           dotnet run PETR4 22.67 22.59 1000 15
           dotnet run PETR4 22.67 22.59 1s 1m
+          dotnet run PETR4 22.67 22.59 1segundo 1minuto
         """;
 
     public static bool IsHelpRequest(string[] args)
@@ -69,14 +70,21 @@ public static class CommandLineHelper
             ("ms", 1),
             ("millisecond", 1),
             ("milliseconds", 1),
+            ("milissegundo", 1),
+            ("milissegundos", 1),
             ("s", 1000),
             ("sec", 1000),
+            ("seg", 1000),
             ("second", 1000),
             ("seconds", 1000),
+            ("segundo", 1000),
+            ("segundos", 1000),
             ("m", 60000),
             ("min", 60000),
             ("minute", 60000),
-            ("minutes", 60000));
+            ("minutes", 60000),
+            ("minuto", 60000),
+            ("minutos", 60000));
 
     private static int ParseCooldownSeconds(string value) =>
         ParsePositiveDuration(
@@ -85,12 +93,17 @@ public static class CommandLineHelper
             1,
             ("s", 1),
             ("sec", 1),
+            ("seg", 1),
             ("second", 1),
             ("seconds", 1),
+            ("segundo", 1),
+            ("segundos", 1),
             ("m", 60),
             ("min", 60),
             ("minute", 60),
-            ("minutes", 60));
+            ("minutes", 60),
+            ("minuto", 60),
+            ("minutos", 60));
 
     private static int ParsePositiveDuration(
         string value,
