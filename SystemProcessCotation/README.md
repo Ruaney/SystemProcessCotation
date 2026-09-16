@@ -20,11 +20,14 @@ dotnet run **Ativo preçoVenda preçoCompra [intervaloMs] [cooldownSegundos]**
 dotnet run PETR4 22.67 22.59
 ```
 
+O ativo é normalizado para maiúsculas. Tickers brasileiros copiados do Yahoo, como `PETR4.SA`, também são aceitos e enviados ao Fundamentus como `PETR4`.
+
 Para uma demonstração mais rápida, informe também o intervalo de consulta e o cooldown entre alertas:
 
 ```bash
 dotnet run PETR4 22.67 22.59 1000 15
 dotnet run PETR4 22.67 22.59 1second 1min
+dotnet run PETR4.SA 22.67 22.59 1segundo 1minuto
 ```
 
 ### Gerar executável
@@ -52,3 +55,5 @@ Set-ExecutionPolicy Unrestricted
 Configure o SMTP renomeando `.env.example` para `.env` e edite os campos.
 
 As variáveis curtas (`HOST`, `PORT`, `USERNAME`, `PASSWORD`, `FROM`, `TO`, `ENABLE_SSL`) continuam funcionando. Também é possível usar aliases de deploy: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` ou `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, `SMTP_ENABLE_SSL` ou `SMTP_SSL`, além dos equivalentes `EMAIL_*` e `MAIL_*`.
+
+Valores de SSL aceitam formas comuns como `true`, `false`, `on`, `off`, `enabled`, `disabled`, `sim`, `não`, `ligado`, `desligado`, `habilitado` e `desabilitado`.
