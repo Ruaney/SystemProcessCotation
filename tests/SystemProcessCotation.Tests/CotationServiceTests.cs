@@ -69,6 +69,39 @@ public class CotationServiceTests
     }
 
     [Fact]
+    public async Task GetCotationAsync_StripsBrazilianYahooSuffixBeforeRequest()
+    {
+        string? requestUri = null;
+
+        using var client = new HttpClient(new StubHttpMessageHandler(request =>
+        {
+            requestUri = request.RequestUri?.ToString();
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>Cotação</td>
+                            <td>31,42</td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            };
+        }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("petr4.sa");
+
+        Assert.Equal("PETR4", result.Symbol);
+        Assert.Equal("https://www.fundamentus.com.br/detalhes.php?papel=PETR4", requestUri);
+    }
+
+    [Fact]
     public async Task GetCotationAsync_ParsesCurrencyFormattedPrice()
     {
         using var client = new HttpClient(new StubHttpMessageHandler(_ =>
