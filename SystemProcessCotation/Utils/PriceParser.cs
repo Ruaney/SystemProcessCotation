@@ -37,9 +37,20 @@ public static class PriceParser
             .Replace("BRL", string.Empty, StringComparison.OrdinalIgnoreCase);
 
         var compact = string.Concat(withoutCurrency.Where(c => !char.IsWhiteSpace(c)));
-        var match = PriceTokenPattern.Match(compact);
+        var match = PriceTokenPattern
+            .Matches(compact)
+            .FirstOrDefault(match => !IsPercentageToken(compact, match.Index + match.Length));
 
-        return match.Success ? match.Value : compact;
+        return match is not null && match.Success ? match.Value : compact;
+    }
+
+    private static bool IsPercentageToken(string value, int tokenEndIndex)
+    {
+        var nextNonWhitespace = value
+            .Skip(tokenEndIndex)
+            .FirstOrDefault(c => !char.IsWhiteSpace(c));
+
+        return nextNonWhitespace == '%';
     }
 
     private static CultureInfo[] PreferredCultures(string value)

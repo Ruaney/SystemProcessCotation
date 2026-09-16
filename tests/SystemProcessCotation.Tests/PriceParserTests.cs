@@ -38,6 +38,23 @@ public class PriceParserTests
         Assert.Equal(expected, price);
     }
 
+    [Fact]
+    public void TryParse_SkipsPercentTokensBeforePrice()
+    {
+        var parsed = global::PriceParser.TryParse("+0,50% R$ 31,42", out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(31.42, price);
+    }
+
+    [Fact]
+    public void TryParse_ReturnsFalseWhenOnlyPercentageIsPresent()
+    {
+        var parsed = global::PriceParser.TryParse("+0,50%", out _);
+
+        Assert.False(parsed);
+    }
+
     [Theory]
     [InlineData("-31,42", -31.42)]
     [InlineData("R$ -1.234,56 suspenso", -1234.56)]
