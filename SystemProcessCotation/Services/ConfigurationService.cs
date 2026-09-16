@@ -51,8 +51,8 @@ public class ConfigurationService : IConfigurationService
 
         return NormalizeFlagValue(value) switch
         {
-            "1" or "yes" or "sim" or "on" or "enabled" => true,
-            "0" or "no" or "nao" or "off" or "disabled" => false,
+            "1" or "yes" or "sim" or "on" or "enabled" or "verdadeiro" or "ligado" or "habilitado" => true,
+            "0" or "no" or "nao" or "off" or "disabled" or "falso" or "desligado" or "desabilitado" => false,
             _ => defaultValue
         };
     }

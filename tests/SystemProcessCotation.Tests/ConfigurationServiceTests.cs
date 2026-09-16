@@ -218,6 +218,9 @@ public class ConfigurationServiceTests
     [InlineData("não")]
     [InlineData("off")]
     [InlineData("disabled")]
+    [InlineData("falso")]
+    [InlineData("desligado")]
+    [InlineData("desabilitado")]
     public void LoadSmtpSettings_DisablesSslForFalseAliases(string value)
     {
         var previousValues = SaveEnvironment();
@@ -240,6 +243,9 @@ public class ConfigurationServiceTests
     [InlineData("on")]
     [InlineData("enabled")]
     [InlineData("sim")]
+    [InlineData("verdadeiro")]
+    [InlineData("ligado")]
+    [InlineData("habilitado")]
     public void LoadSmtpSettings_EnablesSslForTrueAliases(string value)
     {
         var previousValues = SaveEnvironment();
