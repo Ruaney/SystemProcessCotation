@@ -97,7 +97,7 @@ public class CotationService : ICotationService
 
     private static IEnumerable<string> ExtractValuesAfterCotationLabels(HtmlDocument doc)
     {
-        var cells = doc.DocumentNode.SelectNodes("//td");
+        var cells = doc.DocumentNode.SelectNodes("//td|//th");
         if (cells is null)
         {
             yield break;
@@ -110,7 +110,8 @@ public class CotationService : ICotationService
                 continue;
             }
 
-            var valueCell = cell.SelectSingleNode("following-sibling::td[1]");
+            var valueCell = cell.SelectSingleNode("following-sibling::td[1]")
+                ?? cell.SelectSingleNode("following-sibling::th[1]");
             var text = ExtractPriceText(valueCell);
             if (!string.IsNullOrWhiteSpace(text))
             {
