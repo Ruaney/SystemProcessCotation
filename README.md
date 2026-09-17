@@ -85,13 +85,14 @@ dotnet run -- --help
 dotnet run PETR4 22.67 22.59
 ```
 
-Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json`. The asset code is normalized to uppercase; Brazilian Yahoo tickers such as `PETR4.SA` are accepted and sent to Fundamentus as `PETR4`.
+Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json`. The asset code is normalized to uppercase; Brazilian Yahoo tickers such as `PETR4.SA` and broker/TradingView formats such as `B3:PETR4` or `BMFBOVESPA:PETR4.SA` are accepted and sent to Fundamentus as `PETR4`.
 
 The optional `checkIntervalMs` and `alertCooldownSeconds` arguments let you tune demo cadence without editing configuration. Bare numbers keep the original units; the interval also accepts `ms` / `milliseconds` / `milissegundos`, `s` / `sec` / `seconds` / `segundos`, and `m` / `min` / `minutes` / `minutos`, while cooldown accepts the second and minute suffixes:
 
 ```bash
 dotnet run PETR4 22.67 22.59 1000 15
 dotnet run PETR4 22.67 22.59 1s 1m
+dotnet run B3:PETR4 22.67 22.59 5m 1h
 dotnet run PETR4.SA 22.67 22.59 1segundo 1minuto
 ```
 
@@ -152,7 +153,7 @@ TO=to@example.com
 ENABLE_SSL=true
 ```
 
-The short SMTP keys above are still the default examples. The app also accepts common deployment aliases: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` / `SMTP_USER` / `SMTP_USER_NAME`, `SMTP_PASSWORD`, `SMTP_FROM` / `SMTP_FROM_ADDRESS`, `SMTP_TO` / `SMTP_TO_ADDRESS`, `SMTP_ENABLE_SSL` / `SMTP_SSL` / `SMTP_USE_SSL`, equivalent `EMAIL_*` names, and `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME` / `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_FROM`, `MAIL_TO`, `MAIL_ENABLE_SSL` / `MAIL_SSL`.
+The short SMTP keys above are still the default examples. The app also accepts common deployment aliases: `SMTP_HOST` / `SMTP_SERVER`, `SMTP_PORT`, `SMTP_USERNAME` / `SMTP_USER` / `SMTP_USER_NAME` / `SMTP_USER_EMAIL`, `SMTP_PASSWORD`, `SMTP_FROM` / `SMTP_FROM_ADDRESS` / `SMTP_FROM_EMAIL`, `SMTP_TO` / `SMTP_TO_ADDRESS` / `SMTP_TO_EMAIL`, `SMTP_ENABLE_SSL` / `SMTP_SSL` / `SMTP_USE_SSL`, equivalent `EMAIL_*` names, and `MAIL_HOST` / `MAIL_SERVER`, `MAIL_PORT`, `MAIL_USERNAME` / `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_FROM`, `MAIL_TO`, `MAIL_ENABLE_SSL` / `MAIL_SSL` / `MAIL_USE_SSL`.
 
 For SSL flags, the parser accepts common true/false values such as `true`, `false`, `on`, `off`, `enabled`, `disabled`, `sim`, `não`, `ligado`, `desligado`, `habilitado`, and `desabilitado`.
 
