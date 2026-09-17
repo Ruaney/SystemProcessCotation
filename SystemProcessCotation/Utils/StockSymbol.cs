@@ -1,10 +1,11 @@
 public static class StockSymbol
 {
     private const int MaxLength = 12;
+    private static readonly string[] KnownPrefixes = ["B3:", "BVMF:", "BMFBOVESPA:"];
 
     public static bool TryNormalize(string? symbol, out string normalized)
     {
-        normalized = StripKnownSuffix(symbol?.Trim().ToUpperInvariant() ?? string.Empty);
+        normalized = StripKnownSuffix(StripKnownPrefix(symbol?.Trim().ToUpperInvariant() ?? string.Empty));
         return !string.IsNullOrWhiteSpace(normalized)
             && normalized.Length <= MaxLength
             && normalized.All(IsTickerCharacter);
@@ -28,6 +29,19 @@ public static class StockSymbol
         }
 
         throw new ArgumentException("O código do ativo deve conter apenas letras e números.", paramName);
+    }
+
+    private static string StripKnownPrefix(string value)
+    {
+        foreach (var prefix in KnownPrefixes)
+        {
+            if (value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return value[prefix.Length..];
+            }
+        }
+
+        return value;
     }
 
     private static string StripKnownSuffix(string value) =>
