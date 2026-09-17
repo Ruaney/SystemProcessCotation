@@ -12,13 +12,13 @@ public class ConfigurationService : IConfigurationService
     {
         return new SmtpSettings
         {
-            Host = GetEnv("HOST", "SMTP_HOST", "EMAIL_HOST", "MAIL_HOST"),
+            Host = GetEnv("HOST", "SMTP_HOST", "SMTP_SERVER", "EMAIL_HOST", "EMAIL_SERVER", "MAIL_HOST", "MAIL_SERVER"),
             Port = int.TryParse(GetEnv("PORT", "SMTP_PORT", "EMAIL_PORT", "MAIL_PORT"), NumberStyles.Integer, CultureInfo.InvariantCulture, out var port) ? port : 0,
-            FromAddress = GetEnv("FROM", "SMTP_FROM", "SMTP_FROM_ADDRESS", "EMAIL_FROM", "MAIL_FROM"),
-            ToAddress = GetEnv("TO", "SMTP_TO", "SMTP_TO_ADDRESS", "EMAIL_TO", "MAIL_TO"),
+            FromAddress = GetEnv("FROM", "SMTP_FROM", "SMTP_FROM_ADDRESS", "SMTP_FROM_EMAIL", "EMAIL_FROM", "EMAIL_FROM_ADDRESS", "MAIL_FROM", "MAIL_FROM_ADDRESS"),
+            ToAddress = GetEnv("TO", "SMTP_TO", "SMTP_TO_ADDRESS", "SMTP_TO_EMAIL", "EMAIL_TO", "EMAIL_TO_ADDRESS", "MAIL_TO", "MAIL_TO_ADDRESS"),
             Password = GetEnv("PASSWORD", "SMTP_PASSWORD", "EMAIL_PASSWORD", "MAIL_PASSWORD"),
-            Username = GetEnv("USERNAME", "SMTP_USERNAME", "SMTP_USER", "SMTP_USER_NAME", "EMAIL_USERNAME", "EMAIL_USER", "MAIL_USERNAME", "MAIL_USER"),
-            EnableSsl = GetEnvFlag(["ENABLE_SSL", "SMTP_ENABLE_SSL", "SMTP_SSL", "SMTP_USE_SSL", "SMTP_SSL_ENABLED", "EMAIL_ENABLE_SSL", "MAIL_ENABLE_SSL", "MAIL_SSL"], defaultValue: true)
+            Username = GetEnv("USERNAME", "SMTP_USERNAME", "SMTP_USER", "SMTP_USER_NAME", "SMTP_USER_EMAIL", "EMAIL_USERNAME", "EMAIL_USER", "EMAIL_USER_NAME", "EMAIL_USER_EMAIL", "MAIL_USERNAME", "MAIL_USER", "MAIL_USER_NAME", "MAIL_USER_EMAIL"),
+            EnableSsl = GetEnvFlag(["ENABLE_SSL", "SMTP_ENABLE_SSL", "SMTP_SSL", "SMTP_USE_SSL", "SMTP_SSL_ENABLED", "EMAIL_ENABLE_SSL", "EMAIL_SSL", "EMAIL_USE_SSL", "MAIL_ENABLE_SSL", "MAIL_SSL", "MAIL_USE_SSL", "MAIL_SSL_ENABLED"], defaultValue: true)
         };
     }
 

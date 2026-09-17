@@ -12,6 +12,7 @@ public class ConfigurationServiceTests
         "USERNAME",
         "ENABLE_SSL",
         "SMTP_HOST",
+        "SMTP_SERVER",
         "SMTP_PORT",
         "SMTP_FROM",
         "SMTP_TO",
@@ -19,29 +20,46 @@ public class ConfigurationServiceTests
         "SMTP_USERNAME",
         "SMTP_USER",
         "SMTP_USER_NAME",
+        "SMTP_USER_EMAIL",
         "SMTP_ENABLE_SSL",
         "SMTP_SSL",
         "SMTP_USE_SSL",
         "SMTP_SSL_ENABLED",
         "EMAIL_HOST",
+        "EMAIL_SERVER",
         "EMAIL_PORT",
         "EMAIL_FROM",
+        "EMAIL_FROM_ADDRESS",
         "EMAIL_TO",
+        "EMAIL_TO_ADDRESS",
         "EMAIL_USERNAME",
         "EMAIL_USER",
+        "EMAIL_USER_NAME",
+        "EMAIL_USER_EMAIL",
         "EMAIL_PASSWORD",
         "EMAIL_ENABLE_SSL",
+        "EMAIL_SSL",
+        "EMAIL_USE_SSL",
         "SMTP_FROM_ADDRESS",
+        "SMTP_FROM_EMAIL",
         "SMTP_TO_ADDRESS",
+        "SMTP_TO_EMAIL",
         "MAIL_HOST",
+        "MAIL_SERVER",
         "MAIL_PORT",
         "MAIL_FROM",
+        "MAIL_FROM_ADDRESS",
         "MAIL_TO",
+        "MAIL_TO_ADDRESS",
         "MAIL_USERNAME",
         "MAIL_USER",
+        "MAIL_USER_NAME",
+        "MAIL_USER_EMAIL",
         "MAIL_PASSWORD",
         "MAIL_ENABLE_SSL",
-        "MAIL_SSL"
+        "MAIL_SSL",
+        "MAIL_USE_SSL",
+        "MAIL_SSL_ENABLED"
     ];
 
     [Fact]
@@ -173,6 +191,38 @@ public class ConfigurationServiceTests
             Environment.SetEnvironmentVariable("MAIL_USER", "alerts@example.com");
             Environment.SetEnvironmentVariable("MAIL_PASSWORD", "secret");
             Environment.SetEnvironmentVariable("MAIL_SSL", "false");
+
+            var settings = new global::ConfigurationService().LoadSmtpSettings();
+
+            Assert.Equal("smtp.example.com", settings.Host);
+            Assert.Equal(2525, settings.Port);
+            Assert.Equal("alerts@example.com", settings.FromAddress);
+            Assert.Equal("user@example.com", settings.ToAddress);
+            Assert.Equal("alerts@example.com", settings.Username);
+            Assert.Equal("secret", settings.Password);
+            Assert.False(settings.EnableSsl);
+        }
+        finally
+        {
+            RestoreEnvironment(previousValues);
+        }
+    }
+
+    [Fact]
+    public void LoadSmtpSettings_ReadsDeploymentStyleAliases()
+    {
+        var previousValues = SaveEnvironment();
+
+        try
+        {
+            ClearEnvironment();
+            Environment.SetEnvironmentVariable("SMTP_SERVER", "smtp.example.com");
+            Environment.SetEnvironmentVariable("SMTP_PORT", "2525");
+            Environment.SetEnvironmentVariable("SMTP_FROM_EMAIL", "alerts@example.com");
+            Environment.SetEnvironmentVariable("SMTP_TO_EMAIL", "user@example.com");
+            Environment.SetEnvironmentVariable("SMTP_USER_EMAIL", "alerts@example.com");
+            Environment.SetEnvironmentVariable("SMTP_PASSWORD", "secret");
+            Environment.SetEnvironmentVariable("MAIL_USE_SSL", "disabled");
 
             var settings = new global::ConfigurationService().LoadSmtpSettings();
 
