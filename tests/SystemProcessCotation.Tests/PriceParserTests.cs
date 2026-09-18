@@ -37,4 +37,15 @@ public class PriceParserTests
         Assert.True(parsed);
         Assert.Equal(expected, price);
     }
+
+    [Theory]
+    [InlineData("31,42 +0,50%", 31.42)]
+    [InlineData("+0,50% R$ 31,42", 31.42)]
+    public void TryParse_IgnoresPercentageVariationTokens(string value, double expected)
+    {
+        var parsed = global::PriceParser.TryParse(value, out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(expected, price);
+    }
 }
