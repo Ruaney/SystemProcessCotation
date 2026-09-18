@@ -99,7 +99,7 @@ public class Program
             configuration.GetValue<string>("Aws:AccessKey") ?? "test",
             configuration.GetValue<string>("Aws:SecretKey") ?? "test");
 
-    private static TradingSettings ResolveTradingSettings(string[] args, IConfiguration configuration)
+    internal static TradingSettings ResolveTradingSettings(string[] args, IConfiguration configuration)
     {
         if (args.Length > 0)
         {
@@ -110,10 +110,18 @@ public class Program
         return new TradingSettings
         {
             StockSymbol = (section.GetValue<string>("StockSymbol") ?? "PETR4").ToUpperInvariant(),
-            PriceToSell = section.GetValue<double>("PriceToSell"),
-            PriceToBuy = section.GetValue<double>("PriceToBuy"),
+            PriceToSell = GetConfiguredPrice(section, "PriceToSell"),
+            PriceToBuy = GetConfiguredPrice(section, "PriceToBuy"),
             CheckIntervalMs = section.GetValue<int>("CheckIntervalMs"),
             AlertCooldownSeconds = section.GetValue<int?>("AlertCooldownSeconds") ?? 60
         }.NormalizeAndValidate();
+    }
+
+    private static double GetConfiguredPrice(IConfigurationSection section, string name)
+    {
+        var value = section[name];
+        return PriceParser.TryParse(value, out var price)
+            ? price
+            : section.GetValue<double>(name);
     }
 }
