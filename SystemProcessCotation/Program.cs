@@ -110,18 +110,27 @@ public class Program
         return new TradingSettings
         {
             StockSymbol = (section.GetValue<string>("StockSymbol") ?? "PETR4").ToUpperInvariant(),
-            PriceToSell = GetConfiguredPrice(section, "PriceToSell"),
-            PriceToBuy = GetConfiguredPrice(section, "PriceToBuy"),
+            PriceToSell = GetConfiguredPrice(section, "PriceToSell", "preço de venda"),
+            PriceToBuy = GetConfiguredPrice(section, "PriceToBuy", "preço de compra"),
             CheckIntervalMs = section.GetValue<int>("CheckIntervalMs"),
             AlertCooldownSeconds = section.GetValue<int?>("AlertCooldownSeconds") ?? 60
         }.NormalizeAndValidate();
     }
 
-    private static double GetConfiguredPrice(IConfigurationSection section, string name)
+    private static double GetConfiguredPrice(IConfigurationSection section, string name, string displayName)
     {
         var value = section[name];
-        return PriceParser.TryParse(value, out var price)
-            ? price
-            : section.GetValue<double>(name);
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return 0;
+        }
+
+        if (PriceParser.TryParse(value, out var price))
+        {
+            return price;
+        }
+
+        throw new ArgumentException(
+            $"Valor inválido para {displayName}: {value}. Use formato decimal com ponto ou vírgula (ex: 22.67 ou 22,67).");
     }
 }
