@@ -20,6 +20,12 @@ dotnet run **Ativo preçoVenda preçoCompra [intervaloMs] [cooldownSegundos]**
 dotnet run PETR4 22.67 22.59
 ```
 
+Os preços também aceitam vírgula decimal e marcadores de moeda, por exemplo:
+
+```bash
+dotnet run PETR4 "R$ 35,50" "R$ 30,25"
+```
+
 Para uma demonstração mais rápida, informe também o intervalo de consulta e o cooldown entre alertas:
 
 ```bash
@@ -51,3 +57,5 @@ Set-ExecutionPolicy Unrestricted
 Configure o SMTP renomeando `.env.example` para `.env` e edite os campos.
 
 As variáveis curtas (`HOST`, `PORT`, `USERNAME`, `PASSWORD`, `FROM`, `TO`, `ENABLE_SSL`) continuam funcionando. Também é possível usar aliases de deploy: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` ou `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, `SMTP_ENABLE_SSL` ou `SMTP_SSL`.
+
+Na seção `Trading` do `appsettings.json`, `PriceToSell` e `PriceToBuy` podem ser números JSON ou textos localizados como `"35,50"` e `"R$ 1.234,56"`. Valores inválidos são rejeitados na inicialização.

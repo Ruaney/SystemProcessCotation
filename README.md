@@ -91,6 +91,12 @@ Command-line arguments take priority; if omitted, values are read from the `Trad
 dotnet run PETR4 22.67 22.59 1000 15
 ```
 
+Prices can be plain numbers or localized Brazilian strings. Quote currency-formatted values in the shell:
+
+```bash
+dotnet run PETR4 "R$ 35,50" "R$ 30,25"
+```
+
 ### Build a standalone executable
 
 ```bash
@@ -129,6 +135,7 @@ cd .\SystemProcessCotation\
 ```
 
 - Leave `Aws:ServiceUrl` empty to target **real AWS** (uses the default credential chain); set it to the LocalStack URL for offline runs.
+- `Trading:PriceToSell` and `Trading:PriceToBuy` may be JSON numbers or localized strings such as `"35,50"` and `"R$ 1.234,56"`. Invalid price text is rejected at startup.
 
 ### Email (SMTP) — optional
 
