@@ -26,4 +26,15 @@ public class PriceParserTests
         Assert.True(parsed);
         Assert.Equal(expected, price);
     }
+
+    [Theory]
+    [InlineData("1.234.567,89", 1234567.89)]
+    [InlineData("R$ 12.345.678", 12345678.00)]
+    public void TryParse_AcceptsGroupedBrazilianThousands(string value, double expected)
+    {
+        var parsed = global::PriceParser.TryParse(value, out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(expected, price);
+    }
 }

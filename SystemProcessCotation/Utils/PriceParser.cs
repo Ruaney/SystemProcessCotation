@@ -76,4 +76,27 @@ public static class PriceParser
             && value[..separatorIndex].All(char.IsDigit)
             && value[(separatorIndex + 1)..].All(char.IsDigit);
     }
+
+    private static bool LooksLikeBrazilianThousands(string value)
+    {
+        var decimalSeparatorIndex = value.LastIndexOf(',');
+        var integerPart = decimalSeparatorIndex >= 0 ? value[..decimalSeparatorIndex] : value;
+        var decimalPart = decimalSeparatorIndex >= 0 ? value[(decimalSeparatorIndex + 1)..] : string.Empty;
+
+        if (integerPart.IndexOf('.') < 0)
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrEmpty(decimalPart) && !decimalPart.All(char.IsDigit))
+        {
+            return false;
+        }
+
+        var groups = integerPart.Split('.');
+        return groups.Length > 1
+            && groups[0].Length is >= 1 and <= 3
+            && groups[0].All(char.IsDigit)
+            && groups.Skip(1).All(group => group.Length == 3 && group.All(char.IsDigit));
+    }
 }
