@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 public static class PriceParser
 {
     private static readonly Regex PriceTokenPattern = new(@"[-+]?\d+(?:[.,]\d+)*", RegexOptions.Compiled);
+    private static readonly string[] CurrencyMarkers = ["R$", "BRL"];
     private static readonly CultureInfo BrazilianCulture = CultureInfo.GetCultureInfo("pt-BR");
     private static readonly CultureInfo InvariantCulture = CultureInfo.InvariantCulture;
     private const NumberStyles PriceStyles = NumberStyles.Float | NumberStyles.AllowThousands;
@@ -32,16 +33,83 @@ public static class PriceParser
 
     private static string Normalize(string? value)
     {
-        var withoutCurrency = (value ?? string.Empty)
+        var compact = string.Concat((value ?? string.Empty).Where(c => !char.IsWhiteSpace(c)));
+        var currencyPrice = ExtractCurrencyMarkedToken(compact);
+        if (!string.IsNullOrEmpty(currencyPrice))
+        {
+            return currencyPrice;
+        }
+
+        var withoutCurrency = compact
             .Replace("R$", string.Empty, StringComparison.OrdinalIgnoreCase)
             .Replace("BRL", string.Empty, StringComparison.OrdinalIgnoreCase);
 
-        var compact = string.Concat(withoutCurrency.Where(c => !char.IsWhiteSpace(c)));
-        var match = PriceTokenPattern
-            .Matches(compact)
-            .FirstOrDefault(match => !IsPercentageToken(compact, match.Index + match.Length));
+        return FirstPriceToken(withoutCurrency) ?? compact;
+    }
 
-        return match is not null && match.Success ? match.Value : compact;
+    private static string? ExtractCurrencyMarkedToken(string value)
+    {
+        foreach (var marker in CurrencyMarkers)
+        {
+            var searchIndex = 0;
+            while (searchIndex < value.Length)
+            {
+                var markerIndex = value.IndexOf(marker, searchIndex, StringComparison.OrdinalIgnoreCase);
+                if (markerIndex < 0)
+                {
+                    break;
+                }
+
+                var afterMarker = value[(markerIndex + marker.Length)..];
+                var tokenAfterMarker = LeadingPriceToken(afterMarker);
+                if (!string.IsNullOrEmpty(tokenAfterMarker))
+                {
+                    return tokenAfterMarker;
+                }
+
+                var beforeMarker = value[..markerIndex];
+                var tokenBeforeMarker = LastPriceToken(beforeMarker);
+                if (!string.IsNullOrEmpty(tokenBeforeMarker))
+                {
+                    return tokenBeforeMarker;
+                }
+
+                searchIndex = markerIndex + marker.Length;
+            }
+        }
+
+        return null;
+    }
+
+    private static string? FirstPriceToken(string value)
+    {
+        return PriceTokenPattern
+            .Matches(value)
+            .FirstOrDefault(match => !IsPercentageToken(value, match.Index + match.Length))
+            ?.Value;
+    }
+
+    private static string? LeadingPriceToken(string value)
+    {
+        var candidate = value.TrimStart(':', '=');
+        if (candidate.Length == 0 || !char.IsDigit(candidate[0]) && candidate[0] is not '-' and not '+')
+        {
+            return null;
+        }
+
+        var match = PriceTokenPattern.Match(candidate);
+        return match.Success && match.Index == 0 && !IsPercentageToken(candidate, match.Length)
+            ? match.Value
+            : null;
+    }
+
+    private static string? LastPriceToken(string value)
+    {
+        return PriceTokenPattern
+            .Matches(value)
+            .Cast<Match>()
+            .LastOrDefault(match => !IsPercentageToken(value, match.Index + match.Length))
+            ?.Value;
     }
 
     private static bool IsPercentageToken(string value, int tokenEndIndex)
