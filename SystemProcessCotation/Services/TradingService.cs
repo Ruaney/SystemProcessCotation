@@ -56,10 +56,4 @@ public class TradingService : ITradingService
 
         return Task.FromResult(alert);
     }
-
-    private static bool TryNormalizeSymbol(string? symbol, out string normalizedSymbol)
-    {
-        normalizedSymbol = (symbol ?? string.Empty).Trim().ToUpperInvariant();
-        return normalizedSymbol.All(char.IsLetterOrDigit);
-    }
 }
