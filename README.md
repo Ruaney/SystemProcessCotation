@@ -136,6 +136,7 @@ cd .\SystemProcessCotation\
 
 - Leave `Aws:ServiceUrl` empty to target **real AWS** (uses the default credential chain); set it to the LocalStack URL for offline runs.
 - `Trading:PriceToSell` and `Trading:PriceToBuy` may be JSON numbers or localized strings such as `"35,50"` and `"R$ 1.234,56"`. Invalid price text is rejected at startup.
+- Environment variable overrides also work through the standard .NET `__` separator, for example `Trading__StockSymbol=PETR4.SA`, `Trading__PriceToSell="R$ 35,50"`, and `Trading__AlertCooldownSeconds=60`. Command-line arguments still take priority when supplied.
 
 ### Email (SMTP) — optional
 

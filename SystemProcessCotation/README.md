@@ -59,3 +59,5 @@ Configure o SMTP renomeando `.env.example` para `.env` e edite os campos.
 As variáveis curtas (`HOST`, `PORT`, `USERNAME`, `PASSWORD`, `FROM`, `TO`, `ENABLE_SSL`) continuam funcionando. Também é possível usar aliases de deploy: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` ou `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, `SMTP_ENABLE_SSL` ou `SMTP_SSL`.
 
 Na seção `Trading` do `appsettings.json`, `PriceToSell` e `PriceToBuy` podem ser números JSON ou textos localizados como `"35,50"` e `"R$ 1.234,56"`. Valores inválidos são rejeitados na inicialização.
+
+Também é possível configurar pelo `.env` usando o separador `__` do .NET, por exemplo `Trading__StockSymbol=PETR4.SA`, `Trading__PriceToSell=R$ 35,50` e `Trading__AlertCooldownSeconds=60`. Argumentos de linha de comando continuam tendo prioridade.

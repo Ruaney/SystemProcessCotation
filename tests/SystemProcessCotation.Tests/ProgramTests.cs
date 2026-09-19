@@ -10,7 +10,7 @@ public class ProgramTests
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["Trading:StockSymbol"] = "petr4",
+                ["Trading:StockSymbol"] = "petr4.sa",
                 ["Trading:PriceToSell"] = "R$ 35,50",
                 ["Trading:PriceToBuy"] = "R$ 30,25",
                 ["Trading:CheckIntervalMs"] = "1500",
