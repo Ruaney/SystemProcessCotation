@@ -27,7 +27,7 @@ public class CommandLineHelperTests
     [Fact]
     public void ParseArguments_NormalizesSymbolAndPrices()
     {
-        var settings = global::CommandLineHelper.ParseArguments([" petr4 ", "35.50", "30.25"]);
+        var settings = global::CommandLineHelper.ParseArguments([" petr4.sa ", "35.50", "30.25"]);
 
         Assert.Equal("PETR4", settings.StockSymbol);
         Assert.Equal(35.50, settings.PriceToSell);
@@ -148,6 +148,7 @@ public class CommandLineHelperTests
     [Theory]
     [InlineData("PETR 4")]
     [InlineData("PETR-4")]
+    [InlineData("PETR4.US")]
     public void NormalizeAndValidate_RejectsSymbolsWithInvalidCharacters(string symbol)
     {
         var settings = new global::TradingSettings

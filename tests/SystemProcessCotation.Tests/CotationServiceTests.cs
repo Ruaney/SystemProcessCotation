@@ -61,7 +61,7 @@ public class CotationServiceTests
         }));
         var service = new global::CotationService(client);
 
-        await service.GetCotationAsync(" petr4 ");
+        await service.GetCotationAsync(" petr4.sa ");
 
         Assert.Equal("https://www.fundamentus.com.br/detalhes.php?papel=PETR4", requestUri);
         Assert.Contains("Mozilla/5.0", userAgent);

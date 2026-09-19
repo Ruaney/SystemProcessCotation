@@ -76,10 +76,21 @@ public class TradingServiceTests
     }
 
     [Fact]
+    public async Task AnalyzeCotationAsync_NormalizesB3SuffixOnAlert()
+    {
+        var alert = await _service.AnalyzeCotationAsync(
+            new global::CotationResult { Symbol = "petr4.sa", Price = 35.00 },
+            new global::TradingSettings { PriceToSell = 35.00, PriceToBuy = 30.00 });
+
+        Assert.NotNull(alert);
+        Assert.Equal("PETR4", alert.Symbol);
+    }
+
+    [Fact]
     public async Task AnalyzeCotationAsync_ReturnsNullForUnsupportedSymbolCharacters()
     {
         var alert = await _service.AnalyzeCotationAsync(
-            new global::CotationResult { Symbol = "PETR4.SA", Price = 35.00 },
+            new global::CotationResult { Symbol = "PETR4.US", Price = 35.00 },
             new global::TradingSettings { PriceToSell = 35.00, PriceToBuy = 30.00 });
 
         Assert.Null(alert);

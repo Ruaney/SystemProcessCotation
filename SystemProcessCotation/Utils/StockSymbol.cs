@@ -1,8 +1,15 @@
 public static class StockSymbol
 {
+    private const string B3ExchangeSuffix = ".SA";
+
     public static bool TryNormalize(string? symbol, out string normalized)
     {
         normalized = symbol?.Trim().ToUpperInvariant() ?? string.Empty;
+        if (normalized.EndsWith(B3ExchangeSuffix, StringComparison.Ordinal))
+        {
+            normalized = normalized[..^B3ExchangeSuffix.Length];
+        }
+
         return !string.IsNullOrWhiteSpace(normalized)
             && normalized.All(IsTickerCharacter);
     }
