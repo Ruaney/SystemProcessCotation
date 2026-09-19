@@ -6,6 +6,7 @@ public static class CommandLineHelper
         Exemplos:
           dotnet run PETR4 22.67 22.59
           dotnet run PETR4 22.67 22.59 1000 15
+          dotnet run PETR4.SA "R$ 35,50" "R$ 30,25"
         """;
 
     public static bool IsHelpRequest(string[] args)
