@@ -68,7 +68,7 @@ public class TradingServiceTests
     public async Task AnalyzeCotationAsync_NormalizesB3SuffixOnAlert()
     {
         var alert = await _service.AnalyzeCotationAsync(
-            new global::CotationResult { Symbol = "petr4.sa", Price = 35.00 },
+            new global::CotationResult { Symbol = "bvmf:petr4.sa", Price = 35.00 },
             new global::TradingSettings { PriceToSell = 35.00, PriceToBuy = 30.00 });
 
         Assert.NotNull(alert);

@@ -56,7 +56,7 @@ public class CotationResultTests
     {
         var cotation = new global::CotationResult
         {
-            Symbol = " petr4.sa ",
+            Symbol = " b3:petr4.sa ",
             Price = 10.00
         };
 

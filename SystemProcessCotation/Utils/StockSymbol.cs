@@ -1,10 +1,20 @@
 public static class StockSymbol
 {
     private const string B3ExchangeSuffix = ".SA";
+    private static readonly string[] ExchangePrefixes = ["BVMF:", "B3:"];
 
     public static bool TryNormalize(string? symbol, out string normalized)
     {
         normalized = symbol?.Trim().ToUpperInvariant() ?? string.Empty;
+        foreach (var prefix in ExchangePrefixes)
+        {
+            if (normalized.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                normalized = normalized[prefix.Length..];
+                break;
+            }
+        }
+
         if (normalized.EndsWith(B3ExchangeSuffix, StringComparison.Ordinal))
         {
             normalized = normalized[..^B3ExchangeSuffix.Length];

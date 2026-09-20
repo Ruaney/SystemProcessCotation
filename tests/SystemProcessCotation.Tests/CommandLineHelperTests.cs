@@ -34,7 +34,7 @@ public class CommandLineHelperTests
     [Fact]
     public void ParseArguments_NormalizesSymbolAndPrices()
     {
-        var settings = global::CommandLineHelper.ParseArguments([" petr4.sa ", "35.50", "30.25"]);
+        var settings = global::CommandLineHelper.ParseArguments([" bvmf:petr4.sa ", "35.50", "30.25"]);
 
         Assert.Equal("PETR4", settings.StockSymbol);
         Assert.Equal(35.50, settings.PriceToSell);
