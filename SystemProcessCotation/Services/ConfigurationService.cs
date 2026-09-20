@@ -29,11 +29,25 @@ public class ConfigurationService : IConfigurationService
             var value = Environment.GetEnvironmentVariable(name);
             if (!string.IsNullOrWhiteSpace(value))
             {
-                return value.Trim();
+                return TrimMatchingQuotes(value.Trim());
             }
         }
 
         return string.Empty;
+    }
+
+    private static string TrimMatchingQuotes(string value)
+    {
+        if (value.Length < 2)
+        {
+            return value;
+        }
+
+        var first = value[0];
+        var last = value[^1];
+        return first == last && first is '"' or '\''
+            ? value[1..^1].Trim()
+            : value;
     }
 
     private static bool GetEnvFlag(string[] names, bool defaultValue)

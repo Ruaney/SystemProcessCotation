@@ -29,13 +29,13 @@ public class ConfigurationServiceTests
 
         try
         {
-            Environment.SetEnvironmentVariable("HOST", " smtp.example.com ");
-            Environment.SetEnvironmentVariable("PORT", " 587 ");
-            Environment.SetEnvironmentVariable("FROM", " alerts@example.com ");
-            Environment.SetEnvironmentVariable("TO", " user@example.com ");
-            Environment.SetEnvironmentVariable("USERNAME", " alerts@example.com ");
-            Environment.SetEnvironmentVariable("PASSWORD", " secret ");
-            Environment.SetEnvironmentVariable("ENABLE_SSL", " false ");
+            Environment.SetEnvironmentVariable("HOST", " \"smtp.example.com\" ");
+            Environment.SetEnvironmentVariable("PORT", " '587' ");
+            Environment.SetEnvironmentVariable("FROM", " \"alerts@example.com\" ");
+            Environment.SetEnvironmentVariable("TO", " 'user@example.com' ");
+            Environment.SetEnvironmentVariable("USERNAME", " \"alerts@example.com\" ");
+            Environment.SetEnvironmentVariable("PASSWORD", " 'secret' ");
+            Environment.SetEnvironmentVariable("ENABLE_SSL", " \"false\" ");
 
             var settings = new global::ConfigurationService().LoadSmtpSettings();
 
