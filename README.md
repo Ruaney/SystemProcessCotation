@@ -91,6 +91,8 @@ Command-line arguments take priority; if omitted, values are read from the `Trad
 dotnet run PETR4 22.67 22.59 1000 15
 ```
 
+The asset symbol is normalized before requests are made. You can pass plain B3 tickers (`PETR4`), Yahoo-style suffixes (`PETR4.SA`), or exchange-prefixed values (`BVMF:PETR4`, `B3:PETR4`).
+
 Prices can be plain numbers or localized Brazilian strings. Quote currency-formatted values in the shell:
 
 ```bash
@@ -136,7 +138,7 @@ cd .\SystemProcessCotation\
 
 - Leave `Aws:ServiceUrl` empty to target **real AWS** (uses the default credential chain); set it to the LocalStack URL for offline runs.
 - `Trading:PriceToSell` and `Trading:PriceToBuy` may be JSON numbers or localized strings such as `"35,50"` and `"R$ 1.234,56"`. Invalid price text is rejected at startup.
-- Environment variable overrides also work through the standard .NET `__` separator, for example `Trading__StockSymbol=PETR4.SA`, `Trading__PriceToSell="R$ 35,50"`, and `Trading__AlertCooldownSeconds=60`. Command-line arguments still take priority when supplied.
+- Environment variable overrides also work through the standard .NET `__` separator, for example `Trading__StockSymbol=BVMF:PETR4`, `Trading__PriceToSell="R$ 35,50"`, and `Trading__AlertCooldownSeconds=60`. Command-line arguments still take priority when supplied.
 
 ### Email (SMTP) — optional
 
@@ -157,6 +159,7 @@ ENABLE_SSL=true
 ```
 
 The short SMTP keys above are still the default examples. The app also accepts common deployment aliases: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` or `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, and `SMTP_ENABLE_SSL` or `SMTP_SSL`.
+SMTP environment values may be wrapped in matching single or double quotes; the loader trims those wrappers before validating host, port, addresses, and flags.
 
 ---
 
