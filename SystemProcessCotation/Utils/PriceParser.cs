@@ -85,7 +85,7 @@ public static class PriceParser
     {
         return PriceTokenPattern
             .Matches(value)
-            .FirstOrDefault(match => !IsPercentageToken(value, match.Index + match.Length))
+            .FirstOrDefault(match => IsPriceCandidate(value, match))
             ?.Value;
     }
 
@@ -98,7 +98,7 @@ public static class PriceParser
         }
 
         var match = PriceTokenPattern.Match(candidate);
-        return match.Success && match.Index == 0 && !IsPercentageToken(candidate, match.Length)
+        return match.Success && match.Index == 0 && IsPriceCandidate(candidate, match)
             ? match.Value
             : null;
     }
@@ -108,9 +108,13 @@ public static class PriceParser
         return PriceTokenPattern
             .Matches(value)
             .Cast<Match>()
-            .LastOrDefault(match => !IsPercentageToken(value, match.Index + match.Length))
+            .LastOrDefault(match => IsPriceCandidate(value, match))
             ?.Value;
     }
+
+    private static bool IsPriceCandidate(string value, Match match) =>
+        !IsPercentageToken(value, match.Index + match.Length)
+        && !IsDateToken(value, match.Index, match.Index + match.Length);
 
     private static bool IsPercentageToken(string value, int tokenEndIndex)
     {
@@ -119,6 +123,14 @@ public static class PriceParser
             .FirstOrDefault(c => !char.IsWhiteSpace(c));
 
         return nextNonWhitespace == '%';
+    }
+
+    private static bool IsDateToken(string value, int tokenStartIndex, int tokenEndIndex)
+    {
+        var previous = tokenStartIndex > 0 ? value[tokenStartIndex - 1] : '\0';
+        var next = tokenEndIndex < value.Length ? value[tokenEndIndex] : '\0';
+
+        return previous == '/' || next == '/';
     }
 
     private static CultureInfo[] PreferredCultures(string value)

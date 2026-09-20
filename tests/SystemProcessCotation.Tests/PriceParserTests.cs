@@ -60,4 +60,15 @@ public class PriceParserTests
         Assert.True(parsed);
         Assert.Equal(expected, price);
     }
+
+    [Theory]
+    [InlineData("Atualizado em 19/09/2026: 31,42", 31.42)]
+    [InlineData("19/09/2026 fechamento 31,42 +0,50%", 31.42)]
+    public void TryParse_IgnoresDateTokensBeforePrice(string value, double expected)
+    {
+        var parsed = global::PriceParser.TryParse(value, out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(expected, price);
+    }
 }
