@@ -15,6 +15,18 @@ public class PriceParserTests
     }
 
     [Theory]
+    [InlineData("R $ 31,42", 31.42)]
+    [InlineData("R \u00A0$ 31,42", 31.42)]
+    [InlineData("BRL 31,42", 31.42)]
+    public void TryParse_AcceptsSpacedCurrencyMarkers(string value, double expected)
+    {
+        var parsed = global::PriceParser.TryParse(value, out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(expected, price);
+    }
+
+    [Theory]
     [InlineData("1.234", 1234.00)]
     [InlineData("1,234", 1234.00)]
     [InlineData("R$ 12.345", 12345.00)]

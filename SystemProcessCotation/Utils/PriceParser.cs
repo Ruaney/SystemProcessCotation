@@ -1,9 +1,12 @@
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 public static class PriceParser
 {
     private static readonly CultureInfo BrazilianCulture = CultureInfo.GetCultureInfo("pt-BR");
     private static readonly CultureInfo InvariantCulture = CultureInfo.InvariantCulture;
+    private static readonly Regex BrazilianRealMarker = new(@"R\s*\$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+    private static readonly Regex BrazilianIsoMarker = new(@"BRL", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
     private const NumberStyles PriceStyles = NumberStyles.Float | NumberStyles.AllowThousands;
 
     public static bool TryParse(string? value, out double price)
@@ -30,9 +33,8 @@ public static class PriceParser
 
     private static string Normalize(string? value)
     {
-        var withoutCurrency = (value ?? string.Empty)
-            .Replace("R$", string.Empty, StringComparison.OrdinalIgnoreCase)
-            .Replace("BRL", string.Empty, StringComparison.OrdinalIgnoreCase);
+        var withoutRealMarker = BrazilianRealMarker.Replace(value ?? string.Empty, string.Empty);
+        var withoutCurrency = BrazilianIsoMarker.Replace(withoutRealMarker, string.Empty);
 
         return string.Concat(withoutCurrency.Where(c => !char.IsWhiteSpace(c)));
     }
