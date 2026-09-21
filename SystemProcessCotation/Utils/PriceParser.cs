@@ -64,6 +64,28 @@ public static class PriceParser
             : [InvariantCulture, BrazilianCulture];
     }
 
+    private static bool LooksLikeBrazilianThousands(string value)
+    {
+        var commaIndex = value.LastIndexOf(',');
+        if (commaIndex <= 0)
+        {
+            return false;
+        }
+
+        var integerPart = value[..commaIndex];
+        var decimalPart = value[(commaIndex + 1)..];
+        if (decimalPart.Length is 0 or > 2 || !decimalPart.All(char.IsDigit))
+        {
+            return false;
+        }
+
+        var groups = integerPart.Split('.');
+        return groups.Length > 1
+            && groups[0].Length is >= 1 and <= 3
+            && groups.All(group => group.All(char.IsDigit))
+            && groups.Skip(1).All(group => group.Length == 3);
+    }
+
     private static bool LooksLikeSingleThousandsSeparator(string value, char separator, int separatorIndex, int otherSeparatorIndex)
     {
         if (separatorIndex <= 0 || otherSeparatorIndex >= 0 || value.IndexOf(separator) != separatorIndex)
