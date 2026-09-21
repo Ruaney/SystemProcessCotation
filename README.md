@@ -91,6 +91,8 @@ Command-line arguments take priority; if omitted, values are read from the `Trad
 dotnet run PETR4 22.67 22.59 1000 15
 ```
 
+Price thresholds accept dot or comma decimals and optional currency markers, including copied text such as `R$ 35,50`, `R $ 35,50`, or `BRL 35,50`.
+
 ### Build a standalone executable
 
 ```bash
@@ -149,6 +151,8 @@ ENABLE_SSL=true
 ```
 
 The short SMTP keys above are still the default examples. The app also accepts common deployment aliases: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` or `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, and `SMTP_ENABLE_SSL` or `SMTP_SSL`.
+
+Use a plain SMTP hostname for `HOST`/`SMTP_HOST`, such as `smtp.gmail.com`; URL values like `https://smtp.gmail.com` are treated as not configured.
 
 ---
 
