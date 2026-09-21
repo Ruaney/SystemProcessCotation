@@ -11,12 +11,22 @@ public class SmtpSettings
     public string Password { get; set; } = string.Empty;
 
     public bool IsConfigured =>
-        !string.IsNullOrWhiteSpace(Host)
+        IsValidHost(Host)
         && Port is > 0 and <= 65535
         && IsValidAddress(FromAddress)
         && IsValidAddress(ToAddress)
         && !string.IsNullOrWhiteSpace(Username)
         && !string.IsNullOrWhiteSpace(Password);
+
+    private static bool IsValidHost(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        return Uri.CheckHostName(value.Trim()) != UriHostNameType.Unknown;
+    }
 
     private static bool IsValidAddress(string value)
     {

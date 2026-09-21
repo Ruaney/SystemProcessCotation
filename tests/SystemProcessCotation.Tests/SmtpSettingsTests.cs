@@ -37,6 +37,25 @@ public class SmtpSettingsTests
         Assert.False(settings.IsConfigured);
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("smtp example.com")]
+    [InlineData("http://smtp.example.com")]
+    public void IsConfigured_ReturnsFalseWhenHostIsInvalid(string host)
+    {
+        var settings = new global::SmtpSettings
+        {
+            Host = host,
+            Port = 587,
+            FromAddress = "alerts@example.com",
+            ToAddress = "user@example.com",
+            Username = "alerts@example.com",
+            Password = "secret"
+        };
+
+        Assert.False(settings.IsConfigured);
+    }
+
     [Fact]
     public void IsConfigured_ReturnsFalseWhenCredentialsAreMissing()
     {
