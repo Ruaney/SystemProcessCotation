@@ -18,7 +18,7 @@ internal static class SqsMessageBody
             }
 
             if (!TryGetPropertyIgnoreCase(document.RootElement, "Type", out var type)
-                || !string.Equals(type.GetString(), "Notification", StringComparison.OrdinalIgnoreCase))
+                || !string.Equals(type.GetString()?.Trim(), "Notification", StringComparison.OrdinalIgnoreCase))
             {
                 return body;
             }

@@ -43,6 +43,21 @@ public class SqsMessageBodyTests
     }
 
     [Fact]
+    public void ExtractPayload_UnwrapsSnsNotificationTypeWithWhitespace()
+    {
+        const string body = """
+            {
+              "Type": " Notification ",
+              "Message": "{\"symbol\":\"PETR4\",\"price\":31.42}"
+            }
+            """;
+
+        var payload = global::SqsMessageBody.ExtractPayload(body);
+
+        Assert.Equal("""{"symbol":"PETR4","price":31.42}""", payload);
+    }
+
+    [Fact]
     public void ExtractPayload_LeavesMalformedJsonAsIs()
     {
         const string body = "{";
