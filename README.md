@@ -91,7 +91,7 @@ Command-line arguments take priority; if omitted, values are read from the `Trad
 dotnet run PETR4 22.67 22.59 1000 15
 ```
 
-Price thresholds accept dot or comma decimals and optional currency markers, including copied text such as `R$ 35,50`, `R $ 35,50`, or `BRL 35,50`.
+Price thresholds accept dot or comma decimals and optional currency markers, including copied text such as `R$ 35,50`, `R $ 35,50`, or `BRL 35,50`. Mixed quote snippets also work, such as `31,42 +0,50%` or `12/09/2026 31,42`.
 
 ### Build a standalone executable
 

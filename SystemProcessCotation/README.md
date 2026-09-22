@@ -26,6 +26,8 @@ Para uma demonstração mais rápida, informe também o intervalo de consulta e 
 dotnet run PETR4 22.67 22.59 1000 15
 ```
 
+Os preços aceitam ponto ou vírgula decimal, marcadores como `R$ 35,50` e trechos copiados de cotação, como `31,42 +0,50%`.
+
 ### Gerar executável
 ```bash
 dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true
