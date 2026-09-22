@@ -79,20 +79,19 @@ public class CotationService : ICotationService
             yield return labeledPrice;
         }
 
-        var highlightedPriceNodes = doc.DocumentNode.SelectNodes(
+        var highlightedPriceCells = doc.DocumentNode.SelectNodes(
             "//td[contains(concat(' ', normalize-space(@class), ' '), ' data ') " +
             "and contains(concat(' ', normalize-space(@class), ' '), ' destaque ') " +
-            "and contains(concat(' ', normalize-space(@class), ' '), ' w3 ')]" +
-            "//span[contains(concat(' ', normalize-space(@class), ' '), ' txt ')]");
+            "and contains(concat(' ', normalize-space(@class), ' '), ' w3 ')]");
 
-        if (highlightedPriceNodes is null)
+        if (highlightedPriceCells is null)
         {
             yield break;
         }
 
-        foreach (var node in highlightedPriceNodes)
+        foreach (var cell in highlightedPriceCells)
         {
-            var text = node.InnerText.Trim();
+            var text = ExtractPriceText(cell);
             if (!string.IsNullOrWhiteSpace(text))
             {
                 yield return text;
