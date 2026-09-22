@@ -121,13 +121,19 @@ public class SnsSqsEventBus : IEventBus
             throw new ArgumentException($"O canal do barramento deve ter no máximo {MaxQueueNameLength} caracteres.", nameof(channel));
         }
 
-        if (normalized.Any(c => !char.IsLetterOrDigit(c) && c is not '-' and not '_'))
+        if (normalized.Any(c => !IsQueueNameCharacter(c)))
         {
             throw new ArgumentException("O canal do barramento deve conter apenas letras, números, '-' ou '_'.", nameof(channel));
         }
 
         return normalized;
     }
+
+    private static bool IsQueueNameCharacter(char value) =>
+        value is >= 'A' and <= 'Z'
+        or >= 'a' and <= 'z'
+        or >= '0' and <= '9'
+        or '-' or '_';
 
     private async Task<string> SetupChannelAsync(string channel, CancellationToken ct)
     {

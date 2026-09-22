@@ -20,6 +20,7 @@ public class SnsSqsEventBusTests
     [Theory]
     [InlineData("cotations/primary")]
     [InlineData("cotations.primary")]
+    [InlineData("cotações")]
     public async Task EnsureChannelAsync_RejectsInvalidAwsChannelNameBeforeCallingAws(string channel)
     {
         var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
