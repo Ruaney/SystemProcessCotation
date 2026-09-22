@@ -7,17 +7,39 @@ public static class PriceParser
     private static readonly CultureInfo InvariantCulture = CultureInfo.InvariantCulture;
     private static readonly Regex BrazilianRealMarker = new(@"R\s*\$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
     private static readonly Regex BrazilianIsoMarker = new(@"BRL", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+    private static readonly Regex NumericCandidate = new(@"[+-]?\d+(?:[.,]\d+)*", RegexOptions.CultureInvariant);
     private const NumberStyles PriceStyles = NumberStyles.Float | NumberStyles.AllowThousands;
 
     public static bool TryParse(string? value, out double price)
     {
         price = 0;
 
-        var normalizedValue = Normalize(value);
+        var withoutCurrency = RemoveCurrencyMarkers(value);
+        var normalizedValue = RemoveWhitespace(withoutCurrency);
         if (string.IsNullOrWhiteSpace(normalizedValue))
         {
             return false;
         }
+
+        if (TryParseNormalized(normalizedValue, out price))
+        {
+            return true;
+        }
+
+        foreach (var candidate in ExtractPriceCandidates(withoutCurrency))
+        {
+            if (TryParseNormalized(RemoveWhitespace(candidate), out price))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool TryParseNormalized(string normalizedValue, out double price)
+    {
+        price = 0;
 
         foreach (var culture in PreferredCultures(normalizedValue))
         {
@@ -31,12 +53,37 @@ public static class PriceParser
         return false;
     }
 
-    private static string Normalize(string? value)
+    private static string RemoveCurrencyMarkers(string? value)
     {
         var withoutRealMarker = BrazilianRealMarker.Replace(value ?? string.Empty, string.Empty);
-        var withoutCurrency = BrazilianIsoMarker.Replace(withoutRealMarker, string.Empty);
+        return BrazilianIsoMarker.Replace(withoutRealMarker, string.Empty);
+    }
 
-        return string.Concat(withoutCurrency.Where(c => !char.IsWhiteSpace(c)));
+    private static string RemoveWhitespace(string value)
+    {
+        return string.Concat(value.Where(c => !char.IsWhiteSpace(c)));
+    }
+
+    private static IEnumerable<string> ExtractPriceCandidates(string value)
+    {
+        var candidates = NumericCandidate.Matches(value)
+            .Select(match => match.Value)
+            .ToArray();
+
+        return candidates
+            .Where(candidate => ContainsSeparator(candidate) && !StartsWithSign(candidate))
+            .Concat(candidates.Where(candidate => ContainsSeparator(candidate) && StartsWithSign(candidate)))
+            .Concat(candidates.Where(candidate => !ContainsSeparator(candidate)));
+    }
+
+    private static bool ContainsSeparator(string value)
+    {
+        return value.Contains('.') || value.Contains(',');
+    }
+
+    private static bool StartsWithSign(string value)
+    {
+        return value.StartsWith('+') || value.StartsWith('-');
     }
 
     private static CultureInfo[] PreferredCultures(string value)
