@@ -13,7 +13,7 @@ public class ConfigurationService : IConfigurationService
         return new SmtpSettings
         {
             Host = GetEnv("HOST", "SMTP_HOST"),
-            Port = int.TryParse(GetEnv("PORT", "SMTP_PORT"), NumberStyles.Integer, CultureInfo.InvariantCulture, out var port) ? port : 0,
+            Port = GetEnvInt("PORT", "SMTP_PORT"),
             FromAddress = GetEnv("FROM", "SMTP_FROM"),
             ToAddress = GetEnv("TO", "SMTP_TO"),
             Password = GetEnv("PASSWORD", "SMTP_PASSWORD"),
@@ -34,6 +34,25 @@ public class ConfigurationService : IConfigurationService
         }
 
         return string.Empty;
+    }
+
+    private static int GetEnvInt(params string[] names)
+    {
+        foreach (var name in names)
+        {
+            var value = Environment.GetEnvironmentVariable(name);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
+
+            if (int.TryParse(value.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed))
+            {
+                return parsed;
+            }
+        }
+
+        return 0;
     }
 
     private static bool GetEnvFlag(string[] names, bool defaultValue)
