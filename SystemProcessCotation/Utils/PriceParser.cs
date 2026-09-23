@@ -68,6 +68,7 @@ public static class PriceParser
     {
         var candidates = NumericCandidate.Matches(value).Cast<Match>()
             .Where(match => !IsPercentageCandidate(value, match))
+            .Where(match => !IsSlashDateCandidate(value, match))
             .Select(match => match.Value)
             .ToArray();
 
@@ -86,6 +87,22 @@ public static class PriceParser
         }
 
         return nextIndex < value.Length && value[nextIndex] == '%';
+    }
+
+    private static bool IsSlashDateCandidate(string value, Match match)
+    {
+        return HasAdjacentSlash(value, match.Index - 1, -1)
+            || HasAdjacentSlash(value, match.Index + match.Length, 1);
+    }
+
+    private static bool HasAdjacentSlash(string value, int index, int step)
+    {
+        while (index >= 0 && index < value.Length && char.IsWhiteSpace(value[index]))
+        {
+            index += step;
+        }
+
+        return index >= 0 && index < value.Length && value[index] == '/';
     }
 
     private static bool ContainsSeparator(string value)

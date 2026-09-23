@@ -69,4 +69,14 @@ public class PriceParserTests
         Assert.True(parsed);
         Assert.Equal(31.42, price);
     }
+
+    [Theory]
+    [InlineData("12/09/2026")]
+    [InlineData("12 / 09 / 2026")]
+    public void TryParse_IgnoresStandaloneSlashDates(string value)
+    {
+        var parsed = global::PriceParser.TryParse(value, out _);
+
+        Assert.False(parsed);
+    }
 }
