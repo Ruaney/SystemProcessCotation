@@ -50,4 +50,23 @@ public class PriceParserTests
         Assert.True(parsed);
         Assert.Equal(expected, price);
     }
+
+    [Theory]
+    [InlineData("+0,50%")]
+    [InlineData("0,50 %")]
+    public void TryParse_IgnoresStandalonePercentageChanges(string value)
+    {
+        var parsed = global::PriceParser.TryParse(value, out _);
+
+        Assert.False(parsed);
+    }
+
+    [Fact]
+    public void TryParse_SkipsPercentageChangeBeforePrice()
+    {
+        var parsed = global::PriceParser.TryParse("Alta +0,50% cotação R$ 31,42", out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(31.42, price);
+    }
 }

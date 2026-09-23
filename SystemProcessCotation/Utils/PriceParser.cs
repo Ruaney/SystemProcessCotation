@@ -66,7 +66,8 @@ public static class PriceParser
 
     private static IEnumerable<string> ExtractPriceCandidates(string value)
     {
-        var candidates = NumericCandidate.Matches(value)
+        var candidates = NumericCandidate.Matches(value).Cast<Match>()
+            .Where(match => !IsPercentageCandidate(value, match))
             .Select(match => match.Value)
             .ToArray();
 
@@ -74,6 +75,17 @@ public static class PriceParser
             .Where(candidate => ContainsSeparator(candidate) && !StartsWithSign(candidate))
             .Concat(candidates.Where(candidate => ContainsSeparator(candidate) && StartsWithSign(candidate)))
             .Concat(candidates.Where(candidate => !ContainsSeparator(candidate)));
+    }
+
+    private static bool IsPercentageCandidate(string value, Match match)
+    {
+        var nextIndex = match.Index + match.Length;
+        while (nextIndex < value.Length && char.IsWhiteSpace(value[nextIndex]))
+        {
+            nextIndex++;
+        }
+
+        return nextIndex < value.Length && value[nextIndex] == '%';
     }
 
     private static bool ContainsSeparator(string value)
