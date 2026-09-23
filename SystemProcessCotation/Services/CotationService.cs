@@ -91,8 +91,7 @@ public class CotationService : ICotationService
 
         foreach (var cell in highlightedPriceCells)
         {
-            var text = ExtractPriceText(cell);
-            if (!string.IsNullOrWhiteSpace(text))
+            foreach (var text in ExtractPriceTexts(cell))
             {
                 yield return text;
             }
@@ -115,23 +114,40 @@ public class CotationService : ICotationService
             }
 
             var valueCell = cell.SelectSingleNode("following-sibling::td[1]");
-            var text = ExtractPriceText(valueCell);
-            if (!string.IsNullOrWhiteSpace(text))
+            foreach (var text in ExtractPriceTexts(valueCell))
             {
                 yield return text;
             }
         }
     }
 
-    private static string? ExtractPriceText(HtmlNode? valueCell)
+    private static IEnumerable<string> ExtractPriceTexts(HtmlNode? valueCell)
     {
         if (valueCell is null)
         {
-            return null;
+            yield break;
         }
 
-        var priceSpan = valueCell.SelectSingleNode(".//span[contains(concat(' ', normalize-space(@class), ' '), ' txt ')]");
-        return (priceSpan ?? valueCell).InnerText.Trim();
+        var priceSpans = valueCell.SelectNodes(".//span[contains(concat(' ', normalize-space(@class), ' '), ' txt ')]");
+        if (priceSpans is not null)
+        {
+            foreach (var span in priceSpans)
+            {
+                var spanText = span.InnerText.Trim();
+                if (!string.IsNullOrWhiteSpace(spanText))
+                {
+                    yield return spanText;
+                }
+            }
+
+            yield break;
+        }
+
+        var cellText = valueCell.InnerText.Trim();
+        if (!string.IsNullOrWhiteSpace(cellText))
+        {
+            yield return cellText;
+        }
     }
 
     private static bool IsCotationLabel(string value)
