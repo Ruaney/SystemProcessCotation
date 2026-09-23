@@ -57,23 +57,42 @@ public class ConfigurationService : IConfigurationService
 
     private static bool GetEnvFlag(string[] names, bool defaultValue)
     {
-        var value = GetEnv(names);
-        if (string.IsNullOrWhiteSpace(value))
+        foreach (var name in names)
         {
-            return defaultValue;
+            var value = Environment.GetEnvironmentVariable(name);
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
+
+            if (TryParseEnvFlag(value, out var parsed))
+            {
+                return parsed;
+            }
         }
 
-        if (bool.TryParse(value, out var parsed))
+        return defaultValue;
+    }
+
+    private static bool TryParseEnvFlag(string value, out bool parsed)
+    {
+        if (bool.TryParse(value, out parsed))
         {
-            return parsed;
+            return true;
         }
 
-        return NormalizeFlagValue(value) switch
+        switch (NormalizeFlagValue(value))
         {
-            "1" or "yes" or "sim" or "on" or "enabled" => true,
-            "0" or "no" or "nao" or "off" or "disabled" => false,
-            _ => defaultValue
-        };
+            case "1" or "yes" or "sim" or "on" or "enabled":
+                parsed = true;
+                return true;
+            case "0" or "no" or "nao" or "off" or "disabled":
+                parsed = false;
+                return true;
+            default:
+                parsed = false;
+                return false;
+        }
     }
 
     private static string NormalizeFlagValue(string value)
