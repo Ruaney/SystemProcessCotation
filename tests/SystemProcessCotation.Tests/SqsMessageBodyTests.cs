@@ -58,6 +58,21 @@ public class SqsMessageBodyTests
     }
 
     [Fact]
+    public void ExtractPayload_LeavesNonStringSnsTypeAsIs()
+    {
+        const string body = """
+            {
+              "Type": 1,
+              "Message": "{\"symbol\":\"PETR4\",\"price\":31.42}"
+            }
+            """;
+
+        var payload = global::SqsMessageBody.ExtractPayload(body);
+
+        Assert.Equal(body, payload);
+    }
+
+    [Fact]
     public void ExtractPayload_LeavesMalformedJsonAsIs()
     {
         const string body = "{";

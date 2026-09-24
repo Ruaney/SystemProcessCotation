@@ -18,6 +18,7 @@ internal static class SqsMessageBody
             }
 
             if (!TryGetPropertyIgnoreCase(document.RootElement, "Type", out var type)
+                || type.ValueKind != JsonValueKind.String
                 || !string.Equals(type.GetString()?.Trim(), "Notification", StringComparison.OrdinalIgnoreCase))
             {
                 return body;
