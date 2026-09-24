@@ -46,7 +46,8 @@ public class ConfigurationService : IConfigurationService
                 continue;
             }
 
-            if (int.TryParse(value.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed))
+            if (int.TryParse(value.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
+                && parsed > 0)
             {
                 return parsed;
             }
