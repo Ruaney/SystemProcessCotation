@@ -139,8 +139,6 @@ public class CotationService : ICotationService
                     yield return spanText;
                 }
             }
-
-            yield break;
         }
 
         var cellText = valueCell.InnerText.Trim();

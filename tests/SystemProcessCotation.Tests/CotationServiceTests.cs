@@ -151,6 +151,32 @@ public class CotationServiceTests
     }
 
     [Fact]
+    public async Task GetCotationAsync_FallsBackToCellTextWhenPriceSpanHasOnlyVariation()
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>Cotação</td>
+                            <td><span class="txt">+0,50%</span> 31,42</td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
+    [Fact]
     public async Task GetCotationAsync_ParsesPlainCotationCell()
     {
         using var client = new HttpClient(new StubHttpMessageHandler(_ =>
