@@ -68,7 +68,7 @@ public static class PriceParser
     {
         var candidates = NumericCandidate.Matches(value).Cast<Match>()
             .Where(match => !IsPercentageCandidate(value, match))
-            .Where(match => !IsSlashDateCandidate(value, match))
+            .Where(match => !IsDateCandidate(value, match))
             .Where(match => ContainsSeparator(match.Value) || !IsEmbeddedInWord(value, match))
             .Select(match => match.Value)
             .ToArray();
@@ -90,20 +90,34 @@ public static class PriceParser
         return nextIndex < value.Length && value[nextIndex] == '%';
     }
 
-    private static bool IsSlashDateCandidate(string value, Match match)
+    private static bool IsDateCandidate(string value, Match match)
     {
-        return HasAdjacentSlash(value, match.Index - 1, -1)
-            || HasAdjacentSlash(value, match.Index + match.Length, 1);
+        return HasAdjacentDateSeparator(value, match.Index - 1, -1)
+            || HasAdjacentDateSeparator(value, match.Index + match.Length, 1)
+            || StartsWithDateSeparator(value, match);
     }
 
-    private static bool HasAdjacentSlash(string value, int index, int step)
+    private static bool HasAdjacentDateSeparator(string value, int index, int step)
     {
         while (index >= 0 && index < value.Length && char.IsWhiteSpace(value[index]))
         {
             index += step;
         }
 
-        return index >= 0 && index < value.Length && value[index] == '/';
+        return index >= 0 && index < value.Length && IsDateSeparator(value[index]);
+    }
+
+    private static bool StartsWithDateSeparator(string value, Match match)
+    {
+        return match.Value.Length > 1
+            && IsDateSeparator(match.Value[0])
+            && match.Index > 0
+            && char.IsDigit(value[match.Index - 1]);
+    }
+
+    private static bool IsDateSeparator(char value)
+    {
+        return value is '/' or '-';
     }
 
     private static bool IsEmbeddedInWord(string value, Match match)

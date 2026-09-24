@@ -80,6 +80,25 @@ public class PriceParserTests
         Assert.False(parsed);
     }
 
+    [Theory]
+    [InlineData("12-09-2026")]
+    [InlineData("12 - 09 - 2026")]
+    public void TryParse_IgnoresStandaloneHyphenDates(string value)
+    {
+        var parsed = global::PriceParser.TryParse(value, out _);
+
+        Assert.False(parsed);
+    }
+
+    [Fact]
+    public void TryParse_ExtractsPriceAfterHyphenDate()
+    {
+        var parsed = global::PriceParser.TryParse("12-09-2026 31,42", out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(31.42, price);
+    }
+
     [Fact]
     public void TryParse_IgnoresTickerDigitsWhenNoPriceIsPresent()
     {
