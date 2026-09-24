@@ -69,6 +69,7 @@ public static class PriceParser
         var candidates = NumericCandidate.Matches(value).Cast<Match>()
             .Where(match => !IsPercentageCandidate(value, match))
             .Where(match => !IsSlashDateCandidate(value, match))
+            .Where(match => ContainsSeparator(match.Value) || !IsEmbeddedInWord(value, match))
             .Select(match => match.Value)
             .ToArray();
 
@@ -103,6 +104,19 @@ public static class PriceParser
         }
 
         return index >= 0 && index < value.Length && value[index] == '/';
+    }
+
+    private static bool IsEmbeddedInWord(string value, Match match)
+    {
+        return HasAdjacentLetter(value, match.Index - 1)
+            || HasAdjacentLetter(value, match.Index + match.Length);
+    }
+
+    private static bool HasAdjacentLetter(string value, int index)
+    {
+        return index >= 0
+            && index < value.Length
+            && char.IsLetter(value[index]);
     }
 
     private static bool ContainsSeparator(string value)

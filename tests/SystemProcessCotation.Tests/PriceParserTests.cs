@@ -79,4 +79,21 @@ public class PriceParserTests
 
         Assert.False(parsed);
     }
+
+    [Fact]
+    public void TryParse_IgnoresTickerDigitsWhenNoPriceIsPresent()
+    {
+        var parsed = global::PriceParser.TryParse("PETR4", out _);
+
+        Assert.False(parsed);
+    }
+
+    [Fact]
+    public void TryParse_StillReadsPriceAfterTickerText()
+    {
+        var parsed = global::PriceParser.TryParse("PETR4 cotação 31,42", out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(31.42, price);
+    }
 }
