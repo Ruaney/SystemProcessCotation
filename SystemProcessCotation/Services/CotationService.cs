@@ -108,6 +108,14 @@ public class CotationService : ICotationService
 
         foreach (var cell in cells)
         {
+            if (HasCotationLabelText(cell))
+            {
+                foreach (var text in ExtractPriceTexts(cell))
+                {
+                    yield return text;
+                }
+            }
+
             if (!IsCotationLabel(cell.InnerText))
             {
                 continue;
@@ -120,6 +128,11 @@ public class CotationService : ICotationService
             }
         }
     }
+
+    private static bool HasCotationLabelText(HtmlNode cell) =>
+        cell.DescendantsAndSelf()
+            .Where(node => node.NodeType == HtmlNodeType.Text)
+            .Any(node => IsCotationLabel(node.InnerText));
 
     private static IEnumerable<string> ExtractPriceTexts(HtmlNode? valueCell)
     {
