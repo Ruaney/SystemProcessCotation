@@ -24,10 +24,14 @@ internal static class SqsMessageBody
                 return body;
             }
 
-            if (TryGetPropertyIgnoreCase(document.RootElement, "Message", out var message)
-                && message.ValueKind == JsonValueKind.String)
+            if (TryGetPropertyIgnoreCase(document.RootElement, "Message", out var message))
             {
-                return message.GetString() ?? body;
+                return message.ValueKind switch
+                {
+                    JsonValueKind.String => message.GetString() ?? body,
+                    JsonValueKind.Object or JsonValueKind.Array => message.GetRawText(),
+                    _ => body
+                };
             }
         }
         catch (JsonException)
