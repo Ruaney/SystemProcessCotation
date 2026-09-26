@@ -40,6 +40,18 @@ public class PriceParserTests
     }
 
     [Theory]
+    [InlineData("R$ 1 234,56", 1234.56)]
+    [InlineData("Cotação R$ 12 345,67", 12345.67)]
+    [InlineData("BRL 1\u00A0234,56", 1234.56)]
+    public void TryParse_AcceptsWhitespaceThousandsGroups(string value, double expected)
+    {
+        var parsed = global::PriceParser.TryParse(value, out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(expected, price);
+    }
+
+    [Theory]
     [InlineData("31,42 +0,50%", 31.42)]
     [InlineData("12/09/2026 31,42", 31.42)]
     [InlineData("Cotação em 12/09/2026: R$ 31,42", 31.42)]

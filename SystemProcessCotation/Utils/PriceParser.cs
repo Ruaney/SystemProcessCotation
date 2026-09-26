@@ -7,7 +7,7 @@ public static class PriceParser
     private static readonly CultureInfo InvariantCulture = CultureInfo.InvariantCulture;
     private static readonly Regex BrazilianRealMarker = new(@"R\s*\$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
     private static readonly Regex BrazilianIsoMarker = new(@"BRL", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-    private static readonly Regex NumericCandidate = new(@"[+-]?\d+(?:[.,]\d+)*", RegexOptions.CultureInvariant);
+    private static readonly Regex NumericCandidate = new(@"[+-]?\d+(?:(?:[.,]\d+)|(?:\s+\d{3}))*", RegexOptions.CultureInvariant);
     private const NumberStyles PriceStyles = NumberStyles.Float | NumberStyles.AllowThousands;
 
     public static bool TryParse(string? value, out double price)
