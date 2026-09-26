@@ -102,6 +102,6 @@ public class ConfigurationService : IConfigurationService
         var chars = decomposed
             .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark);
 
-        return string.Concat(chars).ToLowerInvariant();
+        return string.Concat(chars).Trim().ToLowerInvariant();
     }
 }

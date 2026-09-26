@@ -190,6 +190,28 @@ public class ConfigurationServiceTests
     }
 
     [Theory]
+    [InlineData(" off ")]
+    [InlineData(" não ")]
+    [InlineData(" disabled ")]
+    public void LoadSmtpSettings_TrimsFalseSslAliases(string value)
+    {
+        var previousValues = SaveEnvironment();
+
+        try
+        {
+            Environment.SetEnvironmentVariable("ENABLE_SSL", value);
+
+            var settings = new global::ConfigurationService().LoadSmtpSettings();
+
+            Assert.False(settings.EnableSsl);
+        }
+        finally
+        {
+            RestoreEnvironment(previousValues);
+        }
+    }
+
+    [Theory]
     [InlineData("on")]
     [InlineData("enabled")]
     [InlineData("sim")]
