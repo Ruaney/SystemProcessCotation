@@ -167,6 +167,27 @@ public class ConfigurationServiceTests
         }
     }
 
+    [Fact]
+    public void LoadSmtpSettings_UsesSmtpPortAliasWhenShortPortIsOutOfRange()
+    {
+        var previousValues = SaveEnvironment();
+
+        try
+        {
+            ClearEnvironment();
+            Environment.SetEnvironmentVariable("PORT", "70000");
+            Environment.SetEnvironmentVariable("SMTP_PORT", "2525");
+
+            var settings = new global::ConfigurationService().LoadSmtpSettings();
+
+            Assert.Equal(2525, settings.Port);
+        }
+        finally
+        {
+            RestoreEnvironment(previousValues);
+        }
+    }
+
     [Theory]
     [InlineData("não")]
     [InlineData("off")]

@@ -8,6 +8,8 @@ using System.Text;
 /// </summary>
 public class ConfigurationService : IConfigurationService
 {
+    private const int MaxTcpPort = 65535;
+
     public SmtpSettings LoadSmtpSettings()
     {
         return new SmtpSettings
@@ -47,7 +49,7 @@ public class ConfigurationService : IConfigurationService
             }
 
             if (int.TryParse(value.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
-                && parsed > 0)
+                && parsed is > 0 and <= MaxTcpPort)
             {
                 return parsed;
             }
