@@ -28,7 +28,7 @@ internal static class SqsMessageBody
             {
                 return message.ValueKind switch
                 {
-                    JsonValueKind.String => message.GetString() ?? body,
+                    JsonValueKind.String => NormalizeStringPayload(message.GetString(), body),
                     JsonValueKind.Object or JsonValueKind.Array => message.GetRawText(),
                     _ => body
                 };
@@ -56,4 +56,32 @@ internal static class SqsMessageBody
         value = default;
         return false;
     }
+
+    private static string NormalizeStringPayload(string? payload, string fallback)
+    {
+        if (string.IsNullOrWhiteSpace(payload))
+        {
+            return fallback;
+        }
+
+        var trimmed = payload.Trim();
+        if (!IsJsonStringLiteral(trimmed))
+        {
+            return payload;
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<string>(trimmed) ?? payload;
+        }
+        catch (JsonException)
+        {
+            return payload;
+        }
+    }
+
+    private static bool IsJsonStringLiteral(string value) =>
+        value.Length >= 2
+        && value[0] == '"'
+        && value[^1] == '"';
 }

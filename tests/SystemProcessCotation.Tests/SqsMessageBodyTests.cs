@@ -28,6 +28,36 @@ public class SqsMessageBodyTests
     }
 
     [Fact]
+    public void ExtractPayload_UnwrapsDoubleEncodedSnsNotificationMessage()
+    {
+        const string body = """
+            {
+              "Type": "Notification",
+              "Message": "\"{\\\"symbol\\\":\\\"PETR4\\\",\\\"price\\\":31.42}\""
+            }
+            """;
+
+        var payload = global::SqsMessageBody.ExtractPayload(body);
+
+        Assert.Equal("""{"symbol":"PETR4","price":31.42}""", payload);
+    }
+
+    [Fact]
+    public void ExtractPayload_LeavesBlankSnsNotificationMessageAsIs()
+    {
+        const string body = """
+            {
+              "Type": "Notification",
+              "Message": " "
+            }
+            """;
+
+        var payload = global::SqsMessageBody.ExtractPayload(body);
+
+        Assert.Equal(body, payload);
+    }
+
+    [Fact]
     public void ExtractPayload_UnwrapsSnsEnvelopeWithLowercaseFields()
     {
         const string body = """
