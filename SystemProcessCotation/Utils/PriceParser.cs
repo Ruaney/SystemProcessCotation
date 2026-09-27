@@ -69,6 +69,7 @@ public static class PriceParser
         var candidates = NumericCandidate.Matches(value).Cast<Match>()
             .Where(match => !IsPercentageCandidate(value, match))
             .Where(match => !IsDateCandidate(value, match))
+            .Where(match => !IsTimeCandidate(value, match))
             .Where(match => ContainsSeparator(match.Value) || !IsEmbeddedInWord(value, match))
             .Select(match => match.Value)
             .ToArray();
@@ -118,6 +119,27 @@ public static class PriceParser
     private static bool IsDateSeparator(char value)
     {
         return value is '/' or '-';
+    }
+
+    private static bool IsTimeCandidate(string value, Match match)
+    {
+        if (ContainsSeparator(match.Value))
+        {
+            return false;
+        }
+
+        return HasAdjacentTimeSeparator(value, match.Index - 1, -1)
+            || HasAdjacentTimeSeparator(value, match.Index + match.Length, 1);
+    }
+
+    private static bool HasAdjacentTimeSeparator(string value, int index, int step)
+    {
+        while (index >= 0 && index < value.Length && char.IsWhiteSpace(value[index]))
+        {
+            index += step;
+        }
+
+        return index >= 0 && index < value.Length && value[index] == ':';
     }
 
     private static bool IsEmbeddedInWord(string value, Match match)
