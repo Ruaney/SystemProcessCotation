@@ -37,6 +37,14 @@ public class CommandLineHelperTests
     }
 
     [Fact]
+    public void ParseArguments_NormalizesB3Suffix()
+    {
+        var settings = global::CommandLineHelper.ParseArguments([" petr4.sa ", "35.50", "30.25"]);
+
+        Assert.Equal("PETR4", settings.StockSymbol);
+    }
+
+    [Fact]
     public void ParseArguments_AcceptsBrazilianDecimalSeparator()
     {
         var settings = global::CommandLineHelper.ParseArguments(["PETR4", "35,50", "30,25"]);
@@ -148,6 +156,7 @@ public class CommandLineHelperTests
     [Theory]
     [InlineData("PETR 4")]
     [InlineData("PETR-4")]
+    [InlineData("PETR4.BR")]
     public void NormalizeAndValidate_RejectsSymbolsWithInvalidCharacters(string symbol)
     {
         var settings = new global::TradingSettings
