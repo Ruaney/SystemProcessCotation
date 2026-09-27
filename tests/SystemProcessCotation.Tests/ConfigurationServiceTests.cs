@@ -73,6 +73,37 @@ public class ConfigurationServiceTests
     }
 
     [Fact]
+    public void LoadSmtpSettings_UnquotesEnvironmentValues()
+    {
+        var previousValues = SaveEnvironment();
+
+        try
+        {
+            Environment.SetEnvironmentVariable("HOST", "\"smtp.example.com\"");
+            Environment.SetEnvironmentVariable("PORT", "'587'");
+            Environment.SetEnvironmentVariable("FROM", "\"alerts@example.com\"");
+            Environment.SetEnvironmentVariable("TO", "'user@example.com'");
+            Environment.SetEnvironmentVariable("USERNAME", "\"alerts@example.com\"");
+            Environment.SetEnvironmentVariable("PASSWORD", "'secret'");
+            Environment.SetEnvironmentVariable("ENABLE_SSL", "'off'");
+
+            var settings = new global::ConfigurationService().LoadSmtpSettings();
+
+            Assert.Equal("smtp.example.com", settings.Host);
+            Assert.Equal(587, settings.Port);
+            Assert.Equal("alerts@example.com", settings.FromAddress);
+            Assert.Equal("user@example.com", settings.ToAddress);
+            Assert.Equal("alerts@example.com", settings.Username);
+            Assert.Equal("secret", settings.Password);
+            Assert.False(settings.EnableSsl);
+        }
+        finally
+        {
+            RestoreEnvironment(previousValues);
+        }
+    }
+
+    [Fact]
     public void LoadSmtpSettings_UsesSmtpSslAliasWhenShortFlagIsInvalid()
     {
         var previousValues = SaveEnvironment();

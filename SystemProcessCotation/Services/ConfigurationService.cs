@@ -31,7 +31,7 @@ public class ConfigurationService : IConfigurationService
             var value = Environment.GetEnvironmentVariable(name);
             if (!string.IsNullOrWhiteSpace(value))
             {
-                return value.Trim();
+                return CleanEnvValue(value);
             }
         }
 
@@ -48,7 +48,7 @@ public class ConfigurationService : IConfigurationService
                 continue;
             }
 
-            if (int.TryParse(value.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
+            if (int.TryParse(CleanEnvValue(value), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
                 && parsed is > 0 and <= MaxTcpPort)
             {
                 return parsed;
@@ -68,7 +68,7 @@ public class ConfigurationService : IConfigurationService
                 continue;
             }
 
-            if (TryParseEnvFlag(value, out var parsed))
+            if (TryParseEnvFlag(CleanEnvValue(value), out var parsed))
             {
                 return parsed;
             }
@@ -106,4 +106,16 @@ public class ConfigurationService : IConfigurationService
 
         return string.Concat(chars).Trim().ToLowerInvariant();
     }
+
+    private static string CleanEnvValue(string value)
+    {
+        var trimmed = value.Trim();
+        return trimmed.Length >= 2 && IsQuoted(trimmed)
+            ? trimmed[1..^1].Trim()
+            : trimmed;
+    }
+
+    private static bool IsQuoted(string value) =>
+        value[0] == '"' && value[^1] == '"'
+        || value[0] == '\'' && value[^1] == '\'';
 }
