@@ -164,13 +164,31 @@ public class CotationService : ICotationService
     private static bool IsCotationLabel(string value)
     {
         var normalized = NormalizeLabel(value);
-        return normalized is "cotacao"
+        var withoutCurrencySuffix = RemoveCurrencySuffix(normalized);
+
+        return IsKnownCotationLabel(normalized)
+            || IsKnownCotationLabel(withoutCurrencySuffix);
+    }
+
+    private static bool IsKnownCotationLabel(string normalized) =>
+        normalized is "cotacao"
             or "cotacaoatual"
             or "ultimacotacao"
             or "ultimopreco"
             or "ultimovalor"
             or "precoatual"
             or "valoratual";
+
+    private static string RemoveCurrencySuffix(string value)
+    {
+        if (value.EndsWith("brl", StringComparison.Ordinal))
+        {
+            return value[..^3];
+        }
+
+        return value.EndsWith('r')
+            ? value[..^1]
+            : value;
     }
 
     private static string NormalizeLabel(string value)
