@@ -8,6 +8,8 @@ public static class PriceParser
     private static readonly Regex BrazilianRealMarker = new(@"R\s*\$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
     private static readonly Regex BrazilianIsoMarker = new(@"BRL", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
     private static readonly Regex NumericCandidate = new(@"[+-]?\d+(?:(?:[.,]\d+)|(?:\s+\d{3}))*", RegexOptions.CultureInvariant);
+    private static readonly Regex DottedDateCandidate = new(@"^\d{1,2}\.\d{1,2}\.\d{2,4}$", RegexOptions.CultureInvariant);
+    private static readonly Regex DottedDateText = new(@"\d{1,2}\s*\.\s*\d{1,2}\s*\.\s*\d{2,4}", RegexOptions.CultureInvariant);
     private const NumberStyles PriceStyles = NumberStyles.Float | NumberStyles.AllowThousands;
 
     public static bool TryParse(string? value, out double price)
@@ -21,7 +23,7 @@ public static class PriceParser
             return false;
         }
 
-        if (TryParseNormalized(normalizedValue, out price))
+        if (!ContainsDottedDate(withoutCurrency) && TryParseNormalized(normalizedValue, out price))
         {
             return true;
         }
@@ -66,11 +68,12 @@ public static class PriceParser
 
     private static IEnumerable<string> ExtractPriceCandidates(string value)
     {
-        var candidates = NumericCandidate.Matches(value).Cast<Match>()
-            .Where(match => !IsPercentageCandidate(value, match))
-            .Where(match => !IsDateCandidate(value, match))
-            .Where(match => !IsTimeCandidate(value, match))
-            .Where(match => ContainsSeparator(match.Value) || !IsEmbeddedInWord(value, match))
+        var searchableValue = MaskDottedDates(value);
+        var candidates = NumericCandidate.Matches(searchableValue).Cast<Match>()
+            .Where(match => !IsPercentageCandidate(searchableValue, match))
+            .Where(match => !IsDateCandidate(searchableValue, match))
+            .Where(match => !IsTimeCandidate(searchableValue, match))
+            .Where(match => ContainsSeparator(match.Value) || !IsEmbeddedInWord(searchableValue, match))
             .Select(match => match.Value)
             .ToArray();
 
@@ -95,7 +98,8 @@ public static class PriceParser
     {
         return HasAdjacentDateSeparator(value, match.Index - 1, -1)
             || HasAdjacentDateSeparator(value, match.Index + match.Length, 1)
-            || StartsWithDateSeparator(value, match);
+            || StartsWithDateSeparator(value, match)
+            || LooksLikeDottedDate(RemoveWhitespace(match.Value));
     }
 
     private static bool HasAdjacentDateSeparator(string value, int index, int step)
@@ -118,8 +122,17 @@ public static class PriceParser
 
     private static bool IsDateSeparator(char value)
     {
-        return value is '/' or '-';
+        return value is '/' or '-' or '.';
     }
+
+    private static bool LooksLikeDottedDate(string value) =>
+        DottedDateCandidate.IsMatch(value);
+
+    private static bool ContainsDottedDate(string value) =>
+        DottedDateText.IsMatch(value);
+
+    private static string MaskDottedDates(string value) =>
+        DottedDateText.Replace(value, match => new string(' ', match.Length));
 
     private static bool IsTimeCandidate(string value, Match match)
     {

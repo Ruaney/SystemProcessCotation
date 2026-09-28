@@ -112,6 +112,25 @@ public class PriceParserTests
     }
 
     [Theory]
+    [InlineData("12.09.2026")]
+    [InlineData("12 . 09 . 2026")]
+    public void TryParse_IgnoresStandaloneDottedDates(string value)
+    {
+        var parsed = global::PriceParser.TryParse(value, out _);
+
+        Assert.False(parsed);
+    }
+
+    [Fact]
+    public void TryParse_ExtractsPriceAfterDottedDate()
+    {
+        var parsed = global::PriceParser.TryParse("12.09.2026 31,42", out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(31.42, price);
+    }
+
+    [Theory]
     [InlineData("Atualizado 10:45")]
     [InlineData("Atualizado 10 : 45")]
     public void TryParse_IgnoresStandaloneTimeFragments(string value)
