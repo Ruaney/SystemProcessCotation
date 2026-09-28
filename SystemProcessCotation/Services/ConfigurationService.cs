@@ -29,9 +29,15 @@ public class ConfigurationService : IConfigurationService
         foreach (var name in names)
         {
             var value = Environment.GetEnvironmentVariable(name);
-            if (!string.IsNullOrWhiteSpace(value))
+            if (string.IsNullOrWhiteSpace(value))
             {
-                return CleanEnvValue(value);
+                continue;
+            }
+
+            var cleanedValue = CleanEnvValue(value);
+            if (!string.IsNullOrWhiteSpace(cleanedValue))
+            {
+                return cleanedValue;
             }
         }
 

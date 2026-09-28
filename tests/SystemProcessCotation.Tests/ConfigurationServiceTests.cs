@@ -157,6 +157,27 @@ public class ConfigurationServiceTests
     }
 
     [Fact]
+    public void LoadSmtpSettings_UsesAliasWhenCanonicalValueCleansToBlank()
+    {
+        var previousValues = SaveEnvironment();
+
+        try
+        {
+            ClearEnvironment();
+            Environment.SetEnvironmentVariable("HOST", "' '");
+            Environment.SetEnvironmentVariable("SMTP_HOST", "smtp.example.com");
+
+            var settings = new global::ConfigurationService().LoadSmtpSettings();
+
+            Assert.Equal("smtp.example.com", settings.Host);
+        }
+        finally
+        {
+            RestoreEnvironment(previousValues);
+        }
+    }
+
+    [Fact]
     public void LoadSmtpSettings_UsesSmtpPortAliasWhenShortPortIsInvalid()
     {
         var previousValues = SaveEnvironment();
