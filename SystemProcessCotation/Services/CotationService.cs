@@ -132,7 +132,14 @@ public class CotationService : ICotationService
     private static bool HasCotationLabelText(HtmlNode cell) =>
         cell.DescendantsAndSelf()
             .Where(node => node.NodeType == HtmlNodeType.Text)
-            .Any(node => IsCotationLabel(node.InnerText));
+            .Any(node => IsCotationLabel(node.InnerText) || StartsWithCotationLabel(node.InnerText));
+
+    private static bool StartsWithCotationLabel(string value)
+    {
+        var separatorIndex = value.IndexOf(':');
+        return separatorIndex > 0
+            && IsCotationLabel(value[..separatorIndex]);
+    }
 
     private static IEnumerable<string> ExtractPriceTexts(HtmlNode? valueCell)
     {
