@@ -19,7 +19,16 @@ public class ConfigurationServiceTests
         "SMTP_USERNAME",
         "SMTP_USER",
         "SMTP_ENABLE_SSL",
-        "SMTP_SSL"
+        "SMTP_SSL",
+        "MAIL_HOST",
+        "MAIL_PORT",
+        "MAIL_FROM",
+        "MAIL_TO",
+        "MAIL_PASSWORD",
+        "MAIL_USERNAME",
+        "MAIL_USER",
+        "MAIL_ENABLE_SSL",
+        "MAIL_SSL"
     ];
 
     [Fact]
@@ -139,6 +148,38 @@ public class ConfigurationServiceTests
             Environment.SetEnvironmentVariable("SMTP_USERNAME", "alerts@example.com");
             Environment.SetEnvironmentVariable("SMTP_PASSWORD", "secret");
             Environment.SetEnvironmentVariable("SMTP_ENABLE_SSL", "off");
+
+            var settings = new global::ConfigurationService().LoadSmtpSettings();
+
+            Assert.Equal("smtp.example.com", settings.Host);
+            Assert.Equal(2525, settings.Port);
+            Assert.Equal("alerts@example.com", settings.FromAddress);
+            Assert.Equal("user@example.com", settings.ToAddress);
+            Assert.Equal("alerts@example.com", settings.Username);
+            Assert.Equal("secret", settings.Password);
+            Assert.False(settings.EnableSsl);
+        }
+        finally
+        {
+            RestoreEnvironment(previousValues);
+        }
+    }
+
+    [Fact]
+    public void LoadSmtpSettings_ReadsMailAliasesWhenShortAndSmtpNamesAreAbsent()
+    {
+        var previousValues = SaveEnvironment();
+
+        try
+        {
+            ClearEnvironment();
+            Environment.SetEnvironmentVariable("MAIL_HOST", "smtp.example.com");
+            Environment.SetEnvironmentVariable("MAIL_PORT", "2525");
+            Environment.SetEnvironmentVariable("MAIL_FROM", "alerts@example.com");
+            Environment.SetEnvironmentVariable("MAIL_TO", "user@example.com");
+            Environment.SetEnvironmentVariable("MAIL_USERNAME", "alerts@example.com");
+            Environment.SetEnvironmentVariable("MAIL_PASSWORD", "secret");
+            Environment.SetEnvironmentVariable("MAIL_ENABLE_SSL", "off");
 
             var settings = new global::ConfigurationService().LoadSmtpSettings();
 

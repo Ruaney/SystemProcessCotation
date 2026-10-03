@@ -14,13 +14,13 @@ public class ConfigurationService : IConfigurationService
     {
         return new SmtpSettings
         {
-            Host = GetEnv("HOST", "SMTP_HOST"),
-            Port = GetEnvInt("PORT", "SMTP_PORT"),
-            FromAddress = GetEnv("FROM", "SMTP_FROM"),
-            ToAddress = GetEnv("TO", "SMTP_TO"),
-            Password = GetEnv("PASSWORD", "SMTP_PASSWORD"),
-            Username = GetEnv("USERNAME", "SMTP_USERNAME", "SMTP_USER"),
-            EnableSsl = GetEnvFlag(["ENABLE_SSL", "SMTP_ENABLE_SSL", "SMTP_SSL"], defaultValue: true)
+            Host = GetEnv("HOST", "SMTP_HOST", "MAIL_HOST"),
+            Port = GetEnvInt("PORT", "SMTP_PORT", "MAIL_PORT"),
+            FromAddress = GetEnv("FROM", "SMTP_FROM", "MAIL_FROM"),
+            ToAddress = GetEnv("TO", "SMTP_TO", "MAIL_TO"),
+            Password = GetEnv("PASSWORD", "SMTP_PASSWORD", "MAIL_PASSWORD"),
+            Username = GetEnv("USERNAME", "SMTP_USERNAME", "SMTP_USER", "MAIL_USERNAME", "MAIL_USER"),
+            EnableSsl = GetEnvFlag(["ENABLE_SSL", "SMTP_ENABLE_SSL", "SMTP_SSL", "MAIL_ENABLE_SSL", "MAIL_SSL"], defaultValue: true)
         };
     }
 
