@@ -1,5 +1,13 @@
 public static class StockSymbol
 {
+    private static readonly string[] B3ProviderPrefixes =
+    [
+        "B3",
+        "BVMF",
+        "BOVESPA",
+        "BMFBOVESPA"
+    ];
+
     public static bool TryNormalize(string? symbol, out string normalized)
     {
         normalized = RemoveB3Affixes(symbol?.Trim().ToUpperInvariant() ?? string.Empty);
@@ -30,13 +38,15 @@ public static class StockSymbol
 
     private static string RemoveB3Prefix(string symbol)
     {
-        if (symbol.StartsWith("BVMF:", StringComparison.Ordinal))
+        var separatorIndex = symbol.IndexOf(':');
+        if (separatorIndex < 0)
         {
-            return symbol[5..].Trim();
+            return symbol;
         }
 
-        return symbol.StartsWith("B3:", StringComparison.Ordinal)
-            ? symbol[3..].Trim()
+        var provider = symbol[..separatorIndex].Trim();
+        return B3ProviderPrefixes.Contains(provider, StringComparer.Ordinal)
+            ? symbol[(separatorIndex + 1)..].Trim()
             : symbol;
     }
 

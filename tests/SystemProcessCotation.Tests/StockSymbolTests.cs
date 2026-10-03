@@ -5,6 +5,9 @@ public class StockSymbolTests
     [Theory]
     [InlineData("bvmf:petr4", "PETR4")]
     [InlineData("B3:PETR4.SA", "PETR4")]
+    [InlineData("B3 : PETR4", "PETR4")]
+    [InlineData("BOVESPA:PETR4", "PETR4")]
+    [InlineData("BMFBOVESPA:PETR4.SA", "PETR4")]
     public void TryNormalize_RemovesB3ProviderAffixes(string symbol, string expected)
     {
         var parsed = global::StockSymbol.TryNormalize(symbol, out var normalized);
