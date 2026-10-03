@@ -419,6 +419,34 @@ public class CotationServiceTests
         Assert.Equal(31.42, result.Price);
     }
 
+    [Theory]
+    [InlineData("Cotação R$ 31,42")]
+    [InlineData("Cotação BRL 31,42")]
+    [InlineData("Preço atual 31,42")]
+    public async Task GetCotationAsync_ParsesInlineLabeledPriceWithoutColon(string labelAndPrice)
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent($"""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>{labelAndPrice}</td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
     [Fact]
     public async Task GetCotationAsync_FallsBackWhenLabeledCotationCellIsBlank()
     {

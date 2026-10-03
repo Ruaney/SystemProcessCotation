@@ -137,8 +137,49 @@ public class CotationService : ICotationService
     private static bool StartsWithCotationLabel(string value)
     {
         var separatorIndex = value.IndexOf(':');
-        return separatorIndex > 0
-            && IsCotationLabel(value[..separatorIndex]);
+        if (separatorIndex > 0 && IsCotationLabel(value[..separatorIndex]))
+        {
+            return true;
+        }
+
+        var priceStartIndex = FindInlinePriceStart(value);
+        return priceStartIndex > 0 && IsCotationLabel(value[..priceStartIndex]);
+    }
+
+    private static int FindInlinePriceStart(string value)
+    {
+        for (var index = 0; index < value.Length; index++)
+        {
+            if (char.IsDigit(value[index]) || IsCurrencyMarkerStart(value, index))
+            {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
+    private static bool IsCurrencyMarkerStart(string value, int index) =>
+        StartsWithBrlMarker(value, index) || StartsWithRealMarker(value, index);
+
+    private static bool StartsWithBrlMarker(string value, int index) =>
+        value.Length - index >= 3
+        && string.Compare(value, index, "BRL", 0, 3, ignoreCase: true, CultureInfo.InvariantCulture) == 0;
+
+    private static bool StartsWithRealMarker(string value, int index)
+    {
+        if (char.ToUpperInvariant(value[index]) != 'R')
+        {
+            return false;
+        }
+
+        var nextIndex = index + 1;
+        while (nextIndex < value.Length && char.IsWhiteSpace(value[nextIndex]))
+        {
+            nextIndex++;
+        }
+
+        return nextIndex < value.Length && value[nextIndex] == '$';
     }
 
     private static IEnumerable<string> ExtractPriceTexts(HtmlNode? valueCell)
