@@ -16,7 +16,7 @@ public static class PriceParser
     {
         price = 0;
 
-        var withoutCurrency = RemoveCurrencyMarkers(value);
+        var withoutCurrency = NormalizeMinusSigns(RemoveCurrencyMarkers(value));
         var normalizedValue = RemoveWhitespace(withoutCurrency);
         if (string.IsNullOrWhiteSpace(normalizedValue))
         {
@@ -60,6 +60,12 @@ public static class PriceParser
         var withoutRealMarker = BrazilianRealMarker.Replace(value ?? string.Empty, string.Empty);
         return BrazilianIsoMarker.Replace(withoutRealMarker, string.Empty);
     }
+
+    private static string NormalizeMinusSigns(string value) =>
+        value
+            .Replace('\u2212', '-')
+            .Replace('\uFE63', '-')
+            .Replace('\uFF0D', '-');
 
     private static string RemoveWhitespace(string value)
     {

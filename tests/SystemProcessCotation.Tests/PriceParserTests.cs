@@ -82,6 +82,25 @@ public class PriceParserTests
         Assert.Equal(31.42, price);
     }
 
+    [Fact]
+    public void TryParse_SkipsUnicodeMinusVariationBeforePrice()
+    {
+        var parsed = global::PriceParser.TryParse("Baixa \u22120,50 Cotação R$ 31,42", out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(31.42, price);
+    }
+
+    [Theory]
+    [InlineData("\u22120,50%")]
+    [InlineData("\uFF0D0,50 %")]
+    public void TryParse_IgnoresStandaloneUnicodeMinusPercentageChanges(string value)
+    {
+        var parsed = global::PriceParser.TryParse(value, out _);
+
+        Assert.False(parsed);
+    }
+
     [Theory]
     [InlineData("12/09/2026")]
     [InlineData("12 / 09 / 2026")]
