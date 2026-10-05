@@ -14,6 +14,8 @@ Monitoração de preços que envia alertas por email de quando comprar/vender ao
 dotnet run -- --help
 ```
 
+A ajuda aceita `help`, `-h`, `--help`, `-?`, `/h` ou `/?`.
+
 dotnet run **Ativo preçoVenda preçoCompra [intervaloMs] [cooldownSegundos]**
 
 ```bash
@@ -26,7 +28,9 @@ Para uma demonstração mais rápida, informe também o intervalo de consulta e 
 dotnet run PETR4 22.67 22.59 1000 15
 ```
 
-Os preços aceitam ponto ou vírgula decimal, marcadores como `R$ 35,50` e trechos copiados de cotação, como `31,42 +0,50%`.
+O ativo é normalizado a partir de formatos comuns da B3, como `BVMF:PETR4`, `PETR4.SA`, `PETR4.BVMF` ou `PETR4.BOVESPA`.
+
+Os preços aceitam ponto ou vírgula decimal, marcadores como `R$ 35,50`, grupos como `1'234.56` e trechos copiados de cotação, como `31,42 +0,50%`.
 
 ### Gerar executável
 ```bash

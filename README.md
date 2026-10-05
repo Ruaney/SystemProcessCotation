@@ -85,13 +85,17 @@ dotnet run -- --help
 dotnet run PETR4 22.67 22.59
 ```
 
+Help can be opened with `help`, `-h`, `--help`, `-?`, `/h`, or `/?`.
+
 Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json`. The optional `checkIntervalMs` and `alertCooldownSeconds` arguments let you tune demo cadence without editing configuration:
 
 ```bash
 dotnet run PETR4 22.67 22.59 1000 15
 ```
 
-Price thresholds accept dot or comma decimals and optional currency markers, including copied text such as `R$ 35,50`, `R $ 35,50`, or `BRL 35,50`. Mixed quote snippets also work, such as `31,42 +0,50%` or `12/09/2026 31,42`.
+Stock symbols are normalized from common B3 copies such as `BVMF:PETR4`, `PETR4.SA`, `PETR4.BVMF`, or `PETR4.BOVESPA`.
+
+Price thresholds accept dot or comma decimals and optional currency markers, including copied text such as `R$ 35,50`, `R $ 35,50`, `BRL 35,50`, or `1'234.56`. Mixed quote snippets also work, such as `31,42 +0,50%` or `12/09/2026 31,42`.
 
 ### Build a standalone executable
 
