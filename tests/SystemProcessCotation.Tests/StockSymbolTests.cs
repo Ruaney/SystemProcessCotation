@@ -16,6 +16,19 @@ public class StockSymbolTests
         Assert.Equal(expected, normalized);
     }
 
+    [Theory]
+    [InlineData("petr4.b3", "PETR4")]
+    [InlineData("PETR4.BVMF", "PETR4")]
+    [InlineData("PETR4.BOVESPA", "PETR4")]
+    [InlineData("PETR4.BMFBOVESPA", "PETR4")]
+    public void TryNormalize_RemovesB3ProviderSuffixes(string symbol, string expected)
+    {
+        var parsed = global::StockSymbol.TryNormalize(symbol, out var normalized);
+
+        Assert.True(parsed);
+        Assert.Equal(expected, normalized);
+    }
+
     [Fact]
     public void TryNormalize_RejectsEmptySymbolAfterB3Prefix()
     {

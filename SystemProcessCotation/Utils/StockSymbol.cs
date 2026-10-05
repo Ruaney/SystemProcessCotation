@@ -7,6 +7,14 @@ public static class StockSymbol
         "BOVESPA",
         "BMFBOVESPA"
     ];
+    private static readonly string[] B3ProviderSuffixes =
+    [
+        ".SA",
+        ".B3",
+        ".BVMF",
+        ".BOVESPA",
+        ".BMFBOVESPA"
+    ];
 
     public static bool TryNormalize(string? symbol, out string normalized)
     {
@@ -50,8 +58,16 @@ public static class StockSymbol
             : symbol;
     }
 
-    private static string RemoveB3Suffix(string symbol) =>
-        symbol.EndsWith(".SA", StringComparison.Ordinal)
-            ? symbol[..^3]
-            : symbol;
+    private static string RemoveB3Suffix(string symbol)
+    {
+        foreach (var suffix in B3ProviderSuffixes)
+        {
+            if (symbol.EndsWith(suffix, StringComparison.Ordinal))
+            {
+                return symbol[..^suffix.Length];
+            }
+        }
+
+        return symbol;
+    }
 }
