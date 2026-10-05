@@ -3,8 +3,11 @@ namespace SystemProcessCotation.Tests;
 public class CommandLineHelperTests
 {
     [Theory]
+    [InlineData("help")]
     [InlineData("-h")]
+    [InlineData("-?")]
     [InlineData("--help")]
+    [InlineData("/h")]
     [InlineData("/?")]
     public void IsHelpRequest_ReturnsTrueForHelpFlags(string flag)
     {

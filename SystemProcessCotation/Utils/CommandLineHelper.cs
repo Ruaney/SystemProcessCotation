@@ -16,8 +16,11 @@ public static class CommandLineHelper
         }
 
         var option = args[0].Trim();
-        return option.Equals("-h", StringComparison.OrdinalIgnoreCase)
+        return option.Equals("help", StringComparison.OrdinalIgnoreCase)
+            || option.Equals("-h", StringComparison.OrdinalIgnoreCase)
+            || option.Equals("-?", StringComparison.OrdinalIgnoreCase)
             || option.Equals("--help", StringComparison.OrdinalIgnoreCase)
+            || option.Equals("/h", StringComparison.OrdinalIgnoreCase)
             || option.Equals("/?", StringComparison.OrdinalIgnoreCase);
     }
 
