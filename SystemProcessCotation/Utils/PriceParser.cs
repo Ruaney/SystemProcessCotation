@@ -7,7 +7,8 @@ public static class PriceParser
     private static readonly CultureInfo InvariantCulture = CultureInfo.InvariantCulture;
     private static readonly Regex BrazilianRealMarker = new(@"R\s*\$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
     private static readonly Regex BrazilianIsoMarker = new(@"BRL", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-    private static readonly Regex NumericCandidate = new(@"[+-]?\d+(?:(?:[.,]\d+)|(?:\s+\d{3}))*", RegexOptions.CultureInvariant);
+    private static readonly Regex NumericCandidate = new(@"[+-]?\d+(?:(?:[.,]\d+)|(?:['’]\d{3})|(?:\s+\d{3}))*", RegexOptions.CultureInvariant);
+    private static readonly Regex ApostropheThousandsValue = new(@"^[+-]?\d{1,3}(?:['’]\d{3})+(?:[.,]\d+)?$", RegexOptions.CultureInvariant);
     private static readonly Regex DottedDateCandidate = new(@"^\d{1,2}\.\d{1,2}\.\d{2,4}$", RegexOptions.CultureInvariant);
     private static readonly Regex DottedDateText = new(@"\d{1,2}\s*\.\s*\d{1,2}\s*\.\s*\d{2,4}", RegexOptions.CultureInvariant);
     private const NumberStyles PriceStyles = NumberStyles.Float | NumberStyles.AllowThousands;
@@ -43,9 +44,15 @@ public static class PriceParser
     {
         price = 0;
 
-        foreach (var culture in PreferredCultures(normalizedValue))
+        if (ContainsApostropheSeparator(normalizedValue) && !ApostropheThousandsValue.IsMatch(normalizedValue))
         {
-            if (decimal.TryParse(normalizedValue, PriceStyles, culture, out var parsedPrice))
+            return false;
+        }
+
+        var valueWithoutApostropheGroups = RemoveApostropheThousandsGroups(normalizedValue);
+        foreach (var culture in PreferredCultures(valueWithoutApostropheGroups))
+        {
+            if (decimal.TryParse(valueWithoutApostropheGroups, PriceStyles, culture, out var parsedPrice))
             {
                 price = (double)parsedPrice;
                 return true;
@@ -72,6 +79,12 @@ public static class PriceParser
         return string.Concat(value.Where(c => !char.IsWhiteSpace(c)));
     }
 
+    private static string RemoveApostropheThousandsGroups(string value) =>
+        value.Replace("'", string.Empty).Replace("’", string.Empty);
+
+    private static bool ContainsApostropheSeparator(string value) =>
+        value.Contains('\'') || value.Contains('’');
+
     private static IEnumerable<string> ExtractPriceCandidates(string value)
     {
         var searchableValue = MaskDottedDates(value);
@@ -79,6 +92,7 @@ public static class PriceParser
             .Where(match => !IsPercentageCandidate(searchableValue, match))
             .Where(match => !IsDateCandidate(searchableValue, match))
             .Where(match => !IsTimeCandidate(searchableValue, match))
+            .Where(match => !HasAdjacentApostropheSeparator(searchableValue, match))
             .Where(match => ContainsSeparator(match.Value) || !IsEmbeddedInWord(searchableValue, match))
             .Select(match => match.Value)
             .ToArray();
@@ -161,6 +175,25 @@ public static class PriceParser
         return index >= 0 && index < value.Length && value[index] == ':';
     }
 
+    private static bool HasAdjacentApostropheSeparator(string value, Match match)
+    {
+        return HasAdjacentApostropheSeparator(value, match.Index - 1, -1)
+            || HasAdjacentApostropheSeparator(value, match.Index + match.Length, 1);
+    }
+
+    private static bool HasAdjacentApostropheSeparator(string value, int index, int step)
+    {
+        while (index >= 0 && index < value.Length && char.IsWhiteSpace(value[index]))
+        {
+            index += step;
+        }
+
+        return index >= 0 && index < value.Length && IsApostropheSeparator(value[index]);
+    }
+
+    private static bool IsApostropheSeparator(char value) =>
+        value is '\'' or '’';
+
     private static bool IsEmbeddedInWord(string value, Match match)
     {
         return HasAdjacentLetter(value, match.Index - 1)
@@ -176,7 +209,10 @@ public static class PriceParser
 
     private static bool ContainsSeparator(string value)
     {
-        return value.Contains('.') || value.Contains(',');
+        return value.Contains('.')
+            || value.Contains(',')
+            || value.Contains('\'')
+            || value.Contains('’');
     }
 
     private static bool StartsWithSign(string value)
