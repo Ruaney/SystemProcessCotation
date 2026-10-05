@@ -221,9 +221,11 @@ public class CotationService : ICotationService
     private static bool IsKnownCotationLabel(string normalized) =>
         normalized is "cotacao"
             or "cotacaoatual"
+            or "ultimo"
             or "ultimacotacao"
             or "ultimopreco"
             or "ultimovalor"
+            or "preco"
             or "precoatual"
             or "valoratual";
 
