@@ -35,8 +35,8 @@ public class Program
 
         // Barramento de mensagens: SNS (tópicos) + SQS (filas). Aponta para o LocalStack
         // quando "Aws:ServiceUrl" está definido; senão usa a AWS real (cadeia padrão de credenciais).
-        var awsServiceUrl = builder.Configuration.GetValue<string>("Aws:ServiceUrl");
-        var awsRegion = builder.Configuration.GetValue<string>("Aws:Region") ?? "us-east-1";
+        var awsServiceUrl = ResolveAwsServiceUrl(builder.Configuration);
+        var awsRegion = ResolveAwsRegion(builder.Configuration);
         builder.Services.AddSingleton<IAmazonSimpleNotificationService>(_ =>
         {
             var config = new AmazonSimpleNotificationServiceConfig();
@@ -58,7 +58,7 @@ public class Program
         builder.Services.AddSingleton<IEventBus>(sp => sp.GetRequiredService<SnsSqsEventBus>());
 
         // Estado dos alertas (preço/cooldown) permanece no Redis.
-        var redisConnectionString = builder.Configuration.GetValue<string>("Redis:ConnectionString") ?? "localhost:6379";
+        var redisConnectionString = ResolveRedisConnectionString(builder.Configuration);
         builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
         {
             var options = ConfigurationOptions.Parse(redisConnectionString);
@@ -98,6 +98,44 @@ public class Program
         new BasicAWSCredentials(
             configuration.GetValue<string>("Aws:AccessKey") ?? "test",
             configuration.GetValue<string>("Aws:SecretKey") ?? "test");
+
+    internal static string? ResolveAwsServiceUrl(IConfiguration configuration) =>
+        GetFirstConfiguredValue(
+            configuration,
+            "Aws:ServiceUrl",
+            "AWS_ENDPOINT_URL",
+            "AWS_SERVICE_URL",
+            "LOCALSTACK_URL");
+
+    internal static string ResolveAwsRegion(IConfiguration configuration) =>
+        GetFirstConfiguredValue(
+            configuration,
+            "Aws:Region",
+            "AWS_REGION",
+            "AWS_DEFAULT_REGION")
+        ?? "us-east-1";
+
+    internal static string ResolveRedisConnectionString(IConfiguration configuration) =>
+        GetFirstConfiguredValue(
+            configuration,
+            "Redis:ConnectionString",
+            "REDIS_CONNECTION_STRING",
+            "REDIS_URL")
+        ?? "localhost:6379";
+
+    private static string? GetFirstConfiguredValue(IConfiguration configuration, params string[] keys)
+    {
+        foreach (var key in keys)
+        {
+            var value = configuration.GetValue<string>(key);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value.Trim();
+            }
+        }
+
+        return null;
+    }
 
     private static TradingSettings ResolveTradingSettings(string[] args, IConfiguration configuration)
     {
