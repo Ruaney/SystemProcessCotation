@@ -34,7 +34,9 @@ public class TradingAlert
     }
 
     private static string FormatSymbol(string? symbol) =>
-        (symbol ?? string.Empty).Trim().ToUpperInvariant();
+        StockSymbol.TryNormalize(symbol, out var normalized)
+            ? normalized
+            : (symbol ?? string.Empty).Trim().ToUpperInvariant();
 
     private static string FormatPrice(double price) =>
         price.ToString("N2", BrazilianCulture);

@@ -59,4 +59,21 @@ public class TradingAlertTests
         Assert.Contains("Recomendação: Compra PETR4\n", alert.GetMessage());
         Assert.Equal("Alerta COMPRA - PETR4 - R$ 29,90", alert.GetSubject());
     }
+
+    [Fact]
+    public void GetMessageAndSubject_RemoveProviderSuffixForDisplay()
+    {
+        var alert = new global::TradingAlert
+        {
+            Type = global::AlertType.Sell,
+            Symbol = " petr4.sa ",
+            CurrentPrice = 35.00,
+            TargetPrice = 34.50,
+            Timestamp = new DateTime(2026, 8, 28, 12, 30, 0, DateTimeKind.Utc)
+        };
+
+        Assert.Contains("Alerta de Venda - PETR4", alert.GetMessage());
+        Assert.Contains("Recomendação: Venda PETR4\n", alert.GetMessage());
+        Assert.Equal("Alerta VENDA - PETR4 - R$ 35,00", alert.GetSubject());
+    }
 }
