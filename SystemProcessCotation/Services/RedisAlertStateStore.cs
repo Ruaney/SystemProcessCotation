@@ -15,13 +15,16 @@ public class RedisAlertStateStore : IAlertStateStore
         _db = connection.GetDatabase();
     }
 
-    public async Task<bool> ShouldAlertAsync(TradingAlert alert, TimeSpan cooldown)
+    public async Task<bool> ShouldAlertAsync(TradingAlert alert, TimeSpan cooldown, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var keys = BuildKeys(alert);
         var priceText = alert.CurrentPrice.ToString("R", CultureInfo.InvariantCulture);
 
         // 1) mesmo preço do último alerta deste tipo? não repete.
         var lastPrice = await _db.StringGetAsync(keys.LastPriceKey);
+        cancellationToken.ThrowIfCancellationRequested();
         if (!lastPrice.IsNullOrEmpty && lastPrice == priceText)
         {
             return false;
@@ -29,6 +32,7 @@ public class RedisAlertStateStore : IAlertStateStore
 
         // 2) ainda dentro do cooldown? SET NX só vence quando a chave não existe.
         var slotAcquired = await _db.StringSetAsync(keys.CooldownKey, priceText, cooldown, When.NotExists);
+        cancellationToken.ThrowIfCancellationRequested();
         if (!slotAcquired)
         {
             return false;

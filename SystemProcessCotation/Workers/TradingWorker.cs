@@ -41,7 +41,7 @@ public class TradingWorker : BackgroundService
             return;
         }
 
-        if (!await _state.ShouldAlertAsync(alert, _alertCooldown))
+        if (!await _state.ShouldAlertAsync(alert, _alertCooldown, cancellationToken))
         {
             _logger.LogDebug("Alerta de {Type} para {Symbol} ignorado (preço repetido ou em cooldown)", alert.Type, alert.Symbol);
             return;

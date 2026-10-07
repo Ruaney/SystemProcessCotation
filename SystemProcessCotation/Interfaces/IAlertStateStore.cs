@@ -9,5 +9,5 @@ public interface IAlertStateStore
     /// Retorna <c>true</c> e registra o alerta quando ele deve ser enviado
     /// (preço diferente do último alerta e fora do período de cooldown).
     /// </summary>
-    Task<bool> ShouldAlertAsync(TradingAlert alert, TimeSpan cooldown);
+    Task<bool> ShouldAlertAsync(TradingAlert alert, TimeSpan cooldown, CancellationToken cancellationToken = default);
 }
