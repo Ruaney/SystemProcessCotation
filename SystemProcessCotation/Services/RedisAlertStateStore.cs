@@ -17,26 +17,37 @@ public class RedisAlertStateStore : IAlertStateStore
 
     public async Task<bool> ShouldAlertAsync(TradingAlert alert, TimeSpan cooldown)
     {
+        var keys = BuildKeys(alert);
         var priceText = alert.CurrentPrice.ToString("R", CultureInfo.InvariantCulture);
-        var lastPriceKey = $"lastalertprice:{alert.Symbol}:{alert.Type}";
-        var cooldownKey = $"alertcd:{alert.Symbol}:{alert.Type}";
 
         // 1) mesmo preço do último alerta deste tipo? não repete.
-        var lastPrice = await _db.StringGetAsync(lastPriceKey);
+        var lastPrice = await _db.StringGetAsync(keys.LastPriceKey);
         if (!lastPrice.IsNullOrEmpty && lastPrice == priceText)
         {
             return false;
         }
 
         // 2) ainda dentro do cooldown? SET NX só vence quando a chave não existe.
-        var slotAcquired = await _db.StringSetAsync(cooldownKey, priceText, cooldown, When.NotExists);
+        var slotAcquired = await _db.StringSetAsync(keys.CooldownKey, priceText, cooldown, When.NotExists);
         if (!slotAcquired)
         {
             return false;
         }
 
         // 3) registra o preço deste alerta e libera o envio.
-        await _db.StringSetAsync(lastPriceKey, priceText);
+        await _db.StringSetAsync(keys.LastPriceKey, priceText);
         return true;
     }
+
+    internal static AlertStateKeys BuildKeys(TradingAlert alert)
+    {
+        ArgumentNullException.ThrowIfNull(alert);
+
+        var symbol = StockSymbol.NormalizeOrThrow(alert.Symbol, nameof(alert));
+        return new AlertStateKeys(
+            $"lastalertprice:{symbol}:{alert.Type}",
+            $"alertcd:{symbol}:{alert.Type}");
+    }
+
+    internal readonly record struct AlertStateKeys(string LastPriceKey, string CooldownKey);
 }
