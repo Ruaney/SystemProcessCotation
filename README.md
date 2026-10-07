@@ -135,6 +135,7 @@ cd .\SystemProcessCotation\
 ```
 
 - Leave `Aws:ServiceUrl` empty to target **real AWS** (uses the default credential chain); set it to the LocalStack URL for offline runs.
+- Deployment aliases are also accepted when nested config keys are inconvenient: `AWS_ENDPOINT_URL`, `AWS_SERVICE_URL`, or `LOCALSTACK_URL` for the AWS endpoint; `AWS_REGION` or `AWS_DEFAULT_REGION` for the region; and `REDIS_CONNECTION_STRING` or `REDIS_URL` for Redis.
 
 ### Email (SMTP) — optional
 
@@ -154,7 +155,7 @@ TO=to@example.com
 ENABLE_SSL=true
 ```
 
-The short SMTP keys above are still the default examples. The app also accepts common deployment aliases: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` or `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, and `SMTP_ENABLE_SSL` or `SMTP_SSL`.
+The short SMTP keys above are still the default examples. The app also accepts common deployment aliases: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` or `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, and `SMTP_ENABLE_SSL` or `SMTP_SSL`. Hosting providers that reserve `SMTP_*` names can use the `MAIL_*` variants instead, including `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME` or `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_FROM`, `MAIL_TO`, and `MAIL_ENABLE_SSL` or `MAIL_SSL`.
 
 Use a plain SMTP hostname for `HOST`/`SMTP_HOST`, such as `smtp.gmail.com`; URL values like `https://smtp.gmail.com` are treated as not configured.
 
