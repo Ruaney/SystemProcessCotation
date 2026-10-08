@@ -128,6 +128,58 @@ public class CotationServiceTests
     }
 
     [Fact]
+    public async Task GetCotationAsync_ParsesPriceFromDataAttribute()
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>Cotação</td>
+                            <td><span class="txt" data-price="31,42"></span></td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
+    [Fact]
+    public async Task GetCotationAsync_ParsesPriceFromMetaContent()
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    <html>
+                      <body>
+                        <table>
+                          <tr>
+                            <td>Cotação</td>
+                            <td><meta itemprop="price" content="31.42"></td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
+    [Fact]
     public async Task GetCotationAsync_PrefersNestedPriceTextWhenCellHasVariation()
     {
         using var client = new HttpClient(new StubHttpMessageHandler(_ =>

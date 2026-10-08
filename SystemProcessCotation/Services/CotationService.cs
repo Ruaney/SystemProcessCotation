@@ -6,6 +6,13 @@ public class CotationService : ICotationService
 {
     private const string BrowserUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
     private const string PreferredLanguages = "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7";
+    private static readonly string[] PriceAttributeNames =
+    [
+        "data-price",
+        "data-value",
+        "content",
+        "value"
+    ];
 
     private readonly HttpClient _httpClient;
 
@@ -199,6 +206,11 @@ public class CotationService : ICotationService
             yield break;
         }
 
+        foreach (var attributeText in ExtractPriceAttributes(valueCell))
+        {
+            yield return attributeText;
+        }
+
         var priceSpans = valueCell.SelectNodes(".//span[contains(concat(' ', normalize-space(@class), ' '), ' txt ')]");
         if (priceSpans is not null)
         {
@@ -221,6 +233,26 @@ public class CotationService : ICotationService
         if (!string.IsNullOrWhiteSpace(cellText))
         {
             yield return cellText;
+        }
+    }
+
+    private static IEnumerable<string> ExtractPriceAttributes(HtmlNode valueCell)
+    {
+        foreach (var node in valueCell.DescendantsAndSelf())
+        {
+            if (IsHidden(node))
+            {
+                continue;
+            }
+
+            foreach (var attributeName in PriceAttributeNames)
+            {
+                var attributeValue = node.GetAttributeValue(attributeName, string.Empty).Trim();
+                if (!string.IsNullOrWhiteSpace(attributeValue))
+                {
+                    yield return attributeValue;
+                }
+            }
         }
     }
 
