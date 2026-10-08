@@ -115,11 +115,43 @@ public class ConfigurationService : IConfigurationService
 
     private static string CleanEnvValue(string value)
     {
-        var trimmed = value.Trim();
+        var trimmed = RemoveInlineComment(value.Trim()).Trim();
         return trimmed.Length >= 2 && IsQuoted(trimmed)
             ? trimmed[1..^1].Trim()
             : trimmed;
     }
+
+    private static string RemoveInlineComment(string value)
+    {
+        var inSingleQuote = false;
+        var inDoubleQuote = false;
+
+        for (var index = 0; index < value.Length; index++)
+        {
+            var current = value[index];
+            if (current == '\'' && !inDoubleQuote)
+            {
+                inSingleQuote = !inSingleQuote;
+                continue;
+            }
+
+            if (current == '"' && !inSingleQuote)
+            {
+                inDoubleQuote = !inDoubleQuote;
+                continue;
+            }
+
+            if (current == '#' && !inSingleQuote && !inDoubleQuote && IsCommentStart(value, index))
+            {
+                return value[..index].TrimEnd();
+            }
+        }
+
+        return value;
+    }
+
+    private static bool IsCommentStart(string value, int index) =>
+        index == 0 || char.IsWhiteSpace(value[index - 1]);
 
     private static bool IsQuoted(string value) =>
         value[0] == '"' && value[^1] == '"'
