@@ -24,6 +24,18 @@ public class TradingService : ITradingService
         }
 
         var symbol = StockSymbol.NormalizeOrThrow(cotation.Symbol);
+        if (!string.IsNullOrWhiteSpace(settings.StockSymbol))
+        {
+            var configuredSymbol = StockSymbol.NormalizeOrThrow(settings.StockSymbol, nameof(settings.StockSymbol));
+            if (!string.Equals(symbol, configuredSymbol, StringComparison.Ordinal))
+            {
+                _logger.LogDebug(
+                    "Cotação de {Symbol} ignorada porque o ativo configurado é {ConfiguredSymbol}.",
+                    symbol,
+                    configuredSymbol);
+                return Task.FromResult<TradingAlert?>(null);
+            }
+        }
 
         if (cotation.Price < settings.PriceToBuy && cotation.Price < settings.PriceToSell)
         {
@@ -55,11 +67,5 @@ public class TradingService : ITradingService
         }
 
         return Task.FromResult(alert);
-    }
-
-    private static bool TryNormalizeSymbol(string? symbol, out string normalizedSymbol)
-    {
-        normalizedSymbol = (symbol ?? string.Empty).Trim().ToUpperInvariant();
-        return normalizedSymbol.All(char.IsLetterOrDigit);
     }
 }

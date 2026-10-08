@@ -55,6 +55,21 @@ public class TradingServiceTests
     }
 
     [Fact]
+    public async Task AnalyzeCotationAsync_ReturnsNullWhenCotationSymbolDiffersFromConfiguredSymbol()
+    {
+        var alert = await _service.AnalyzeCotationAsync(
+            new global::CotationResult { Symbol = "VALE3", Price = 35.00 },
+            new global::TradingSettings
+            {
+                StockSymbol = "PETR4",
+                PriceToSell = 35.00,
+                PriceToBuy = 30.00
+            });
+
+        Assert.Null(alert);
+    }
+
+    [Fact]
     public async Task AnalyzeCotationAsync_ReturnsNullForInvalidCotation()
     {
         var alert = await _service.AnalyzeCotationAsync(
