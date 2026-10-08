@@ -128,14 +128,27 @@ public class Program
         foreach (var key in keys)
         {
             var value = configuration.GetValue<string>(key);
-            if (!string.IsNullOrWhiteSpace(value))
+            var cleanedValue = CleanConfiguredValue(value);
+            if (!string.IsNullOrWhiteSpace(cleanedValue))
             {
-                return value.Trim();
+                return cleanedValue;
             }
         }
 
         return null;
     }
+
+    private static string CleanConfiguredValue(string? value)
+    {
+        var trimmed = value?.Trim() ?? string.Empty;
+        return trimmed.Length >= 2 && IsQuoted(trimmed)
+            ? trimmed[1..^1].Trim()
+            : trimmed;
+    }
+
+    private static bool IsQuoted(string value) =>
+        value[0] == '"' && value[^1] == '"'
+        || value[0] == '\'' && value[^1] == '\'';
 
     private static TradingSettings ResolveTradingSettings(string[] args, IConfiguration configuration)
     {

@@ -32,6 +32,19 @@ public class ProgramConfigurationTests
     }
 
     [Fact]
+    public void ResolveAwsServiceUrl_UnquotesConfiguredValue()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["AWS_ENDPOINT_URL"] = " \"http://localhost:4566\" "
+        });
+
+        var serviceUrl = global::Program.ResolveAwsServiceUrl(configuration);
+
+        Assert.Equal("http://localhost:4566", serviceUrl);
+    }
+
+    [Fact]
     public void ResolveAwsRegion_UsesDefaultRegionAlias()
     {
         var configuration = BuildConfiguration(new Dictionary<string, string?>
@@ -58,6 +71,20 @@ public class ProgramConfigurationTests
         var configuration = BuildConfiguration(new Dictionary<string, string?>
         {
             ["REDIS_CONNECTION_STRING"] = " redis:6379 "
+        });
+
+        var connectionString = global::Program.ResolveRedisConnectionString(configuration);
+
+        Assert.Equal("redis:6379", connectionString);
+    }
+
+    [Fact]
+    public void ResolveRedisConnectionString_IgnoresQuotedBlankAlias()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["REDIS_CONNECTION_STRING"] = "' '",
+            ["REDIS_URL"] = "redis:6379"
         });
 
         var connectionString = global::Program.ResolveRedisConnectionString(configuration);
