@@ -91,6 +91,11 @@ public class CotationService : ICotationService
 
         foreach (var cell in highlightedPriceCells)
         {
+            if (IsHidden(cell))
+            {
+                continue;
+            }
+
             foreach (var text in ExtractPriceTexts(cell))
             {
                 yield return text;
@@ -108,6 +113,11 @@ public class CotationService : ICotationService
 
         foreach (var cell in cells)
         {
+            if (IsHidden(cell))
+            {
+                continue;
+            }
+
             if (HasCotationLabelText(cell))
             {
                 foreach (var text in ExtractPriceTexts(cell))
@@ -184,7 +194,7 @@ public class CotationService : ICotationService
 
     private static IEnumerable<string> ExtractPriceTexts(HtmlNode? valueCell)
     {
-        if (valueCell is null)
+        if (valueCell is null || IsHidden(valueCell))
         {
             yield break;
         }
@@ -194,6 +204,11 @@ public class CotationService : ICotationService
         {
             foreach (var span in priceSpans)
             {
+                if (IsHidden(span))
+                {
+                    continue;
+                }
+
                 var spanText = span.InnerText.Trim();
                 if (!string.IsNullOrWhiteSpace(spanText))
                 {
@@ -250,4 +265,29 @@ public class CotationService : ICotationService
 
         return string.Concat(chars).ToLowerInvariant();
     }
+
+    private static bool IsHidden(HtmlNode node)
+    {
+        for (var current = node; current is not null; current = current.ParentNode)
+        {
+            if (current.Attributes["hidden"] is not null
+                || string.Equals(current.GetAttributeValue("aria-hidden", string.Empty), "true", StringComparison.OrdinalIgnoreCase)
+                || HasHiddenStyle(current.GetAttributeValue("style", string.Empty)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool HasHiddenStyle(string style)
+    {
+        var normalized = RemoveWhitespace(style).ToLowerInvariant();
+        return normalized.Contains("display:none", StringComparison.Ordinal)
+            || normalized.Contains("visibility:hidden", StringComparison.Ordinal);
+    }
+
+    private static string RemoveWhitespace(string value) =>
+        string.Concat(value.Where(c => !char.IsWhiteSpace(c)));
 }
