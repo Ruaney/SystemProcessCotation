@@ -79,6 +79,43 @@ public class ProgramConfigurationTests
     }
 
     [Fact]
+    public void ResolveTradingSettings_UsesTradingAliasesWhenSectionIsMissing()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["STOCK_SYMBOL"] = " vale3.sa ",
+            ["PRICE_TO_SELL"] = "R$ 70,00",
+            ["PRICE_TO_BUY"] = "R$ 60,00"
+        });
+
+        var settings = global::Program.ResolveTradingSettings([], configuration);
+
+        Assert.Equal("VALE3", settings.StockSymbol);
+        Assert.Equal(70.00, settings.PriceToSell);
+        Assert.Equal(60.00, settings.PriceToBuy);
+    }
+
+    [Fact]
+    public void ResolveTradingSettings_PrefersTradingSectionOverAliases()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["Trading:StockSymbol"] = "PETR4",
+            ["Trading:PriceToSell"] = "35.50",
+            ["Trading:PriceToBuy"] = "30.25",
+            ["STOCK_SYMBOL"] = "VALE3",
+            ["PRICE_TO_SELL"] = "70.00",
+            ["PRICE_TO_BUY"] = "60.00"
+        });
+
+        var settings = global::Program.ResolveTradingSettings([], configuration);
+
+        Assert.Equal("PETR4", settings.StockSymbol);
+        Assert.Equal(35.50, settings.PriceToSell);
+        Assert.Equal(30.25, settings.PriceToBuy);
+    }
+
+    [Fact]
     public void ResolveAwsServiceUrl_UsesEndpointAliasWhenSectionIsMissing()
     {
         var configuration = BuildConfiguration(new Dictionary<string, string?>

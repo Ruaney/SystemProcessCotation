@@ -9,6 +9,28 @@ using StackExchange.Redis;
 
 public class Program
 {
+    private static readonly string[] TradingSymbolKeys =
+    [
+        "Trading:StockSymbol",
+        "TRADING_STOCK_SYMBOL",
+        "STOCK_SYMBOL",
+        "ASSET_SYMBOL"
+    ];
+    private static readonly string[] TradingSellPriceKeys =
+    [
+        "Trading:PriceToSell",
+        "TRADING_PRICE_TO_SELL",
+        "PRICE_TO_SELL",
+        "SELL_PRICE"
+    ];
+    private static readonly string[] TradingBuyPriceKeys =
+    [
+        "Trading:PriceToBuy",
+        "TRADING_PRICE_TO_BUY",
+        "PRICE_TO_BUY",
+        "BUY_PRICE"
+    ];
+
     public static async Task Main(string[] args)
     {
         if (CommandLineHelper.IsHelpRequest(args))
@@ -160,9 +182,9 @@ public class Program
         var section = configuration.GetSection("Trading");
         return new TradingSettings
         {
-            StockSymbol = GetFirstConfiguredValue(configuration, "Trading:StockSymbol") ?? "PETR4",
-            PriceToSell = ResolveRequiredTradingPrice(configuration, "preço de venda", "Trading:PriceToSell"),
-            PriceToBuy = ResolveRequiredTradingPrice(configuration, "preço de compra", "Trading:PriceToBuy"),
+            StockSymbol = GetFirstConfiguredValue(configuration, TradingSymbolKeys) ?? "PETR4",
+            PriceToSell = ResolveRequiredTradingPrice(configuration, "preço de venda", TradingSellPriceKeys),
+            PriceToBuy = ResolveRequiredTradingPrice(configuration, "preço de compra", TradingBuyPriceKeys),
             CheckIntervalMs = section.GetValue<int>("CheckIntervalMs"),
             AlertCooldownSeconds = section.GetValue<int?>("AlertCooldownSeconds") ?? 60
         }.NormalizeAndValidate();
