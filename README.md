@@ -87,7 +87,7 @@ dotnet run PETR4 22.67 22.59
 
 Help can be opened with `help`, `-h`, `--help`, `-?`, `/h`, or `/?`.
 
-Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json`. The optional `checkIntervalMs` and `alertCooldownSeconds` arguments let you tune demo cadence without editing configuration:
+Command-line arguments take priority; if omitted, values are read from the `Trading` section of `appsettings.json` or from deployment-friendly aliases. The optional `checkIntervalMs` and `alertCooldownSeconds` arguments let you tune demo cadence without editing configuration:
 
 ```bash
 dotnet run PETR4 22.67 22.59 1000 15
@@ -95,7 +95,7 @@ dotnet run PETR4 22.67 22.59 1000 15
 
 Stock symbols are normalized from common B3 copies such as `BVMF:PETR4`, `PETR4.SA`, `PETR4.BVMF`, or `PETR4.BOVESPA`.
 
-Price thresholds accept dot or comma decimals and optional currency markers, including copied text such as `R$ 35,50`, `R $ 35,50`, `BRL 35,50`, or `1'234.56`. Mixed quote snippets also work, such as `31,42 +0,50%` or `12/09/2026 31,42`.
+Price thresholds accept dot or comma decimals and optional currency markers in command-line and configuration values, including copied text such as `R$ 35,50`, `R $ 35,50`, `BRL 35,50`, or `1'234.56`. Mixed quote snippets also work, such as `31,42 +0,50%` or `12/09/2026 31,42`.
 
 ### Build a standalone executable
 
@@ -135,7 +135,8 @@ cd .\SystemProcessCotation\
 ```
 
 - Leave `Aws:ServiceUrl` empty to target **real AWS** (uses the default credential chain); set it to the LocalStack URL for offline runs.
-- Deployment aliases are also accepted when nested config keys are inconvenient: `AWS_ENDPOINT_URL`, `AWS_SERVICE_URL`, or `LOCALSTACK_URL` for the AWS endpoint; `AWS_REGION` or `AWS_DEFAULT_REGION` for the region; and `REDIS_CONNECTION_STRING` or `REDIS_URL` for Redis.
+- Trading aliases are accepted when nested config keys are inconvenient: `TRADING_STOCK_SYMBOL`, `STOCK_SYMBOL`, or `ASSET_SYMBOL`; `TRADING_PRICE_TO_SELL`, `PRICE_TO_SELL`, or `SELL_PRICE`; `TRADING_PRICE_TO_BUY`, `PRICE_TO_BUY`, or `BUY_PRICE`; `TRADING_CHECK_INTERVAL_MS`, `CHECK_INTERVAL_MS`, or `POLL_INTERVAL_MS`; and `TRADING_ALERT_COOLDOWN_SECONDS`, `ALERT_COOLDOWN_SECONDS`, or `ALERT_COOLDOWN`.
+- Infrastructure aliases are also accepted: `AWS_ENDPOINT_URL`, `AWS_SERVICE_URL`, or `LOCALSTACK_URL` for the AWS endpoint; `AWS_REGION` or `AWS_DEFAULT_REGION` for the region; and `REDIS_CONNECTION_STRING` or `REDIS_URL` for Redis.
 
 ### Email (SMTP) — optional
 
