@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
+using System.Globalization;
 
 public class Program
 {
@@ -29,6 +30,20 @@ public class Program
         "TRADING_PRICE_TO_BUY",
         "PRICE_TO_BUY",
         "BUY_PRICE"
+    ];
+    private static readonly string[] TradingCheckIntervalKeys =
+    [
+        "Trading:CheckIntervalMs",
+        "TRADING_CHECK_INTERVAL_MS",
+        "CHECK_INTERVAL_MS",
+        "POLL_INTERVAL_MS"
+    ];
+    private static readonly string[] TradingAlertCooldownKeys =
+    [
+        "Trading:AlertCooldownSeconds",
+        "TRADING_ALERT_COOLDOWN_SECONDS",
+        "ALERT_COOLDOWN_SECONDS",
+        "ALERT_COOLDOWN"
     ];
 
     public static async Task Main(string[] args)
@@ -179,14 +194,13 @@ public class Program
             return CommandLineHelper.ParseArguments(args);
         }
 
-        var section = configuration.GetSection("Trading");
         return new TradingSettings
         {
             StockSymbol = GetFirstConfiguredValue(configuration, TradingSymbolKeys) ?? "PETR4",
             PriceToSell = ResolveRequiredTradingPrice(configuration, "preço de venda", TradingSellPriceKeys),
             PriceToBuy = ResolveRequiredTradingPrice(configuration, "preço de compra", TradingBuyPriceKeys),
-            CheckIntervalMs = section.GetValue<int>("CheckIntervalMs"),
-            AlertCooldownSeconds = section.GetValue<int?>("AlertCooldownSeconds") ?? 60
+            CheckIntervalMs = ResolveOptionalTradingInt(configuration, "intervalo de checagem", TradingCheckIntervalKeys),
+            AlertCooldownSeconds = ResolveOptionalTradingInt(configuration, "cooldown de alerta", TradingAlertCooldownKeys)
         }.NormalizeAndValidate();
     }
 
@@ -199,5 +213,21 @@ public class Program
         }
 
         throw new ArgumentException($"O {fieldName} do trading é inválido: {value ?? "(não informado)"}.");
+    }
+
+    private static int ResolveOptionalTradingInt(IConfiguration configuration, string fieldName, params string[] keys)
+    {
+        var value = GetFirstConfiguredValue(configuration, keys);
+        if (value is null)
+        {
+            return 0;
+        }
+
+        if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed))
+        {
+            return parsed;
+        }
+
+        throw new ArgumentException($"O {fieldName} do trading deve ser um número inteiro.");
     }
 }

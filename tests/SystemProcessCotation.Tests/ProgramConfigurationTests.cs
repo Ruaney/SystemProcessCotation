@@ -116,6 +116,61 @@ public class ProgramConfigurationTests
     }
 
     [Fact]
+    public void ResolveTradingSettings_UsesTimingAliasesWhenSectionIsMissing()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["STOCK_SYMBOL"] = "PETR4",
+            ["PRICE_TO_SELL"] = "35.50",
+            ["PRICE_TO_BUY"] = "30.25",
+            ["CHECK_INTERVAL_MS"] = "1500",
+            ["ALERT_COOLDOWN_SECONDS"] = "20"
+        });
+
+        var settings = global::Program.ResolveTradingSettings([], configuration);
+
+        Assert.Equal(1500, settings.CheckIntervalMs);
+        Assert.Equal(20, settings.AlertCooldownSeconds);
+    }
+
+    [Fact]
+    public void ResolveTradingSettings_PrefersTradingTimingSectionOverAliases()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["Trading:StockSymbol"] = "PETR4",
+            ["Trading:PriceToSell"] = "35.50",
+            ["Trading:PriceToBuy"] = "30.25",
+            ["Trading:CheckIntervalMs"] = "1000",
+            ["Trading:AlertCooldownSeconds"] = "15",
+            ["CHECK_INTERVAL_MS"] = "1500",
+            ["ALERT_COOLDOWN_SECONDS"] = "20"
+        });
+
+        var settings = global::Program.ResolveTradingSettings([], configuration);
+
+        Assert.Equal(1000, settings.CheckIntervalMs);
+        Assert.Equal(15, settings.AlertCooldownSeconds);
+    }
+
+    [Fact]
+    public void ResolveTradingSettings_RejectsInvalidTimingAlias()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["STOCK_SYMBOL"] = "PETR4",
+            ["PRICE_TO_SELL"] = "35.50",
+            ["PRICE_TO_BUY"] = "30.25",
+            ["CHECK_INTERVAL_MS"] = "fast"
+        });
+
+        var exception = Assert.Throws<ArgumentException>(() =>
+            global::Program.ResolveTradingSettings([], configuration));
+
+        Assert.Contains("intervalo de checagem", exception.Message);
+    }
+
+    [Fact]
     public void ResolveAwsServiceUrl_UsesEndpointAliasWhenSectionIsMissing()
     {
         var configuration = BuildConfiguration(new Dictionary<string, string?>
