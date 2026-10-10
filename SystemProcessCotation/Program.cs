@@ -150,7 +150,7 @@ public class Program
         value[0] == '"' && value[^1] == '"'
         || value[0] == '\'' && value[^1] == '\'';
 
-    private static TradingSettings ResolveTradingSettings(string[] args, IConfiguration configuration)
+    internal static TradingSettings ResolveTradingSettings(string[] args, IConfiguration configuration)
     {
         if (args.Length > 0)
         {

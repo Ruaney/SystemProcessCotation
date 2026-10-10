@@ -5,6 +5,46 @@ namespace SystemProcessCotation.Tests;
 public class ProgramConfigurationTests
 {
     [Fact]
+    public void ResolveTradingSettings_UsesTradingSectionWhenArgumentsAreMissing()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["Trading:StockSymbol"] = " petr4.sa ",
+            ["Trading:PriceToSell"] = "35.50",
+            ["Trading:PriceToBuy"] = "30.25",
+            ["Trading:CheckIntervalMs"] = "1000",
+            ["Trading:AlertCooldownSeconds"] = "15"
+        });
+
+        var settings = global::Program.ResolveTradingSettings([], configuration);
+
+        Assert.Equal("PETR4", settings.StockSymbol);
+        Assert.Equal(35.50, settings.PriceToSell);
+        Assert.Equal(30.25, settings.PriceToBuy);
+        Assert.Equal(1000, settings.CheckIntervalMs);
+        Assert.Equal(15, settings.AlertCooldownSeconds);
+    }
+
+    [Fact]
+    public void ResolveTradingSettings_PrefersCommandLineArgumentsOverConfiguration()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["Trading:StockSymbol"] = "VALE3",
+            ["Trading:PriceToSell"] = "100.00",
+            ["Trading:PriceToBuy"] = "90.00"
+        });
+
+        var settings = global::Program.ResolveTradingSettings(["petr4.sa", "35.50", "30.25", "1000", "15"], configuration);
+
+        Assert.Equal("PETR4", settings.StockSymbol);
+        Assert.Equal(35.50, settings.PriceToSell);
+        Assert.Equal(30.25, settings.PriceToBuy);
+        Assert.Equal(1000, settings.CheckIntervalMs);
+        Assert.Equal(15, settings.AlertCooldownSeconds);
+    }
+
+    [Fact]
     public void ResolveAwsServiceUrl_UsesEndpointAliasWhenSectionIsMissing()
     {
         var configuration = BuildConfiguration(new Dictionary<string, string?>
