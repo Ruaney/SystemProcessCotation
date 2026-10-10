@@ -45,6 +45,40 @@ public class ProgramConfigurationTests
     }
 
     [Fact]
+    public void ResolveTradingSettings_AcceptsLocalizedTradingThresholds()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["Trading:StockSymbol"] = "PETR4",
+            ["Trading:PriceToSell"] = "R$ 1.234,56",
+            ["Trading:PriceToBuy"] = "BRL 1 200,00",
+            ["Trading:CheckIntervalMs"] = "1000",
+            ["Trading:AlertCooldownSeconds"] = "15"
+        });
+
+        var settings = global::Program.ResolveTradingSettings([], configuration);
+
+        Assert.Equal(1234.56, settings.PriceToSell);
+        Assert.Equal(1200.00, settings.PriceToBuy);
+    }
+
+    [Fact]
+    public void ResolveTradingSettings_RejectsInvalidConfiguredThreshold()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["Trading:StockSymbol"] = "PETR4",
+            ["Trading:PriceToSell"] = "fast",
+            ["Trading:PriceToBuy"] = "30.25"
+        });
+
+        var exception = Assert.Throws<ArgumentException>(() =>
+            global::Program.ResolveTradingSettings([], configuration));
+
+        Assert.Contains("preço de venda", exception.Message);
+    }
+
+    [Fact]
     public void ResolveAwsServiceUrl_UsesEndpointAliasWhenSectionIsMissing()
     {
         var configuration = BuildConfiguration(new Dictionary<string, string?>

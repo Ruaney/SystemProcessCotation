@@ -160,11 +160,22 @@ public class Program
         var section = configuration.GetSection("Trading");
         return new TradingSettings
         {
-            StockSymbol = (section.GetValue<string>("StockSymbol") ?? "PETR4").ToUpperInvariant(),
-            PriceToSell = section.GetValue<double>("PriceToSell"),
-            PriceToBuy = section.GetValue<double>("PriceToBuy"),
+            StockSymbol = GetFirstConfiguredValue(configuration, "Trading:StockSymbol") ?? "PETR4",
+            PriceToSell = ResolveRequiredTradingPrice(configuration, "preço de venda", "Trading:PriceToSell"),
+            PriceToBuy = ResolveRequiredTradingPrice(configuration, "preço de compra", "Trading:PriceToBuy"),
             CheckIntervalMs = section.GetValue<int>("CheckIntervalMs"),
             AlertCooldownSeconds = section.GetValue<int?>("AlertCooldownSeconds") ?? 60
         }.NormalizeAndValidate();
+    }
+
+    private static double ResolveRequiredTradingPrice(IConfiguration configuration, string fieldName, params string[] keys)
+    {
+        var value = GetFirstConfiguredValue(configuration, keys);
+        if (PriceParser.TryParse(value, out var price))
+        {
+            return price;
+        }
+
+        throw new ArgumentException($"O {fieldName} do trading é inválido: {value ?? "(não informado)"}.");
     }
 }
