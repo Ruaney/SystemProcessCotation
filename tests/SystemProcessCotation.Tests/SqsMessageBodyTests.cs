@@ -3,6 +3,14 @@ namespace SystemProcessCotation.Tests;
 public class SqsMessageBodyTests
 {
     [Fact]
+    public void ExtractPayload_ReturnsEmptyPayloadForNullBody()
+    {
+        var payload = global::SqsMessageBody.ExtractPayload(null);
+
+        Assert.Equal(string.Empty, payload);
+    }
+
+    [Fact]
     public void ExtractPayload_ReturnsRawBodyWhenMessageIsNotSnsEnvelope()
     {
         const string body = """{"symbol":"PETR4","price":31.42}""";

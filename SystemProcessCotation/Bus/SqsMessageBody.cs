@@ -2,8 +2,13 @@ using System.Text.Json;
 
 internal static class SqsMessageBody
 {
-    public static string ExtractPayload(string body)
+    public static string ExtractPayload(string? body)
     {
+        if (body is null)
+        {
+            return string.Empty;
+        }
+
         if (string.IsNullOrWhiteSpace(body))
         {
             return body;
