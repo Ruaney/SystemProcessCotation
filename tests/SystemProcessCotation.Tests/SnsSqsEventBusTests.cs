@@ -89,4 +89,24 @@ public class SnsSqsEventBusTests
         Assert.Equal("PETR4", handled.Symbol);
         Assert.Equal(31.42, handled.Price);
     }
+
+    [Fact]
+    public async Task TryHandleSqsMessageAsync_DropsMalformedPayloadWithoutCallingHandler()
+    {
+        var handlerCalled = false;
+
+        var shouldDelete = await global::SnsSqsEventBus.TryHandleSqsMessageAsync<CotationResult>(
+            new Message { Body = "{" },
+            (_, _) =>
+            {
+                handlerCalled = true;
+                return Task.CompletedTask;
+            },
+            NullLogger<global::SnsSqsEventBus>.Instance,
+            "cotations",
+            CancellationToken.None);
+
+        Assert.True(shouldDelete);
+        Assert.False(handlerCalled);
+    }
 }

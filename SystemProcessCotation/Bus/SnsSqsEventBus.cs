@@ -111,7 +111,17 @@ public class SnsSqsEventBus : IEventBus
         }
 
         var body = SqsMessageBody.ExtractPayload(sqsMessage.Body);
-        var payload = JsonSerializer.Deserialize<T>(body, JsonOptions);
+        T? payload;
+        try
+        {
+            payload = JsonSerializer.Deserialize<T>(body, JsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            logger.LogError(ex, "Payload inválido recebido da fila '{Channel}' será removido", channel);
+            return true;
+        }
+
         if (payload is null)
         {
             logger.LogWarning("Mensagem sem payload válido recebida da fila '{Channel}' será removida", channel);
