@@ -109,4 +109,19 @@ public class SnsSqsEventBusTests
         Assert.True(shouldDelete);
         Assert.False(handlerCalled);
     }
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData("", false)]
+    [InlineData("   ", false)]
+    [InlineData("receipt-1", true)]
+    public void CanDeleteSqsMessage_RequiresReceiptHandle(string? receiptHandle, bool expected)
+    {
+        var canDelete = global::SnsSqsEventBus.CanDeleteSqsMessage(new Message
+        {
+            ReceiptHandle = receiptHandle
+        });
+
+        Assert.Equal(expected, canDelete);
+    }
 }

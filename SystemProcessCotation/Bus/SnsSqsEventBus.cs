@@ -70,7 +70,14 @@ public class SnsSqsEventBus : IEventBus
                     {
                         if (await TryHandleSqsMessageAsync(sqsMessage, handler, _logger, channel, cancellationToken))
                         {
-                            await _sqs.DeleteMessageAsync(queueUrl, sqsMessage.ReceiptHandle, cancellationToken);
+                            if (CanDeleteSqsMessage(sqsMessage))
+                            {
+                                await _sqs.DeleteMessageAsync(queueUrl, sqsMessage.ReceiptHandle, cancellationToken);
+                            }
+                            else
+                            {
+                                _logger.LogWarning("Mensagem processada da fila '{Channel}' sem receipt handle; remoção ignorada", channel);
+                            }
                         }
                     }
                     catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -131,6 +138,9 @@ public class SnsSqsEventBus : IEventBus
         await handler(payload, cancellationToken);
         return true;
     }
+
+    internal static bool CanDeleteSqsMessage(Message sqsMessage) =>
+        !string.IsNullOrWhiteSpace(sqsMessage.ReceiptHandle);
 
     /// <summary>
     /// Garante (de forma idempotente, com retry para o cold start do LocalStack) que o
