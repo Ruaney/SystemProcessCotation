@@ -32,6 +32,10 @@ O ativo é normalizado a partir de formatos comuns da B3, como `BVMF:PETR4`, `PE
 
 Os preços aceitam ponto ou vírgula decimal, marcadores como `R$ 35,50`, grupos como `1'234.56` e trechos copiados de cotação, como `31,42 +0,50%`.
 
+### Barramento SNS/SQS
+
+O consumidor aceita tanto mensagens SQS cruas quanto envelopes SNS. Mensagens vazias ou com JSON inválido são registradas e removidas para não travar o worker em repetição; falhas no handler ficam na fila para retentativa do SQS.
+
 ### Gerar executável
 ```bash
 dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true

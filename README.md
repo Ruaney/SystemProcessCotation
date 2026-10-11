@@ -41,6 +41,13 @@ Beyond the feature itself, the codebase is a compact showcase of production-styl
 2. **TradingWorker** (analyzer) — subscribes to `cotations`, applies the buy/sell rule, filters out repeats via a Redis cooldown, and publishes qualifying `alerts`.
 3. **NotificationWorker** (consumer) — subscribes to `alerts` and sends the email (or logs it if SMTP is off).
 
+### Message handling guarantees
+
+- SNS envelopes are unwrapped before deserialization, while raw SQS bodies are still accepted for LocalStack and tests.
+- Blank or malformed SQS messages are logged and deleted so a poison payload cannot block the worker forever.
+- Handler failures are left undeleted, allowing SQS redelivery and the queue's retry/dead-letter policy to decide the final outcome.
+- Messages are deleted only when SQS provides a receipt handle.
+
 ---
 
 ## Tech stack
