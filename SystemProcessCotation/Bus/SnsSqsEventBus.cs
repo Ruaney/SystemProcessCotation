@@ -68,13 +68,10 @@ public class SnsSqsEventBus : IEventBus
                 {
                     try
                     {
-                        var body = SqsMessageBody.ExtractPayload(sqsMessage.Body);
-                        var payload = JsonSerializer.Deserialize<T>(body, JsonOptions);
-                        if (payload is not null)
+                        if (await TryHandleSqsMessageAsync(sqsMessage, handler, _logger, channel, cancellationToken))
                         {
-                            await handler(payload, cancellationToken);
+                            await _sqs.DeleteMessageAsync(queueUrl, sqsMessage.ReceiptHandle, cancellationToken);
                         }
-                        await _sqs.DeleteMessageAsync(queueUrl, sqsMessage.ReceiptHandle, cancellationToken);
                     }
                     catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                     {
@@ -96,6 +93,33 @@ public class SnsSqsEventBus : IEventBus
                 await SafeDelay(TimeSpan.FromSeconds(2), cancellationToken);
             }
         }
+    }
+
+    internal static async Task<bool> TryHandleSqsMessageAsync<T>(
+        Message sqsMessage,
+        Func<T, CancellationToken, Task> handler,
+        ILogger logger,
+        string channel,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(sqsMessage);
+
+        if (string.IsNullOrWhiteSpace(sqsMessage.Body))
+        {
+            logger.LogWarning("Mensagem vazia recebida da fila '{Channel}' será removida", channel);
+            return true;
+        }
+
+        var body = SqsMessageBody.ExtractPayload(sqsMessage.Body);
+        var payload = JsonSerializer.Deserialize<T>(body, JsonOptions);
+        if (payload is null)
+        {
+            logger.LogWarning("Mensagem sem payload válido recebida da fila '{Channel}' será removida", channel);
+            return true;
+        }
+
+        await handler(payload, cancellationToken);
+        return true;
     }
 
     /// <summary>

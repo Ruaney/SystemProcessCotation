@@ -1,3 +1,4 @@
+using Amazon.SQS.Model;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace SystemProcessCotation.Tests;
@@ -45,5 +46,47 @@ public class SnsSqsEventBusTests
     {
         await Assert.ThrowsAsync<ArgumentNullException>(() =>
             _bus.SubscribeAsync<CotationResult>("cotations", null!));
+    }
+
+    [Fact]
+    public async Task TryHandleSqsMessageAsync_DropsBlankBodyWithoutCallingHandler()
+    {
+        var handlerCalled = false;
+
+        var shouldDelete = await global::SnsSqsEventBus.TryHandleSqsMessageAsync<CotationResult>(
+            new Message { Body = "   " },
+            (_, _) =>
+            {
+                handlerCalled = true;
+                return Task.CompletedTask;
+            },
+            NullLogger<global::SnsSqsEventBus>.Instance,
+            "cotations",
+            CancellationToken.None);
+
+        Assert.True(shouldDelete);
+        Assert.False(handlerCalled);
+    }
+
+    [Fact]
+    public async Task TryHandleSqsMessageAsync_DispatchesValidPayload()
+    {
+        CotationResult? handled = null;
+
+        var shouldDelete = await global::SnsSqsEventBus.TryHandleSqsMessageAsync<CotationResult>(
+            new Message { Body = """{"symbol":"PETR4","price":31.42}""" },
+            (message, _) =>
+            {
+                handled = message;
+                return Task.CompletedTask;
+            },
+            NullLogger<global::SnsSqsEventBus>.Instance,
+            "cotations",
+            CancellationToken.None);
+
+        Assert.True(shouldDelete);
+        Assert.NotNull(handled);
+        Assert.Equal("PETR4", handled.Symbol);
+        Assert.Equal(31.42, handled.Price);
     }
 }
