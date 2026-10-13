@@ -223,11 +223,12 @@ public class Program
             return 0;
         }
 
-        if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed))
+        if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
+            && parsed > 0)
         {
             return parsed;
         }
 
-        throw new ArgumentException($"O {fieldName} do trading deve ser um número inteiro.");
+        throw new ArgumentException($"O {fieldName} do trading deve ser um número inteiro maior que zero.");
     }
 }

@@ -170,6 +170,25 @@ public class ProgramConfigurationTests
         Assert.Contains("intervalo de checagem", exception.Message);
     }
 
+    [Theory]
+    [InlineData("0")]
+    [InlineData("-1")]
+    public void ResolveTradingSettings_RejectsNonPositiveTimingAlias(string interval)
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["STOCK_SYMBOL"] = "PETR4",
+            ["PRICE_TO_SELL"] = "35.50",
+            ["PRICE_TO_BUY"] = "30.25",
+            ["CHECK_INTERVAL_MS"] = interval
+        });
+
+        var exception = Assert.Throws<ArgumentException>(() =>
+            global::Program.ResolveTradingSettings([], configuration));
+
+        Assert.Contains("maior que zero", exception.Message);
+    }
+
     [Fact]
     public void ResolveAwsServiceUrl_UsesEndpointAliasWhenSectionIsMissing()
     {
