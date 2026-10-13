@@ -319,6 +319,39 @@ public class CotationServiceTests
         Assert.Equal(31.42, result.Price);
     }
 
+    [Theory]
+    [InlineData("hidden")]
+    [InlineData("d-none")]
+    [InlineData("visually-hidden")]
+    public async Task GetCotationAsync_IgnoresHiddenCotationRowsByClass(string hiddenClass)
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent($"""
+                    <html>
+                      <body>
+                        <table>
+                          <tr class="{hiddenClass}">
+                            <td>Cotação</td>
+                            <td>0,01</td>
+                          </tr>
+                          <tr>
+                            <td>Cotação</td>
+                            <td>31,42</td>
+                          </tr>
+                        </table>
+                      </body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
     [Fact]
     public async Task GetCotationAsync_ParsesHeaderCotationLabel()
     {

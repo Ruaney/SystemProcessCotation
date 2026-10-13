@@ -6,6 +6,13 @@ public class CotationService : ICotationService
 {
     private const string BrowserUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
     private const string PreferredLanguages = "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7";
+    private static readonly string[] HiddenClassNames =
+    [
+        "hidden",
+        "d-none",
+        "sr-only",
+        "visually-hidden"
+    ];
     private static readonly string[] PriceAttributeNames =
     [
         "data-price",
@@ -304,6 +311,7 @@ public class CotationService : ICotationService
         {
             if (current.Attributes["hidden"] is not null
                 || string.Equals(current.GetAttributeValue("aria-hidden", string.Empty), "true", StringComparison.OrdinalIgnoreCase)
+                || HasHiddenClass(current.GetAttributeValue("class", string.Empty))
                 || HasHiddenStyle(current.GetAttributeValue("style", string.Empty)))
             {
                 return true;
@@ -311,6 +319,13 @@ public class CotationService : ICotationService
         }
 
         return false;
+    }
+
+    private static bool HasHiddenClass(string classValue)
+    {
+        var classNames = classValue.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return classNames.Any(className =>
+            HiddenClassNames.Contains(className, StringComparer.OrdinalIgnoreCase));
     }
 
     private static bool HasHiddenStyle(string style)
