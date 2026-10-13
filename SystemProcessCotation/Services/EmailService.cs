@@ -10,9 +10,12 @@ public class EmailService : IEmailService
 
         try
         {
+            var fromAddress = ParseRequiredMailboxAddress(from, nameof(from));
+            var toAddress = ParseRequiredMailboxAddress(to, nameof(to));
+
             var mailMessage = new MimeMessage();
-            mailMessage.From.Add(MailboxAddress.Parse(from));
-            mailMessage.To.Add(MailboxAddress.Parse(to));
+            mailMessage.From.Add(fromAddress);
+            mailMessage.To.Add(toAddress);
             mailMessage.Subject = subject;
             mailMessage.Body = new TextPart("plain") { Text = message };
 
@@ -32,5 +35,15 @@ public class EmailService : IEmailService
         {
             throw new InvalidOperationException("Erro ao enviar email.", ex);
         }
+    }
+
+    private static MailboxAddress ParseRequiredMailboxAddress(string address, string parameterName)
+    {
+        if (string.IsNullOrWhiteSpace(address))
+        {
+            throw new FormatException($"O endereço de email '{parameterName}' é obrigatório.");
+        }
+
+        return MailboxAddress.Parse(address.Trim());
     }
 }
