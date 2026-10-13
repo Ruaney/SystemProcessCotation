@@ -93,6 +93,11 @@ public class CotationService : ICotationService
             yield return labeledPrice;
         }
 
+        foreach (var metadataPrice in ExtractMetadataPrices(doc))
+        {
+            yield return metadataPrice;
+        }
+
         var highlightedPriceCells = doc.DocumentNode.SelectNodes(
             "//td[contains(concat(' ', normalize-space(@class), ' '), ' data ') " +
             "and contains(concat(' ', normalize-space(@class), ' '), ' destaque ') " +
@@ -116,6 +121,39 @@ public class CotationService : ICotationService
             }
         }
     }
+
+    private static IEnumerable<string> ExtractMetadataPrices(HtmlDocument doc)
+    {
+        var metadataNodes = doc.DocumentNode.SelectNodes("//meta[@content]");
+        if (metadataNodes is null)
+        {
+            yield break;
+        }
+
+        foreach (var metadataNode in metadataNodes)
+        {
+            if (IsHidden(metadataNode) || !HasPriceMetadataName(metadataNode))
+            {
+                continue;
+            }
+
+            var content = metadataNode.GetAttributeValue("content", string.Empty).Trim();
+            if (!string.IsNullOrWhiteSpace(content))
+            {
+                yield return content;
+            }
+        }
+    }
+
+    private static bool HasPriceMetadataName(HtmlNode node) =>
+        IsPriceMetadataName(node.GetAttributeValue("itemprop", string.Empty))
+        || IsPriceMetadataName(node.GetAttributeValue("property", string.Empty))
+        || IsPriceMetadataName(node.GetAttributeValue("name", string.Empty));
+
+    private static bool IsPriceMetadataName(string value) =>
+        value.Equals("price", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("product:price:amount", StringComparison.OrdinalIgnoreCase)
+        || value.Equals("og:price:amount", StringComparison.OrdinalIgnoreCase);
 
     private static IEnumerable<string> ExtractValuesAfterCotationLabels(HtmlDocument doc)
     {

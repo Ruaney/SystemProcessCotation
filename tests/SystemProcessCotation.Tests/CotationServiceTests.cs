@@ -179,6 +179,31 @@ public class CotationServiceTests
         Assert.Equal(31.42, result.Price);
     }
 
+    [Theory]
+    [InlineData("itemprop", "price")]
+    [InlineData("property", "product:price:amount")]
+    [InlineData("property", "og:price:amount")]
+    public async Task GetCotationAsync_ParsesPriceFromDocumentMetadata(string attribute, string value)
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent($"""
+                    <html>
+                      <head>
+                        <meta {attribute}="{value}" content="31.42">
+                      </head>
+                      <body></body>
+                    </html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
     [Fact]
     public async Task GetCotationAsync_PrefersNestedPriceTextWhenCellHasVariation()
     {
