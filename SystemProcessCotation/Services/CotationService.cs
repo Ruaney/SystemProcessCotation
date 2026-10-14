@@ -420,12 +420,20 @@ public class CotationService : ICotationService
     private static bool IsKnownCotationLabel(string normalized) =>
         normalized is "cotacao"
             or "cotacaoatual"
+            or "currentprice"
+            or "currentquote"
             or "ultimo"
             or "ultimacotacao"
             or "ultimopreco"
             or "ultimovalor"
+            or "last"
+            or "lastprice"
+            or "marketprice"
             or "preco"
             or "precoatual"
+            or "price"
+            or "quote"
+            or "quoteprice"
             or "valoratual";
 
     private static string RemoveCurrencySuffix(string value)
