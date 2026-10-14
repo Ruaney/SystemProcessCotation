@@ -1,6 +1,7 @@
 using HtmlAgilityPack;
 using System.Globalization;
 using System.Text;
+using System.Text.Json;
 
 public class CotationService : ICotationService
 {
@@ -98,6 +99,11 @@ public class CotationService : ICotationService
             yield return metadataPrice;
         }
 
+        foreach (var jsonLdPrice in ExtractJsonLdPrices(doc))
+        {
+            yield return jsonLdPrice;
+        }
+
         var highlightedPriceCells = doc.DocumentNode.SelectNodes(
             "//td[contains(concat(' ', normalize-space(@class), ' '), ' data ') " +
             "and contains(concat(' ', normalize-space(@class), ' '), ' destaque ') " +
@@ -144,6 +150,105 @@ public class CotationService : ICotationService
             }
         }
     }
+
+    private static IEnumerable<string> ExtractJsonLdPrices(HtmlDocument doc)
+    {
+        var scriptNodes = doc.DocumentNode.SelectNodes("//script[@type]");
+        if (scriptNodes is null)
+        {
+            yield break;
+        }
+
+        foreach (var scriptNode in scriptNodes)
+        {
+            if (IsHidden(scriptNode) || !IsJsonLdType(scriptNode.GetAttributeValue("type", string.Empty)))
+            {
+                continue;
+            }
+
+            foreach (var price in TryExtractJsonPrices(scriptNode.InnerText))
+            {
+                yield return price;
+            }
+        }
+    }
+
+    private static bool IsJsonLdType(string contentType) =>
+        contentType.Contains("ld+json", StringComparison.OrdinalIgnoreCase);
+
+    private static IReadOnlyList<string> TryExtractJsonPrices(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return [];
+        }
+
+        var prices = new List<string>();
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            CollectJsonPrices(document.RootElement, prices);
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
+
+        return prices;
+    }
+
+    private static void CollectJsonPrices(JsonElement element, ICollection<string> prices)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Object:
+                foreach (var property in element.EnumerateObject())
+                {
+                    if (IsJsonPriceProperty(property.Name))
+                    {
+                        CollectJsonPriceValues(property.Value, prices);
+                    }
+
+                    CollectJsonPrices(property.Value, prices);
+                }
+                break;
+
+            case JsonValueKind.Array:
+                foreach (var item in element.EnumerateArray())
+                {
+                    CollectJsonPrices(item, prices);
+                }
+                break;
+        }
+    }
+
+    private static void CollectJsonPriceValues(JsonElement element, ICollection<string> prices)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.String:
+                var stringValue = element.GetString();
+                if (!string.IsNullOrWhiteSpace(stringValue))
+                {
+                    prices.Add(stringValue);
+                }
+                break;
+
+            case JsonValueKind.Number:
+                prices.Add(element.GetRawText());
+                break;
+
+            case JsonValueKind.Object:
+            case JsonValueKind.Array:
+                CollectJsonPrices(element, prices);
+                break;
+        }
+    }
+
+    private static bool IsJsonPriceProperty(string name) =>
+        name.Equals("price", StringComparison.OrdinalIgnoreCase)
+        || name.Equals("lowPrice", StringComparison.OrdinalIgnoreCase)
+        || name.Equals("highPrice", StringComparison.OrdinalIgnoreCase);
 
     private static bool HasPriceMetadataName(HtmlNode node) =>
         IsPriceMetadataName(node.GetAttributeValue("itemprop", string.Empty))
