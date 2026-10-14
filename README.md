@@ -64,6 +64,7 @@ Beyond the feature itself, the codebase is a compact showcase of production-styl
 | Infra | Docker, Docker Compose |
 
 > **Note on the price source:** prices are scraped from a public Brazilian equities page (Fundamentus). Scrapers are inherently fragile — treat the fetch layer as a swappable adapter behind `ICotationService`, and plug in a proper market-data API for production use.
+The scraper checks labeled quote cells first, then metadata/JSON-LD price fields and highlighted fallback cells, so minor markup changes are less likely to break demos.
 
 ---
 
@@ -142,7 +143,7 @@ cd .\SystemProcessCotation\
 ```
 
 - Leave `Aws:ServiceUrl` empty to target **real AWS** (uses the default credential chain); set it to the LocalStack URL for offline runs.
-- Trading aliases are accepted when nested config keys are inconvenient: `TRADING_STOCK_SYMBOL`, `STOCK_SYMBOL`, or `ASSET_SYMBOL`; `TRADING_PRICE_TO_SELL`, `PRICE_TO_SELL`, or `SELL_PRICE`; `TRADING_PRICE_TO_BUY`, `PRICE_TO_BUY`, or `BUY_PRICE`; `TRADING_CHECK_INTERVAL_MS`, `CHECK_INTERVAL_MS`, or `POLL_INTERVAL_MS`; and `TRADING_ALERT_COOLDOWN_SECONDS`, `ALERT_COOLDOWN_SECONDS`, or `ALERT_COOLDOWN`.
+- Trading aliases are accepted when nested config keys are inconvenient: `TRADING_STOCK_SYMBOL`, `STOCK_SYMBOL`, `SYMBOL`, `TICKER`, `ASSET`, `ASSET_TICKER`, or `ASSET_SYMBOL`; `TRADING_PRICE_TO_SELL`, `PRICE_TO_SELL`, `SELL_THRESHOLD`, `SELL_TARGET_PRICE`, `TARGET_SELL_PRICE`, or `SELL_PRICE`; `TRADING_PRICE_TO_BUY`, `PRICE_TO_BUY`, `BUY_THRESHOLD`, `BUY_TARGET_PRICE`, `TARGET_BUY_PRICE`, or `BUY_PRICE`; `TRADING_CHECK_INTERVAL_MS`, `CHECK_INTERVAL_MS`, `POLLING_INTERVAL_MS`, `POLL_MS`, or `POLL_INTERVAL_MS`; and `TRADING_ALERT_COOLDOWN_SECONDS`, `ALERT_COOLDOWN_SECONDS`, `COOLDOWN_SECONDS`, `ALERT_COOLDOWN_SECS`, or `ALERT_COOLDOWN`.
 - Infrastructure aliases are also accepted: `AWS_ENDPOINT_URL`, `AWS_SERVICE_URL`, or `LOCALSTACK_URL` for the AWS endpoint; `AWS_REGION` or `AWS_DEFAULT_REGION` for the region; and `REDIS_CONNECTION_STRING` or `REDIS_URL` for Redis.
 
 ### Email (SMTP) — optional

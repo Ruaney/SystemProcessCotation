@@ -32,6 +32,8 @@ O ativo é normalizado a partir de formatos comuns da B3, como `BVMF:PETR4`, `PE
 
 Os preços aceitam ponto ou vírgula decimal, marcadores como `R$ 35,50`, grupos como `1'234.56` e trechos copiados de cotação, como `31,42 +0,50%`.
 
+A extração da cotação tenta células rotuladas, atributos como `data-price`, `aria-label` e `title`, metadados/JSON-LD e, por fim, células destacadas do layout.
+
 ### Barramento SNS/SQS
 
 O consumidor aceita tanto mensagens SQS cruas quanto envelopes SNS. Mensagens vazias ou com JSON inválido são registradas e removidas para não travar o worker em repetição; falhas no handler ficam na fila para retentativa do SQS.
@@ -61,3 +63,5 @@ Set-ExecutionPolicy Unrestricted
 Configure o SMTP renomeando `.env.example` para `.env` e edite os campos.
 
 As variáveis curtas (`HOST`, `PORT`, `USERNAME`, `PASSWORD`, `FROM`, `TO`, `ENABLE_SSL`) continuam funcionando. Também é possível usar aliases de deploy: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` ou `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, `SMTP_ENABLE_SSL` ou `SMTP_SSL`.
+
+Para trading, também são aceitos aliases como `TICKER`, `SELL_THRESHOLD`, `BUY_THRESHOLD`, `POLLING_INTERVAL_MS` e `COOLDOWN_SECONDS` quando a plataforma de deploy não usa a seção `Trading`.
