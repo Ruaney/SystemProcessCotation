@@ -18,6 +18,8 @@ public class CotationService : ICotationService
     [
         "data-price",
         "data-value",
+        "aria-label",
+        "title",
         "content",
         "value"
     ];
