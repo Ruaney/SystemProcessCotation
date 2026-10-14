@@ -96,6 +96,23 @@ public class ProgramConfigurationTests
     }
 
     [Fact]
+    public void ResolveTradingSettings_UsesSchedulerFriendlyAliasesWhenSectionIsMissing()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["TICKER"] = " itub4.sa ",
+            ["SELL_THRESHOLD"] = "R$ 35,50",
+            ["BUY_THRESHOLD"] = "R$ 30,25"
+        });
+
+        var settings = global::Program.ResolveTradingSettings([], configuration);
+
+        Assert.Equal("ITUB4", settings.StockSymbol);
+        Assert.Equal(35.50, settings.PriceToSell);
+        Assert.Equal(30.25, settings.PriceToBuy);
+    }
+
+    [Fact]
     public void ResolveTradingSettings_PrefersTradingSectionOverAliases()
     {
         var configuration = BuildConfiguration(new Dictionary<string, string?>
@@ -131,6 +148,24 @@ public class ProgramConfigurationTests
 
         Assert.Equal(1500, settings.CheckIntervalMs);
         Assert.Equal(20, settings.AlertCooldownSeconds);
+    }
+
+    [Fact]
+    public void ResolveTradingSettings_UsesSchedulerFriendlyTimingAliases()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["ASSET_TICKER"] = "PETR4",
+            ["SELL_TARGET_PRICE"] = "35.50",
+            ["BUY_TARGET_PRICE"] = "30.25",
+            ["POLLING_INTERVAL_MS"] = "2500",
+            ["COOLDOWN_SECONDS"] = "45"
+        });
+
+        var settings = global::Program.ResolveTradingSettings([], configuration);
+
+        Assert.Equal(2500, settings.CheckIntervalMs);
+        Assert.Equal(45, settings.AlertCooldownSeconds);
     }
 
     [Fact]

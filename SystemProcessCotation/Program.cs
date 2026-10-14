@@ -15,6 +15,10 @@ public class Program
         "Trading:StockSymbol",
         "TRADING_STOCK_SYMBOL",
         "STOCK_SYMBOL",
+        "SYMBOL",
+        "TICKER",
+        "ASSET",
+        "ASSET_TICKER",
         "ASSET_SYMBOL"
     ];
     private static readonly string[] TradingSellPriceKeys =
@@ -22,6 +26,9 @@ public class Program
         "Trading:PriceToSell",
         "TRADING_PRICE_TO_SELL",
         "PRICE_TO_SELL",
+        "SELL_THRESHOLD",
+        "SELL_TARGET_PRICE",
+        "TARGET_SELL_PRICE",
         "SELL_PRICE"
     ];
     private static readonly string[] TradingBuyPriceKeys =
@@ -29,6 +36,9 @@ public class Program
         "Trading:PriceToBuy",
         "TRADING_PRICE_TO_BUY",
         "PRICE_TO_BUY",
+        "BUY_THRESHOLD",
+        "BUY_TARGET_PRICE",
+        "TARGET_BUY_PRICE",
         "BUY_PRICE"
     ];
     private static readonly string[] TradingCheckIntervalKeys =
@@ -36,6 +46,8 @@ public class Program
         "Trading:CheckIntervalMs",
         "TRADING_CHECK_INTERVAL_MS",
         "CHECK_INTERVAL_MS",
+        "POLLING_INTERVAL_MS",
+        "POLL_MS",
         "POLL_INTERVAL_MS"
     ];
     private static readonly string[] TradingAlertCooldownKeys =
@@ -43,6 +55,8 @@ public class Program
         "Trading:AlertCooldownSeconds",
         "TRADING_ALERT_COOLDOWN_SECONDS",
         "ALERT_COOLDOWN_SECONDS",
+        "COOLDOWN_SECONDS",
+        "ALERT_COOLDOWN_SECS",
         "ALERT_COOLDOWN"
     ];
 
