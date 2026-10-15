@@ -38,6 +38,10 @@ A extração da cotação tenta células rotuladas, atributos como `data-price`,
 
 O consumidor aceita tanto mensagens SQS cruas quanto envelopes SNS. Mensagens vazias ou com JSON inválido são registradas e removidas para não travar o worker em repetição; falhas no handler ficam na fila para retentativa do SQS.
 
+### Validação de mensagens
+
+Antes de aplicar regras ou enviar email, o sistema valida os dados recebidos. Cotações precisam ter ativo válido, preço positivo e finito e horário inicializado. Alertas também precisam ter tipo conhecido e preço-alvo válido; alertas inválidos são registrados e ignorados sem criar chave no Redis ou tentar SMTP.
+
 ### Gerar executável
 ```bash
 dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true

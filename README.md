@@ -47,6 +47,8 @@ Beyond the feature itself, the codebase is a compact showcase of production-styl
 - Blank or malformed SQS messages are logged and deleted so a poison payload cannot block the worker forever.
 - Handler failures are left undeleted, allowing SQS redelivery and the queue's retry/dead-letter policy to decide the final outcome.
 - Messages are deleted only when SQS provides a receipt handle.
+- Quotes without a valid symbol, positive finite price, and initialized timestamp are ignored before trading rules run.
+- Alerts with an unknown type, invalid price, symbol, or timestamp are ignored before Redis state or SMTP is touched.
 
 ---
 
