@@ -76,4 +76,34 @@ public class TradingAlertTests
         Assert.Contains("Recomendação: Venda PETR4\n", alert.GetMessage());
         Assert.Equal("Alerta VENDA - PETR4 - R$ 35,00", alert.GetSubject());
     }
+
+    [Theory]
+    [InlineData(double.NaN, 30.00)]
+    [InlineData(29.90, double.PositiveInfinity)]
+    public void IsValid_ReturnsFalseWhenPricesAreNotFinite(double currentPrice, double targetPrice)
+    {
+        var alert = new global::TradingAlert
+        {
+            Type = global::AlertType.Buy,
+            Symbol = "PETR4",
+            CurrentPrice = currentPrice,
+            TargetPrice = targetPrice
+        };
+
+        Assert.False(alert.IsValid);
+    }
+
+    [Fact]
+    public void IsValid_ReturnsFalseForAnUnknownAlertType()
+    {
+        var alert = new global::TradingAlert
+        {
+            Type = (global::AlertType)99,
+            Symbol = "PETR4",
+            CurrentPrice = 29.90,
+            TargetPrice = 30.00
+        };
+
+        Assert.False(alert.IsValid);
+    }
 }

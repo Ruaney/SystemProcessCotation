@@ -16,6 +16,15 @@ public class TradingAlert
     public double TargetPrice { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
+    public bool IsValid =>
+        Enum.IsDefined(Type)
+        && StockSymbol.TryNormalize(Symbol, out _)
+        && double.IsFinite(CurrentPrice)
+        && CurrentPrice > 0
+        && double.IsFinite(TargetPrice)
+        && TargetPrice > 0
+        && Timestamp != DateTime.MinValue;
+
     public string GetMessage()
     {
         var action = Type == AlertType.Buy ? "Compra" : "Venda";
