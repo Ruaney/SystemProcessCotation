@@ -6,5 +6,6 @@ public class CotationResult
     public bool IsValid =>
         double.IsFinite(Price)
         && Price > 0
+        && Timestamp != DateTime.MinValue
         && StockSymbol.TryNormalize(Symbol, out _);
 }

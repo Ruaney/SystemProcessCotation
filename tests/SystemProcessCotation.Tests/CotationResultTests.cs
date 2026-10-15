@@ -62,4 +62,17 @@ public class CotationResultTests
 
         Assert.True(cotation.IsValid);
     }
+
+    [Fact]
+    public void IsValid_ReturnsFalseWhenTimestampIsUninitialized()
+    {
+        var cotation = new global::CotationResult
+        {
+            Symbol = "PETR4",
+            Price = 10.00,
+            Timestamp = DateTime.MinValue
+        };
+
+        Assert.False(cotation.IsValid);
+    }
 }
