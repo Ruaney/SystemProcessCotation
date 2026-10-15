@@ -30,4 +30,18 @@ public class RedisAlertStateStoreTests
 
         Assert.Throws<ArgumentException>(() => global::RedisAlertStateStore.BuildKeys(alert));
     }
+
+    [Fact]
+    public void BuildKeys_RejectsInvalidAlertTypesBeforeCreatingRedisKeys()
+    {
+        var alert = new global::TradingAlert
+        {
+            Type = (global::AlertType)99,
+            Symbol = "PETR4",
+            CurrentPrice = 35.00,
+            TargetPrice = 34.50
+        };
+
+        Assert.Throws<ArgumentException>(() => global::RedisAlertStateStore.BuildKeys(alert));
+    }
 }

@@ -47,6 +47,11 @@ public class RedisAlertStateStore : IAlertStateStore
     {
         ArgumentNullException.ThrowIfNull(alert);
 
+        if (!alert.IsValid)
+        {
+            throw new ArgumentException("O alerta deve conter tipo, ativo, preços e horário válidos.", nameof(alert));
+        }
+
         var symbol = StockSymbol.NormalizeOrThrow(alert.Symbol, nameof(alert));
         return new AlertStateKeys(
             $"lastalertprice:{symbol}:{alert.Type}",
