@@ -29,6 +29,12 @@ public class NotificationWorker : BackgroundService
 
     private async Task HandleAlertAsync(TradingAlert alert, CancellationToken cancellationToken)
     {
+        if (!alert.IsValid)
+        {
+            _logger.LogWarning("Alerta inválido recebido; notificação ignorada.");
+            return;
+        }
+
         if (!_smtp.IsConfigured)
         {
             _logger.LogWarning(
