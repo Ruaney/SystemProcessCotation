@@ -265,6 +265,19 @@ public class ProgramConfigurationTests
     }
 
     [Fact]
+    public void ResolveAwsServiceUrl_IgnoresEnvironmentStyleInlineComment()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["AWS_ENDPOINT_URL"] = " http://localhost:4566 # LocalStack "
+        });
+
+        var serviceUrl = global::Program.ResolveAwsServiceUrl(configuration);
+
+        Assert.Equal("http://localhost:4566", serviceUrl);
+    }
+
+    [Fact]
     public void ResolveAwsRegion_UsesDefaultRegionAlias()
     {
         var configuration = BuildConfiguration(new Dictionary<string, string?>

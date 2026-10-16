@@ -191,10 +191,40 @@ public class Program
 
     private static string CleanConfiguredValue(string? value)
     {
-        var trimmed = value?.Trim() ?? string.Empty;
+        var trimmed = RemoveInlineComment(value?.Trim() ?? string.Empty).Trim();
         return trimmed.Length >= 2 && IsQuoted(trimmed)
             ? trimmed[1..^1].Trim()
             : trimmed;
+    }
+
+    private static string RemoveInlineComment(string value)
+    {
+        var inSingleQuote = false;
+        var inDoubleQuote = false;
+
+        for (var index = 0; index < value.Length; index++)
+        {
+            var current = value[index];
+            if (current == '\'' && !inDoubleQuote)
+            {
+                inSingleQuote = !inSingleQuote;
+                continue;
+            }
+
+            if (current == '\"' && !inSingleQuote)
+            {
+                inDoubleQuote = !inDoubleQuote;
+                continue;
+            }
+
+            if (current == '#' && !inSingleQuote && !inDoubleQuote
+                && (index == 0 || char.IsWhiteSpace(value[index - 1])))
+            {
+                return value[..index].TrimEnd();
+            }
+        }
+
+        return value;
     }
 
     private static bool IsQuoted(string value) =>
