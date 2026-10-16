@@ -299,6 +299,21 @@ public class ProgramConfigurationTests
     }
 
     [Fact]
+    public void LocalStackCredentials_UsesStandardAwsEnvironmentAliases()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["AWS_ACCESS_KEY_ID"] = " local-key ",
+            ["AWS_SECRET_ACCESS_KEY"] = " local-secret "
+        });
+
+        var credentials = global::Program.LocalStackCredentials(configuration).GetCredentials();
+
+        Assert.Equal("local-key", credentials.AccessKey);
+        Assert.Equal("local-secret", credentials.SecretKey);
+    }
+
+    [Fact]
     public void ResolveRedisConnectionString_UsesDeploymentAlias()
     {
         var configuration = BuildConfiguration(new Dictionary<string, string?>

@@ -145,10 +145,10 @@ public class Program
         }
     }
 
-    private static AWSCredentials LocalStackCredentials(IConfiguration configuration) =>
+    internal static AWSCredentials LocalStackCredentials(IConfiguration configuration) =>
         new BasicAWSCredentials(
-            configuration.GetValue<string>("Aws:AccessKey") ?? "test",
-            configuration.GetValue<string>("Aws:SecretKey") ?? "test");
+            GetFirstConfiguredValue(configuration, "Aws:AccessKey", "AWS_ACCESS_KEY_ID", "AWS_ACCESS_KEY") ?? "test",
+            GetFirstConfiguredValue(configuration, "Aws:SecretKey", "AWS_SECRET_ACCESS_KEY", "AWS_SECRET_KEY") ?? "test");
 
     internal static string? ResolveAwsServiceUrl(IConfiguration configuration) =>
         GetFirstConfiguredValue(
