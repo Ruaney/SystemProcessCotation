@@ -36,12 +36,14 @@ public class CotationServiceTests
         string? requestUri = null;
         string? userAgent = null;
         string? acceptLanguage = null;
+        string? accept = null;
 
         using var client = new HttpClient(new StubHttpMessageHandler(request =>
         {
             requestUri = request.RequestUri?.ToString();
             userAgent = string.Join(" ", request.Headers.GetValues("User-Agent"));
             acceptLanguage = string.Join(",", request.Headers.GetValues("Accept-Language"));
+            accept = string.Join(",", request.Headers.GetValues("Accept"));
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -66,6 +68,7 @@ public class CotationServiceTests
         Assert.Equal("https://www.fundamentus.com.br/detalhes.php?papel=PETR4", requestUri);
         Assert.Contains("Mozilla/5.0", userAgent);
         Assert.Contains("pt-BR", acceptLanguage);
+        Assert.Contains("text/html", accept);
     }
 
     [Fact]

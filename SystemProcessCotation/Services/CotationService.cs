@@ -7,6 +7,7 @@ public class CotationService : ICotationService
 {
     private const string BrowserUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
     private const string PreferredLanguages = "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7";
+    private const string AcceptedContentTypes = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
     private static readonly string[] HiddenClassNames =
     [
         "hidden",
@@ -42,6 +43,7 @@ public class CotationService : ICotationService
             using var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.TryAddWithoutValidation("User-Agent", BrowserUserAgent);
             request.Headers.TryAddWithoutValidation("Accept-Language", PreferredLanguages);
+            request.Headers.TryAddWithoutValidation("Accept", AcceptedContentTypes);
 
             using var response = await _httpClient.SendAsync(
                 request,
