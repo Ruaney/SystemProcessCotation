@@ -327,6 +327,19 @@ public class ProgramConfigurationTests
     }
 
     [Fact]
+    public void ResolveRedisConnectionString_UsesRedisHostAlias()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string?>
+        {
+            ["REDIS_HOST"] = " cache "
+        });
+
+        var connectionString = global::Program.ResolveRedisConnectionString(configuration);
+
+        Assert.Equal("cache", connectionString);
+    }
+
+    [Fact]
     public void ResolveRedisConnectionString_IgnoresQuotedBlankAlias()
     {
         var configuration = BuildConfiguration(new Dictionary<string, string?>

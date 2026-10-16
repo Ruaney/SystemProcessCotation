@@ -171,7 +171,8 @@ public class Program
             configuration,
             "Redis:ConnectionString",
             "REDIS_CONNECTION_STRING",
-            "REDIS_URL")
+            "REDIS_URL",
+            "REDIS_HOST")
         ?? "localhost:6379";
 
     private static string? GetFirstConfiguredValue(IConfiguration configuration, params string[] keys)
