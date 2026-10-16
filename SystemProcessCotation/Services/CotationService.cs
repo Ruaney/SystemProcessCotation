@@ -108,6 +108,11 @@ public class CotationService : ICotationService
             yield return jsonLdPrice;
         }
 
+        foreach (var testIdPrice in ExtractTestIdPrices(doc))
+        {
+            yield return testIdPrice;
+        }
+
         var highlightedPriceCells = doc.DocumentNode.SelectNodes(
             "//td[contains(concat(' ', normalize-space(@class), ' '), ' data ') " +
             "and contains(concat(' ', normalize-space(@class), ' '), ' destaque ') " +
@@ -126,6 +131,31 @@ public class CotationService : ICotationService
             }
 
             foreach (var text in ExtractPriceTexts(cell))
+            {
+                yield return text;
+            }
+        }
+    }
+
+    private static IEnumerable<string> ExtractTestIdPrices(HtmlDocument doc)
+    {
+        var priceNodes = doc.DocumentNode.SelectNodes("//*[@data-testid]");
+        if (priceNodes is null)
+        {
+            yield break;
+        }
+
+        foreach (var node in priceNodes)
+        {
+            var testId = node.GetAttributeValue("data-testid", string.Empty);
+            if (IsHidden(node)
+                || (!testId.Contains("price", StringComparison.OrdinalIgnoreCase)
+                    && !testId.Contains("quote", StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
+            foreach (var text in ExtractPriceTexts(node))
             {
                 yield return text;
             }
