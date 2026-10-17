@@ -36,4 +36,15 @@ public class StockSymbolTests
 
         Assert.False(parsed);
     }
+
+    [Theory]
+    [InlineData("\u200BPETR4")]
+    [InlineData("PETR4\uFEFF")]
+    public void TryNormalize_RemovesCopiedFormatWhitespace(string symbol)
+    {
+        var parsed = global::StockSymbol.TryNormalize(symbol, out var normalized);
+
+        Assert.True(parsed);
+        Assert.Equal("PETR4", normalized);
+    }
 }

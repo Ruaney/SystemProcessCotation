@@ -18,7 +18,7 @@ public static class StockSymbol
 
     public static bool TryNormalize(string? symbol, out string normalized)
     {
-        normalized = RemoveB3Affixes(symbol?.Trim().ToUpperInvariant() ?? string.Empty);
+        normalized = RemoveB3Affixes(RemoveFormatWhitespace(symbol).ToUpperInvariant());
         return !string.IsNullOrWhiteSpace(normalized)
             && normalized.All(IsTickerCharacter);
     }
@@ -40,6 +40,12 @@ public static class StockSymbol
 
     private static bool IsTickerCharacter(char value) =>
         value is >= 'A' and <= 'Z' or >= '0' and <= '9';
+
+    private static string RemoveFormatWhitespace(string? value)
+    {
+        var symbol = value ?? string.Empty;
+        return symbol.Trim().Trim('\u200B', '\uFEFF');
+    }
 
     private static string RemoveB3Affixes(string symbol) =>
         RemoveB3Suffix(RemoveB3Prefix(symbol));
