@@ -284,6 +284,7 @@ public class CotationService : ICotationService
 
     private static bool IsJsonPriceProperty(string name) =>
         name.Equals("price", StringComparison.OrdinalIgnoreCase)
+        || name.Equals("currentPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("lowPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("highPrice", StringComparison.OrdinalIgnoreCase);
 
