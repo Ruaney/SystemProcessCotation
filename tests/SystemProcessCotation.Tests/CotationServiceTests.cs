@@ -198,6 +198,25 @@ public class CotationServiceTests
     }
 
     [Theory]
+    [InlineData("data-current-price")]
+    [InlineData("data-quote")]
+    public async Task GetCotationAsync_ParsesPriceFromSemanticDataAttribute(string attribute)
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent($"""
+                    <html><body><table><tr><td>Cotação</td><td><span {attribute}="31,42"></span></td></tr></table></body></html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
+    [Theory]
     [InlineData("aria-label")]
     [InlineData("title")]
     public async Task GetCotationAsync_ParsesPriceFromAccessibleAttribute(string attribute)

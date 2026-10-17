@@ -18,6 +18,8 @@ public class CotationService : ICotationService
     private static readonly string[] PriceAttributeNames =
     [
         "data-price",
+        "data-current-price",
+        "data-quote",
         "data-value",
         "aria-label",
         "title",
