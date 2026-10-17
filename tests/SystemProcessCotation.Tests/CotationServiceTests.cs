@@ -51,6 +51,26 @@ public class CotationServiceTests
         Assert.Equal(31.42, result.Price);
     }
 
+    [Theory]
+    [InlineData("cotacao-atual")]
+    [InlineData("preco-mercado")]
+    [InlineData("valor-atual")]
+    public async Task GetCotationAsync_ParsesPriceFromPortugueseSemanticTestId(string testId)
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent($"""
+                    <html><body><span data-testid="{testId}">31,42</span></body></html>
+                    """)
+            }));
+        var service = new global::CotationService(client);
+
+        var result = await service.GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
     [Fact]
     public async Task GetCotationAsync_SendsFundamentusRequestHeaders()
     {

@@ -150,7 +150,10 @@ public class CotationService : ICotationService
             var testId = node.GetAttributeValue("data-testid", string.Empty);
             if (IsHidden(node)
                 || (!testId.Contains("price", StringComparison.OrdinalIgnoreCase)
-                    && !testId.Contains("quote", StringComparison.OrdinalIgnoreCase)))
+                    && !testId.Contains("quote", StringComparison.OrdinalIgnoreCase)
+                    && !testId.Contains("preco", StringComparison.OrdinalIgnoreCase)
+                    && !testId.Contains("cotacao", StringComparison.OrdinalIgnoreCase)
+                    && !testId.Contains("valor", StringComparison.OrdinalIgnoreCase)))
             {
                 continue;
             }
