@@ -70,19 +70,26 @@ internal static class SqsMessageBody
         }
 
         var trimmed = payload.Trim();
-        if (!IsJsonStringLiteral(trimmed))
+        var normalized = payload;
+        for (var attempt = 0; attempt < 3; attempt++)
         {
-            return payload;
+            var candidate = normalized.Trim();
+            if (!IsJsonStringLiteral(candidate))
+            {
+                return normalized;
+            }
+
+            try
+            {
+                normalized = JsonSerializer.Deserialize<string>(candidate) ?? normalized;
+            }
+            catch (JsonException)
+            {
+                return normalized;
+            }
         }
 
-        try
-        {
-            return JsonSerializer.Deserialize<string>(trimmed) ?? payload;
-        }
-        catch (JsonException)
-        {
-            return payload;
-        }
+        return normalized;
     }
 
     private static bool IsJsonStringLiteral(string value) =>
