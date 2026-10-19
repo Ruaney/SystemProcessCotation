@@ -20,7 +20,7 @@ public class ConfigurationService : IConfigurationService
             ToAddress = GetEnv("TO", "SMTP_TO", "MAIL_TO"),
             Password = GetEnv("PASSWORD", "SMTP_PASSWORD", "MAIL_PASSWORD"),
             Username = GetEnv("USERNAME", "SMTP_USERNAME", "SMTP_USER", "MAIL_USERNAME", "MAIL_USER"),
-            EnableSsl = GetEnvFlag(["ENABLE_SSL", "SMTP_ENABLE_SSL", "SMTP_SSL", "MAIL_ENABLE_SSL", "MAIL_SSL"], defaultValue: true)
+            EnableSsl = GetEnvFlag(["ENABLE_SSL", "SMTP_ENABLE_SSL", "SMTP_SSL", "SMTP_TLS", "MAIL_ENABLE_SSL", "MAIL_SSL"], defaultValue: true)
         };
     }
 

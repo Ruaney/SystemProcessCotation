@@ -20,6 +20,7 @@ public class ConfigurationServiceTests
         "SMTP_USER",
         "SMTP_ENABLE_SSL",
         "SMTP_SSL",
+        "SMTP_TLS",
         "MAIL_HOST",
         "MAIL_PORT",
         "MAIL_FROM",
@@ -154,6 +155,26 @@ public class ConfigurationServiceTests
             ClearEnvironment();
             Environment.SetEnvironmentVariable("ENABLE_SSL", "maybe");
             Environment.SetEnvironmentVariable("SMTP_ENABLE_SSL", "off");
+
+            var settings = new global::ConfigurationService().LoadSmtpSettings();
+
+            Assert.False(settings.EnableSsl);
+        }
+        finally
+        {
+            RestoreEnvironment(previousValues);
+        }
+    }
+
+    [Fact]
+    public void LoadSmtpSettings_ReadsSmtpTlsAlias()
+    {
+        var previousValues = SaveEnvironment();
+
+        try
+        {
+            ClearEnvironment();
+            Environment.SetEnvironmentVariable("SMTP_TLS", "off");
 
             var settings = new global::ConfigurationService().LoadSmtpSettings();
 
