@@ -72,7 +72,9 @@ public static class PriceParser
         value
             .Replace('\u2212', '-')
             .Replace('\uFE63', '-')
-            .Replace('\uFF0D', '-');
+            .Replace('\uFF0D', '-')
+            .Replace('\u2013', '-')
+            .Replace('\u2014', '-');
 
     private static string RemoveWhitespace(string value)
     {

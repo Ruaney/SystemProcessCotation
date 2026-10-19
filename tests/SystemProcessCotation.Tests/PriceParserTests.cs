@@ -114,6 +114,8 @@ public class PriceParserTests
     [Theory]
     [InlineData("\u22120,50%")]
     [InlineData("\uFF0D0,50 %")]
+    [InlineData("\u20130,50%")]
+    [InlineData("\u20140,50 %")]
     public void TryParse_IgnoresStandaloneUnicodeMinusPercentageChanges(string value)
     {
         var parsed = global::PriceParser.TryParse(value, out _);
