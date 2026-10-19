@@ -66,6 +66,6 @@ Set-ExecutionPolicy Unrestricted
 
 Configure o SMTP renomeando `.env.example` para `.env` e edite os campos.
 
-As variáveis curtas (`HOST`, `PORT`, `USERNAME`, `PASSWORD`, `FROM`, `TO`, `ENABLE_SSL`) continuam funcionando. Também é possível usar aliases de deploy: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` ou `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, `SMTP_ENABLE_SSL` ou `SMTP_SSL`.
+As variáveis curtas (`HOST`, `PORT`, `USERNAME`, `PASSWORD`, `FROM`, `TO`, `ENABLE_SSL`) continuam funcionando. Também é possível usar aliases de deploy: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` ou `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, `SMTP_ENABLE_SSL`, `SMTP_SSL` ou `SMTP_TLS`.
 
 Para trading, também são aceitos aliases como `TICKER`, `SELL_THRESHOLD`, `BUY_THRESHOLD`, `POLLING_INTERVAL_MS` e `COOLDOWN_SECONDS` quando a plataforma de deploy não usa a seção `Trading`.

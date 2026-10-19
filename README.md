@@ -166,7 +166,7 @@ TO=to@example.com
 ENABLE_SSL=true
 ```
 
-The short SMTP keys above are still the default examples. The app also accepts common deployment aliases: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` or `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, and `SMTP_ENABLE_SSL` or `SMTP_SSL`. Hosting providers that reserve `SMTP_*` names can use the `MAIL_*` variants instead, including `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME` or `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_FROM`, `MAIL_TO`, and `MAIL_ENABLE_SSL` or `MAIL_SSL`.
+The short SMTP keys above are still the default examples. The app also accepts common deployment aliases: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME` or `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_TO`, and `SMTP_ENABLE_SSL`, `SMTP_SSL`, or `SMTP_TLS`. Hosting providers that reserve `SMTP_*` names can use the `MAIL_*` variants instead, including `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME` or `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_FROM`, `MAIL_TO`, and `MAIL_ENABLE_SSL` or `MAIL_SSL`.
 
 Use a plain SMTP hostname for `HOST`/`SMTP_HOST`, such as `smtp.gmail.com`; URL values like `https://smtp.gmail.com` are treated as not configured.
 
