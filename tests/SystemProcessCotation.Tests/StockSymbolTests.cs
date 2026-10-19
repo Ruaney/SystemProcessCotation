@@ -40,6 +40,7 @@ public class StockSymbolTests
     [Theory]
     [InlineData("\u200BPETR4")]
     [InlineData("PETR4\uFEFF")]
+    [InlineData("PETR\u20604")]
     public void TryNormalize_RemovesCopiedFormatWhitespace(string symbol)
     {
         var parsed = global::StockSymbol.TryNormalize(symbol, out var normalized);

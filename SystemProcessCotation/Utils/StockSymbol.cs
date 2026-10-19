@@ -44,7 +44,8 @@ public static class StockSymbol
     private static string RemoveFormatWhitespace(string? value)
     {
         var symbol = value ?? string.Empty;
-        return symbol.Trim().Trim('\u200B', '\uFEFF');
+        return string.Concat(symbol.Trim().Where(c =>
+            char.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.Format));
     }
 
     private static string RemoveB3Affixes(string symbol) =>
