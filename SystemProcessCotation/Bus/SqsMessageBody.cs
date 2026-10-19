@@ -14,37 +14,46 @@ internal static class SqsMessageBody
             return body;
         }
 
+        var payload = body;
+        for (var attempt = 0; attempt < 3; attempt++)
+        {
+            var extractedPayload = TryExtractSnsPayload(payload);
+            if (extractedPayload is null)
+            {
+                return payload;
+            }
+
+            payload = extractedPayload;
+        }
+
+        return payload;
+    }
+
+    private static string? TryExtractSnsPayload(string body)
+    {
         try
         {
             using var document = JsonDocument.Parse(body);
-            if (document.RootElement.ValueKind != JsonValueKind.Object)
-            {
-                return body;
-            }
-
-            if (!TryGetPropertyIgnoreCase(document.RootElement, "Type", out var type)
+            if (document.RootElement.ValueKind != JsonValueKind.Object
+                || !TryGetPropertyIgnoreCase(document.RootElement, "Type", out var type)
                 || type.ValueKind != JsonValueKind.String
-                || !string.Equals(type.GetString()?.Trim(), "Notification", StringComparison.OrdinalIgnoreCase))
+                || !string.Equals(type.GetString()?.Trim(), "Notification", StringComparison.OrdinalIgnoreCase)
+                || !TryGetPropertyIgnoreCase(document.RootElement, "Message", out var message))
             {
-                return body;
+                return null;
             }
 
-            if (TryGetPropertyIgnoreCase(document.RootElement, "Message", out var message))
+            return message.ValueKind switch
             {
-                return message.ValueKind switch
-                {
-                    JsonValueKind.String => NormalizeStringPayload(message.GetString(), body),
-                    JsonValueKind.Object or JsonValueKind.Array => message.GetRawText(),
-                    _ => body
-                };
-            }
+                JsonValueKind.String => NormalizeStringPayload(message.GetString(), body),
+                JsonValueKind.Object or JsonValueKind.Array => message.GetRawText(),
+                _ => body
+            };
         }
         catch (JsonException)
         {
-            return body;
+            return null;
         }
-
-        return body;
     }
 
     private static bool TryGetPropertyIgnoreCase(JsonElement element, string name, out JsonElement value)
