@@ -49,6 +49,8 @@ Beyond the feature itself, the codebase is a compact showcase of production-styl
 - Messages are deleted only when SQS provides a receipt handle.
 - Quotes without a valid symbol, positive finite price, and initialized timestamp are ignored before trading rules run.
 - Alerts with an unknown type, invalid price, symbol, or timestamp are ignored before Redis state or SMTP is touched.
+- An alert keeps the timestamp of its source quote, so delivered notifications identify when the observed price was collected rather than when a downstream worker processed it.
+- SMTP configuration rejects malformed hosts and addresses containing control characters before any mail attempt is made.
 
 ---
 
