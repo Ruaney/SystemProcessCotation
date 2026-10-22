@@ -87,4 +87,20 @@ public class SmtpSettingsTests
 
         Assert.False(settings.IsConfigured);
     }
+
+    [Fact]
+    public void IsConfigured_ReturnsFalseWhenAddressContainsControlCharacters()
+    {
+        var settings = new global::SmtpSettings
+        {
+            Host = "smtp.example.com",
+            Port = 587,
+            FromAddress = "alerts@example.com\r\nBcc: other@example.com",
+            ToAddress = "user@example.com",
+            Username = "alerts@example.com",
+            Password = "secret"
+        };
+
+        Assert.False(settings.IsConfigured);
+    }
 }

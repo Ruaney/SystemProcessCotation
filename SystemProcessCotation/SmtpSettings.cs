@@ -30,6 +30,11 @@ public class SmtpSettings
 
     private static bool IsValidAddress(string value)
     {
+        if (value.Any(char.IsControl))
+        {
+            return false;
+        }
+
         if (!MailboxAddress.TryParse(value, out var address))
         {
             return false;
