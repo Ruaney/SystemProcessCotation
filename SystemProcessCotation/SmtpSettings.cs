@@ -20,12 +20,13 @@ public class SmtpSettings
 
     private static bool IsValidHost(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        var host = value.Trim();
+        if (string.IsNullOrWhiteSpace(host) || host.Length > 255 || host.Any(char.IsControl))
         {
             return false;
         }
 
-        return Uri.CheckHostName(value.Trim()) != UriHostNameType.Unknown;
+        return Uri.CheckHostName(host) != UriHostNameType.Unknown;
     }
 
     private static bool IsValidAddress(string value)
