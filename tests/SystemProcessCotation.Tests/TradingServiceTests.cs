@@ -21,6 +21,18 @@ public class TradingServiceTests
     }
 
     [Fact]
+    public async Task AnalyzeCotationAsync_PreservesTheSourceTimestamp()
+    {
+        var timestamp = new DateTime(2026, 10, 22, 14, 30, 0, DateTimeKind.Utc);
+        var alert = await _service.AnalyzeCotationAsync(
+            new global::CotationResult { Symbol = "PETR4", Price = 35.00, Timestamp = timestamp },
+            new global::TradingSettings { PriceToSell = 35.00, PriceToBuy = 30.00 });
+
+        Assert.NotNull(alert);
+        Assert.Equal(timestamp, alert.Timestamp);
+    }
+
+    [Fact]
     public async Task AnalyzeCotationAsync_NormalizesSymbolOnAlert()
     {
         var alert = await _service.AnalyzeCotationAsync(

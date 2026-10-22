@@ -50,7 +50,8 @@ public class TradingService : ITradingService
                 Type = AlertType.Sell,
                 Symbol = symbol,
                 CurrentPrice = cotation.Price,
-                TargetPrice = settings.PriceToSell
+                TargetPrice = settings.PriceToSell,
+                Timestamp = cotation.Timestamp
             };
             _logger.LogInformation("VENDA: {Symbol} R$ {Price:F2} (alvo: R$ {Target:F2})", symbol, cotation.Price, settings.PriceToSell);
         }
@@ -61,7 +62,8 @@ public class TradingService : ITradingService
                 Type = AlertType.Buy,
                 Symbol = symbol,
                 CurrentPrice = cotation.Price,
-                TargetPrice = settings.PriceToBuy
+                TargetPrice = settings.PriceToBuy,
+                Timestamp = cotation.Timestamp
             };
             _logger.LogInformation("COMPRA: {Symbol} R$ {Price:F2} (alvo: R$ {Target:F2})", symbol, cotation.Price, settings.PriceToBuy);
         }
