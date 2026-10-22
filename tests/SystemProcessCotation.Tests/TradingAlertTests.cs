@@ -77,6 +77,21 @@ public class TradingAlertTests
         Assert.Equal("Alerta VENDA - PETR4 - R$ 35,00", alert.GetSubject());
     }
 
+    [Fact]
+    public void GetMessage_TreatsUnspecifiedTimestampAsUtc()
+    {
+        var alert = new global::TradingAlert
+        {
+            Type = global::AlertType.Buy,
+            Symbol = "PETR4",
+            CurrentPrice = 29.90,
+            TargetPrice = 30.00,
+            Timestamp = new DateTime(2026, 8, 28, 12, 30, 0, DateTimeKind.Unspecified)
+        };
+
+        Assert.Contains("Horário (UTC): 28/08/2026 12:30:00", alert.GetMessage());
+    }
+
     [Theory]
     [InlineData(double.NaN, 30.00)]
     [InlineData(29.90, double.PositiveInfinity)]

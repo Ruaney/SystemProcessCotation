@@ -33,7 +33,7 @@ public class TradingAlert
             $"Preço atual: R$ {FormatPrice(CurrentPrice)}\n" +
             $"Preço de referência configurado: R$ {FormatPrice(TargetPrice)}\n" +
             $"Recomendação: {action} {symbol}\n" +
-            $"Horário (UTC): {Timestamp.ToUniversalTime():dd/MM/yyyy HH:mm:ss}";
+            $"Horário (UTC): {FormatUtcTimestamp(Timestamp):dd/MM/yyyy HH:mm:ss}";
     }
 
     public string GetSubject()
@@ -49,4 +49,9 @@ public class TradingAlert
 
     private static string FormatPrice(double price) =>
         price.ToString("N2", BrazilianCulture);
+
+    private static DateTime FormatUtcTimestamp(DateTime timestamp) =>
+        timestamp.Kind == DateTimeKind.Unspecified
+            ? DateTime.SpecifyKind(timestamp, DateTimeKind.Utc)
+            : timestamp.ToUniversalTime();
 }
