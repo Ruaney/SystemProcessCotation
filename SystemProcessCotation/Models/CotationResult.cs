@@ -1,4 +1,4 @@
-public class CotationResult
+public class CotationResult : IValidatableMessage
 {
     public string Symbol { get; set; } = string.Empty;
     public double Price { get; set; }
