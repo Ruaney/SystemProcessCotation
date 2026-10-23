@@ -36,7 +36,7 @@ A extração da cotação tenta células rotuladas, atributos como `data-price`,
 
 ### Barramento SNS/SQS
 
-O consumidor aceita tanto mensagens SQS cruas quanto envelopes SNS. Mensagens vazias ou com JSON inválido são registradas e removidas para não travar o worker em repetição; falhas no handler ficam na fila para retentativa do SQS.
+O consumidor aceita tanto mensagens SQS cruas quanto envelopes SNS. Mensagens vazias, JSON inválido ou payloads de domínio inválidos são registrados e removidos antes de alcançar os workers, para não travar a fila em repetição; falhas no handler ficam na fila para retentativa do SQS.
 
 ### Validação de mensagens
 

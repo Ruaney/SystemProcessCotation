@@ -44,7 +44,7 @@ Beyond the feature itself, the codebase is a compact showcase of production-styl
 ### Message handling guarantees
 
 - SNS envelopes are unwrapped before deserialization, while raw SQS bodies are still accepted for LocalStack and tests.
-- Blank or malformed SQS messages are logged and deleted so a poison payload cannot block the worker forever.
+- Blank, malformed, or domain-invalid SQS messages are logged and deleted before a worker sees them, so a poison payload cannot block the worker forever.
 - Handler failures are left undeleted, allowing SQS redelivery and the queue's retry/dead-letter policy to decide the final outcome.
 - Messages are deleted only when SQS provides a receipt handle.
 - Quotes without a valid symbol, positive finite price, and initialized timestamp are ignored before trading rules run.
