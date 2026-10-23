@@ -110,6 +110,26 @@ public class SnsSqsEventBusTests
         Assert.False(handlerCalled);
     }
 
+    [Fact]
+    public async Task TryHandleSqsMessageAsync_DropsInvalidDomainPayloadWithoutCallingHandler()
+    {
+        var handlerCalled = false;
+
+        var shouldDelete = await global::SnsSqsEventBus.TryHandleSqsMessageAsync<CotationResult>(
+            new Message { Body = """{"symbol":"PETR4","price":0}""" },
+            (_, _) =>
+            {
+                handlerCalled = true;
+                return Task.CompletedTask;
+            },
+            NullLogger<global::SnsSqsEventBus>.Instance,
+            "cotations",
+            CancellationToken.None);
+
+        Assert.True(shouldDelete);
+        Assert.False(handlerCalled);
+    }
+
     [Theory]
     [InlineData(null, false)]
     [InlineData("", false)]

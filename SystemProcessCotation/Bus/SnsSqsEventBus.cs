@@ -135,6 +135,12 @@ public class SnsSqsEventBus : IEventBus
             return true;
         }
 
+        if (payload is IValidatableMessage { IsValid: false })
+        {
+            logger.LogWarning("Payload inválido recebido da fila '{Channel}' será removido", channel);
+            return true;
+        }
+
         await handler(payload, cancellationToken);
         return true;
     }
