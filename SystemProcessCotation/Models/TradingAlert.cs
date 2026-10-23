@@ -6,7 +6,7 @@ public enum AlertType
     Sell
 }
 
-public class TradingAlert
+public class TradingAlert : IValidatableMessage
 {
     private static readonly CultureInfo BrazilianCulture = CultureInfo.GetCultureInfo("pt-BR");
 
