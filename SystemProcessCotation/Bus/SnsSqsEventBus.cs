@@ -15,6 +15,7 @@ public class SnsSqsEventBus : IEventBus
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private const int MaxQueueNameLength = 80;
+    private const string FifoSuffix = ".fifo";
 
     private readonly IAmazonSimpleNotificationService _sns;
     private readonly IAmazonSQS _sqs;
@@ -171,13 +172,20 @@ public class SnsSqsEventBus : IEventBus
             throw new ArgumentException($"O canal do barramento deve ter no máximo {MaxQueueNameLength} caracteres.", nameof(channel));
         }
 
-        if (normalized.Any(c => !IsQueueNameCharacter(c)))
+        var queueName = IsFifoChannel(normalized)
+            ? normalized[..^FifoSuffix.Length]
+            : normalized;
+
+        if (string.IsNullOrWhiteSpace(queueName) || queueName.Any(c => !IsQueueNameCharacter(c)))
         {
             throw new ArgumentException("O canal do barramento deve conter apenas letras, números, '-' ou '_'.", nameof(channel));
         }
 
         return normalized;
     }
+
+    internal static bool IsFifoChannel(string channel) =>
+        channel.EndsWith(FifoSuffix, StringComparison.OrdinalIgnoreCase);
 
     private static bool IsQueueNameCharacter(char value) =>
         value is >= 'A' and <= 'Z'

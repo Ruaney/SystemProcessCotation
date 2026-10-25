@@ -41,6 +41,22 @@ public class SnsSqsEventBusTests
         Assert.Contains("80", exception.Message);
     }
 
+    [Theory]
+    [InlineData("cotations.fifo", true)]
+    [InlineData("COTATIONS.FIFO", true)]
+    [InlineData("cotations", false)]
+    public void IsFifoChannel_RecognizesTheAwsFifoSuffix(string channel, bool expected)
+    {
+        Assert.Equal(expected, global::SnsSqsEventBus.IsFifoChannel(channel));
+    }
+
+    [Fact]
+    public async Task EnsureChannelAsync_AcceptsFifoQueueNameBeforeCallingAws()
+    {
+        await Assert.ThrowsAsync<NullReferenceException>(() =>
+            _bus.EnsureChannelAsync("cotations.fifo", CancellationToken.None));
+    }
+
     [Fact]
     public async Task SubscribeAsync_RejectsMissingHandlerBeforeCallingAws()
     {
