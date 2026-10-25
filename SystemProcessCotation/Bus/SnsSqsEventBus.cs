@@ -198,6 +198,18 @@ public class SnsSqsEventBus : IEventBus
         return request;
     }
 
+    internal static CreateTopicRequest CreateTopicRequest(string channel)
+    {
+        var request = new CreateTopicRequest { Name = channel };
+        if (IsFifoChannel(channel))
+        {
+            request.Attributes["FifoTopic"] = "true";
+            request.Attributes["ContentBasedDeduplication"] = "true";
+        }
+
+        return request;
+    }
+
     private static bool IsQueueNameCharacter(char value) =>
         value is >= 'A' and <= 'Z'
         or >= 'a' and <= 'z'
@@ -246,7 +258,7 @@ public class SnsSqsEventBus : IEventBus
             return cached;
         }
 
-        var response = await _sns.CreateTopicAsync(new CreateTopicRequest { Name = channel }, ct);
+        var response = await _sns.CreateTopicAsync(CreateTopicRequest(channel), ct);
         _topicArns[channel] = response.TopicArn;
         return response.TopicArn;
     }

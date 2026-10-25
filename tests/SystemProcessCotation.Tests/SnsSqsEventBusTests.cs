@@ -75,6 +75,16 @@ public class SnsSqsEventBusTests
     }
 
     [Fact]
+    public void CreateTopicRequest_ConfiguresContentDeduplicationForFifoTopics()
+    {
+        var request = global::SnsSqsEventBus.CreateTopicRequest("cotations.fifo");
+
+        Assert.Equal("cotations.fifo", request.Name);
+        Assert.Equal("true", request.Attributes["FifoTopic"]);
+        Assert.Equal("true", request.Attributes["ContentBasedDeduplication"]);
+    }
+
+    [Fact]
     public async Task SubscribeAsync_RejectsMissingHandlerBeforeCallingAws()
     {
         await Assert.ThrowsAsync<ArgumentNullException>(() =>
