@@ -187,6 +187,17 @@ public class SnsSqsEventBus : IEventBus
     internal static bool IsFifoChannel(string channel) =>
         channel.EndsWith(FifoSuffix, StringComparison.OrdinalIgnoreCase);
 
+    internal static CreateQueueRequest CreateQueueRequest(string channel)
+    {
+        var request = new CreateQueueRequest(channel);
+        if (IsFifoChannel(channel))
+        {
+            request.Attributes["FifoQueue"] = "true";
+        }
+
+        return request;
+    }
+
     private static bool IsQueueNameCharacter(char value) =>
         value is >= 'A' and <= 'Z'
         or >= 'a' and <= 'z'
@@ -199,7 +210,7 @@ public class SnsSqsEventBus : IEventBus
 
         var queueUrl = _queueUrls.TryGetValue(channel, out var cachedUrl)
             ? cachedUrl
-            : (await _sqs.CreateQueueAsync(channel, ct)).QueueUrl;
+            : (await _sqs.CreateQueueAsync(CreateQueueRequest(channel), ct)).QueueUrl;
         _queueUrls[channel] = queueUrl;
 
         var attributes = await _sqs.GetQueueAttributesAsync(new GetQueueAttributesRequest

@@ -58,6 +58,23 @@ public class SnsSqsEventBusTests
     }
 
     [Fact]
+    public void CreateQueueRequest_ConfiguresFifoQueues()
+    {
+        var request = global::SnsSqsEventBus.CreateQueueRequest("cotations.fifo");
+
+        Assert.Equal("cotations.fifo", request.QueueName);
+        Assert.Equal("true", request.Attributes["FifoQueue"]);
+    }
+
+    [Fact]
+    public void CreateQueueRequest_KeepsStandardQueuesUnchanged()
+    {
+        var request = global::SnsSqsEventBus.CreateQueueRequest("cotations");
+
+        Assert.Empty(request.Attributes);
+    }
+
+    [Fact]
     public async Task SubscribeAsync_RejectsMissingHandlerBeforeCallingAws()
     {
         await Assert.ThrowsAsync<ArgumentNullException>(() =>
