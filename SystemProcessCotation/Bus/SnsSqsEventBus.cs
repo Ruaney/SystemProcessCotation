@@ -37,7 +37,7 @@ public class SnsSqsEventBus : IEventBus
 
         var topicArn = await GetOrCreateTopicArnAsync(channel, cancellationToken);
         var payload = JsonSerializer.Serialize(message, JsonOptions);
-        await _sns.PublishAsync(new PublishRequest { TopicArn = topicArn, Message = payload }, cancellationToken);
+        await _sns.PublishAsync(CreatePublishRequest(channel, topicArn, payload), cancellationToken);
         _logger.LogDebug("→ publicado no tópico SNS '{Channel}': {Payload}", channel, payload);
     }
 
@@ -205,6 +205,18 @@ public class SnsSqsEventBus : IEventBus
         {
             request.Attributes["FifoTopic"] = "true";
             request.Attributes["ContentBasedDeduplication"] = "true";
+        }
+
+        return request;
+    }
+
+    internal static PublishRequest CreatePublishRequest(string channel, string topicArn, string payload)
+    {
+        var request = new PublishRequest { TopicArn = topicArn, Message = payload };
+        if (IsFifoChannel(channel))
+        {
+            // SNS FIFO exige um grupo; usar o canal preserva a ordem por tópico.
+            request.MessageGroupId = channel;
         }
 
         return request;

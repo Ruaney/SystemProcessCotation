@@ -85,6 +85,24 @@ public class SnsSqsEventBusTests
     }
 
     [Fact]
+    public void CreatePublishRequest_SetsAGroupForFifoTopics()
+    {
+        var request = global::SnsSqsEventBus.CreatePublishRequest(
+            "cotations.fifo", "arn:aws:sns:local:1:cotations.fifo", "{}");
+
+        Assert.Equal("cotations.fifo", request.MessageGroupId);
+    }
+
+    [Fact]
+    public void CreatePublishRequest_DoesNotSetAGroupForStandardTopics()
+    {
+        var request = global::SnsSqsEventBus.CreatePublishRequest(
+            "cotations", "arn:aws:sns:local:1:cotations", "{}");
+
+        Assert.Null(request.MessageGroupId);
+    }
+
+    [Fact]
     public async Task SubscribeAsync_RejectsMissingHandlerBeforeCallingAws()
     {
         await Assert.ThrowsAsync<ArgumentNullException>(() =>
