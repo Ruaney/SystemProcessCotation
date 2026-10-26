@@ -15,6 +15,8 @@ public class SnsSqsEventBus : IEventBus
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private const int MaxQueueNameLength = 80;
+    private const int MaxReceiveBatchSize = 10;
+    private const int LongPollingSeconds = 20;
     private const string FifoSuffix = ".fifo";
 
     private readonly IAmazonSimpleNotificationService _sns;
@@ -56,8 +58,8 @@ public class SnsSqsEventBus : IEventBus
                 var response = await _sqs.ReceiveMessageAsync(new ReceiveMessageRequest
                 {
                     QueueUrl = queueUrl,
-                    MaxNumberOfMessages = 10,
-                    WaitTimeSeconds = 20
+                    MaxNumberOfMessages = MaxReceiveBatchSize,
+                    WaitTimeSeconds = LongPollingSeconds
                 }, cancellationToken);
 
                 if (response.Messages is null)
