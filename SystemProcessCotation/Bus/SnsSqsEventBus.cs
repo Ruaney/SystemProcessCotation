@@ -185,7 +185,7 @@ public class SnsSqsEventBus : IEventBus
     }
 
     internal static bool IsFifoChannel(string channel) =>
-        channel.EndsWith(FifoSuffix, StringComparison.OrdinalIgnoreCase);
+        channel.EndsWith(FifoSuffix, StringComparison.Ordinal);
 
     internal static CreateQueueRequest CreateQueueRequest(string channel)
     {

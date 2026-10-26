@@ -43,11 +43,20 @@ public class SnsSqsEventBusTests
 
     [Theory]
     [InlineData("cotations.fifo", true)]
-    [InlineData("COTATIONS.FIFO", true)]
+    [InlineData("COTATIONS.FIFO", false)]
     [InlineData("cotations", false)]
     public void IsFifoChannel_RecognizesTheAwsFifoSuffix(string channel, bool expected)
     {
         Assert.Equal(expected, global::SnsSqsEventBus.IsFifoChannel(channel));
+    }
+
+    [Fact]
+    public async Task EnsureChannelAsync_RejectsFifoSuffixWithWrongCasingBeforeCallingAws()
+    {
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
+            _bus.EnsureChannelAsync("cotations.FIFO", CancellationToken.None));
+
+        Assert.Contains("letras", exception.Message);
     }
 
     [Fact]
