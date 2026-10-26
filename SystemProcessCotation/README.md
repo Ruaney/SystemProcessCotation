@@ -38,7 +38,7 @@ A extração da cotação tenta células rotuladas, atributos como `data-price`,
 
 O consumidor aceita tanto mensagens SQS cruas quanto envelopes SNS. Mensagens vazias, JSON inválido ou payloads de domínio inválidos são registrados e removidos antes de alcançar os workers, para não travar a fila em repetição; falhas no handler ficam na fila para retentativa do SQS.
 
-Para exigir ordenação, dê ao canal o sufixo `.fifo` (por exemplo, `cotations.fifo`). O barramento cria o tópico SNS e a fila SQS como FIFO, habilita deduplicação baseada no conteúdo no tópico e publica cada mensagem no grupo do próprio canal.
+Para exigir ordenação, dê ao canal o sufixo `.fifo` em minúsculas (por exemplo, `cotations.fifo`). O barramento cria o tópico SNS e a fila SQS como FIFO, habilita deduplicação baseada no conteúdo no tópico e publica cada mensagem no grupo do próprio canal. A grafia minúscula é obrigatória pela AWS; `cotations.FIFO` não é um nome FIFO válido.
 
 ### Validação de mensagens
 
