@@ -55,12 +55,7 @@ public class SnsSqsEventBus : IEventBus
         {
             try
             {
-                var response = await _sqs.ReceiveMessageAsync(new ReceiveMessageRequest
-                {
-                    QueueUrl = queueUrl,
-                    MaxNumberOfMessages = MaxReceiveBatchSize,
-                    WaitTimeSeconds = LongPollingSeconds
-                }, cancellationToken);
+                var response = await _sqs.ReceiveMessageAsync(CreateReceiveMessageRequest(queueUrl), cancellationToken);
 
                 if (response.Messages is null)
                 {
@@ -199,6 +194,13 @@ public class SnsSqsEventBus : IEventBus
 
         return request;
     }
+
+    internal static ReceiveMessageRequest CreateReceiveMessageRequest(string queueUrl) => new()
+    {
+        QueueUrl = queueUrl,
+        MaxNumberOfMessages = MaxReceiveBatchSize,
+        WaitTimeSeconds = LongPollingSeconds
+    };
 
     internal static CreateTopicRequest CreateTopicRequest(string channel)
     {

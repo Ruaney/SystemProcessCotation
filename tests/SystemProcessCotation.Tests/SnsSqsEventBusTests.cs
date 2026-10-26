@@ -84,6 +84,16 @@ public class SnsSqsEventBusTests
     }
 
     [Fact]
+    public void CreateReceiveMessageRequest_UsesLongPollingAndMaximumBatchSize()
+    {
+        var request = global::SnsSqsEventBus.CreateReceiveMessageRequest("http://sqs.local/cotations");
+
+        Assert.Equal("http://sqs.local/cotations", request.QueueUrl);
+        Assert.Equal(10, request.MaxNumberOfMessages);
+        Assert.Equal(20, request.WaitTimeSeconds);
+    }
+
+    [Fact]
     public void CreateTopicRequest_ConfiguresContentDeduplicationForFifoTopics()
     {
         var request = global::SnsSqsEventBus.CreateTopicRequest("cotations.fifo");
