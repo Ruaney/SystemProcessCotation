@@ -40,6 +40,8 @@ O consumidor aceita tanto mensagens SQS cruas quanto envelopes SNS. Mensagens va
 
 Para exigir ordenação, dê ao canal o sufixo `.fifo` em minúsculas (por exemplo, `cotations.fifo`). O barramento cria o tópico SNS e a fila SQS como FIFO, habilita deduplicação baseada no conteúdo no tópico e publica cada mensagem no grupo do próprio canal. A grafia minúscula é obrigatória pela AWS; `cotations.FIFO` não é um nome FIFO válido.
 
+Os nomes de canal aceitam letras ASCII, números, `_` e `-`; a exceção é o sufixo final `.fifo`, usado somente para filas ordenadas.
+
 ### Validação de mensagens
 
 Antes de aplicar regras ou enviar email, o sistema valida os dados recebidos. Cotações precisam ter ativo válido, preço positivo e finito e horário inicializado. Alertas também precisam ter tipo conhecido e preço-alvo válido; alertas inválidos são registrados e ignorados sem criar chave no Redis ou tentar SMTP.

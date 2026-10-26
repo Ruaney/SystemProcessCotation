@@ -48,6 +48,7 @@ Beyond the feature itself, the codebase is a compact showcase of production-styl
 - Handler failures are left undeleted, allowing SQS redelivery and the queue's retry/dead-letter policy to decide the final outcome.
 - Messages are deleted only when SQS provides a receipt handle.
 - Channels ending in the lowercase `.fifo` suffix provision matching SNS and SQS FIFO resources. Publishing assigns the channel as the SNS message group, preserving delivery order within that channel; SNS content-based deduplication is enabled. AWS requires the lowercase spelling, so uppercase variants are rejected before provisioning.
+- Standard channel names may use ASCII letters, digits, hyphens, and underscores. The `.fifo` suffix is the only permitted dot and is reserved for ordered channels.
 - Quotes without a valid symbol, positive finite price, and initialized timestamp are ignored before trading rules run.
 - Alerts with an unknown type, invalid price, symbol, or timestamp are ignored before Redis state or SMTP is touched.
 - An alert keeps the timestamp of its source quote, so delivered notifications identify when the observed price was collected rather than when a downstream worker processed it.
