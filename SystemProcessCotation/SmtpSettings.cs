@@ -22,7 +22,9 @@ public class SmtpSettings
     private static bool IsValidHost(string value)
     {
         var host = value.Trim();
-        if (string.IsNullOrWhiteSpace(host) || host.Length > 255 || host.Any(char.IsControl))
+        if (string.IsNullOrWhiteSpace(host)
+            || host.Length > 255
+            || host.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format))
         {
             return false;
         }
