@@ -55,7 +55,8 @@ public class EmailService : IEmailService
     private static string GetRequiredHost(string host)
     {
         var normalized = GetRequiredText(host, nameof(SmtpSettings.Host));
-        if (Uri.CheckHostName(normalized) == UriHostNameType.Unknown)
+        if (normalized.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format)
+            || Uri.CheckHostName(normalized) == UriHostNameType.Unknown)
         {
             throw new FormatException("O host SMTP deve ser um nome DNS ou endereço IP válido.");
         }
