@@ -1,4 +1,5 @@
 using MimeKit;
+using System.Globalization;
 
 public class SmtpSettings
 {
@@ -31,7 +32,7 @@ public class SmtpSettings
 
     private static bool IsValidAddress(string value)
     {
-        if (value.Any(char.IsControl))
+        if (value.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format))
         {
             return false;
         }
