@@ -50,6 +50,29 @@ public class EmailServiceTests
         Assert.NotNull(exception.InnerException);
     }
 
+    [Fact]
+    public async Task SendAlertAsync_RejectsInvisibleFormatCharactersInMailboxAddress()
+    {
+        var service = new global::EmailService();
+        var settings = new global::SmtpSettings
+        {
+            Host = "smtp.example.com",
+            Port = 587,
+            Username = "alerts@example.com",
+            Password = "secret"
+        };
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            service.SendAlertAsync(
+                "user\u200B@example.com",
+                "alerts@example.com",
+                "Subject",
+                "Message",
+                settings));
+
+        Assert.IsType<FormatException>(exception.InnerException);
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData("https://smtp.example.com")]

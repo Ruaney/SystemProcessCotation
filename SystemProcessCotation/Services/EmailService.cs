@@ -1,6 +1,7 @@
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using System.Globalization;
 
 public class EmailService : IEmailService
 {
@@ -43,7 +44,7 @@ public class EmailService : IEmailService
 
     private static MailboxAddress ParseRequiredMailboxAddress(string address, string parameterName)
     {
-        if (string.IsNullOrWhiteSpace(address))
+        if (string.IsNullOrWhiteSpace(address) || address.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format))
         {
             throw new FormatException($"O endereço de email '{parameterName}' é obrigatório.");
         }
