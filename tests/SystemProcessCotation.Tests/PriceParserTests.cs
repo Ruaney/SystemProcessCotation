@@ -191,6 +191,15 @@ public class PriceParserTests
     }
 
     [Fact]
+    public void TryParse_IgnoresSecondsWhenExtractingPriceAfterTimestamp()
+    {
+        var parsed = global::PriceParser.TryParse("Atualizado 10:45:30 Cotação R$ 31,42", out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(31.42, price);
+    }
+
+    [Fact]
     public void TryParse_IgnoresTickerDigitsWhenNoPriceIsPresent()
     {
         var parsed = global::PriceParser.TryParse("PETR4", out _);
