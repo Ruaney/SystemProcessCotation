@@ -16,7 +16,7 @@ public class SmtpSettings
         && Port is > 0 and <= 65535
         && IsValidAddress(FromAddress)
         && IsValidAddress(ToAddress)
-        && !string.IsNullOrWhiteSpace(Username)
+        && IsValidUsername(Username)
         && !string.IsNullOrWhiteSpace(Password);
 
     private static bool IsValidHost(string value)
@@ -49,4 +49,8 @@ public class SmtpSettings
             && !string.IsNullOrWhiteSpace(parts[0])
             && !string.IsNullOrWhiteSpace(parts[1]);
     }
+
+    private static bool IsValidUsername(string value) =>
+        !string.IsNullOrWhiteSpace(value)
+        && !value.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format);
 }
