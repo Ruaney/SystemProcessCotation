@@ -64,6 +64,18 @@ public class CotationResultTests
     }
 
     [Fact]
+    public void IsValid_AcceptsB3QualifiedSymbols()
+    {
+        var cotation = new global::CotationResult
+        {
+            Symbol = "B3:PETR4.SA",
+            Price = 10.00
+        };
+
+        Assert.True(cotation.IsValid);
+    }
+
+    [Fact]
     public void IsValid_ReturnsFalseWhenTimestampIsUninitialized()
     {
         var cotation = new global::CotationResult
