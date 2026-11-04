@@ -48,4 +48,14 @@ public class StockSymbolTests
         Assert.True(parsed);
         Assert.Equal("PETR4", normalized);
     }
+
+    [Theory]
+    [InlineData("PETR-4")]
+    [InlineData("VALE 3")]
+    public void NormalizeOrThrow_PreservesTheProvidedParameterNameForInvalidSymbols(string symbol)
+    {
+        var error = Assert.Throws<ArgumentException>(() => global::StockSymbol.NormalizeOrThrow(symbol, "asset"));
+
+        Assert.Equal("asset", error.ParamName);
+    }
 }
