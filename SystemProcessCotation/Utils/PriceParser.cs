@@ -78,7 +78,9 @@ public static class PriceParser
 
     private static string RemoveWhitespace(string value)
     {
-        return string.Concat(value.Where(c => !char.IsWhiteSpace(c)));
+        return string.Concat(value.Where(c =>
+            !char.IsWhiteSpace(c)
+            && CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.Format));
     }
 
     private static string RemoveApostropheThousandsGroups(string value) =>

@@ -51,6 +51,15 @@ public class PriceParserTests
         Assert.Equal(expected, price);
     }
 
+    [Fact]
+    public void TryParse_AcceptsCopiedFormatWhitespace()
+    {
+        var parsed = global::PriceParser.TryParse("R$ 1\u200B234,56", out var price);
+
+        Assert.True(parsed);
+        Assert.Equal(1234.56, price);
+    }
+
     [Theory]
     [InlineData("1'234.56", 1234.56)]
     [InlineData("1’234,56", 1234.56)]
