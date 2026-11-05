@@ -9,7 +9,8 @@ public class RedisAlertStateStoreTests
         {
             Type = global::AlertType.Buy,
             Symbol = " petr4.sa ",
-            CurrentPrice = 29.90
+            CurrentPrice = 29.90,
+            TargetPrice = 30.00
         };
 
         var keys = global::RedisAlertStateStore.BuildKeys(alert);
