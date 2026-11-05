@@ -17,13 +17,13 @@ public class SmtpSettings
         && IsValidAddress(FromAddress)
         && IsValidAddress(ToAddress)
         && IsValidUsername(Username)
-        && !string.IsNullOrWhiteSpace(Password);
+        && IsValidPassword(Password);
 
     private static bool IsValidHost(string value)
     {
         var host = value.Trim();
         if (string.IsNullOrWhiteSpace(host)
-            || host.Length > 255
+            || host.Length > 253
             || host.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format))
         {
             return false;
@@ -51,6 +51,10 @@ public class SmtpSettings
     }
 
     private static bool IsValidUsername(string value) =>
+        !string.IsNullOrWhiteSpace(value)
+        && !value.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format);
+
+    private static bool IsValidPassword(string value) =>
         !string.IsNullOrWhiteSpace(value)
         && !value.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format);
 }

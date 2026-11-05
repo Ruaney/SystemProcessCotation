@@ -118,6 +118,22 @@ public class SmtpSettingsTests
         Assert.False(settings.IsConfigured);
     }
 
+    [Fact]
+    public void IsConfigured_ReturnsFalseWhenPasswordContainsInvisibleFormatCharacters()
+    {
+        var settings = new global::SmtpSettings
+        {
+            Host = "smtp.example.com",
+            Port = 587,
+            FromAddress = "alerts@example.com",
+            ToAddress = "user@example.com",
+            Username = "alerts@example.com",
+            Password = "sec\u200Bret"
+        };
+
+        Assert.False(settings.IsConfigured);
+    }
+
     [Theory]
     [InlineData("alerts.example.com", "user@example.com")]
     [InlineData("alerts@example.com", "user.example.com")]
