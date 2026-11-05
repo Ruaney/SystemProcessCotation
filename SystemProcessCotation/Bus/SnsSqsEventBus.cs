@@ -186,7 +186,10 @@ public class SnsSqsEventBus : IEventBus
 
     internal static CreateQueueRequest CreateQueueRequest(string channel)
     {
-        var request = new CreateQueueRequest(channel);
+        var request = new CreateQueueRequest(channel)
+        {
+            Attributes = new Dictionary<string, string>()
+        };
         if (IsFifoChannel(channel))
         {
             request.Attributes["FifoQueue"] = "true";
