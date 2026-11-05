@@ -207,7 +207,11 @@ public class SnsSqsEventBus : IEventBus
 
     internal static CreateTopicRequest CreateTopicRequest(string channel)
     {
-        var request = new CreateTopicRequest { Name = channel };
+        var request = new CreateTopicRequest
+        {
+            Name = channel,
+            Attributes = new Dictionary<string, string>()
+        };
         if (IsFifoChannel(channel))
         {
             request.Attributes["FifoTopic"] = "true";
