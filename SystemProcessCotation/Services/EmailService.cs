@@ -66,7 +66,8 @@ public class EmailService : IEmailService
 
     private static string GetRequiredText(string value, string fieldName)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        if (string.IsNullOrWhiteSpace(value)
+            || value.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format))
         {
             throw new FormatException($"O campo SMTP '{fieldName}' é obrigatório.");
         }
