@@ -30,6 +30,15 @@ public class StockSymbolTests
     }
 
     [Fact]
+    public void TryNormalize_RemovesRepeatedProviderAffixes()
+    {
+        var parsed = global::StockSymbol.TryNormalize("B3:BVMF:PETR4.SA.B3", out var normalized);
+
+        Assert.True(parsed);
+        Assert.Equal("PETR4", normalized);
+    }
+
+    [Fact]
     public void TryNormalize_RejectsEmptySymbolAfterB3Prefix()
     {
         var parsed = global::StockSymbol.TryNormalize("BVMF:", out _);

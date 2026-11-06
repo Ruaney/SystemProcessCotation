@@ -48,8 +48,21 @@ public static class StockSymbol
             char.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.Format));
     }
 
-    private static string RemoveB3Affixes(string symbol) =>
-        RemoveB3Suffix(RemoveB3Prefix(symbol));
+    private static string RemoveB3Affixes(string symbol)
+    {
+        var normalized = symbol;
+        while (true)
+        {
+            var withoutPrefix = RemoveB3Prefix(normalized);
+            var withoutSuffix = RemoveB3Suffix(withoutPrefix);
+            if (withoutSuffix == normalized)
+            {
+                return normalized;
+            }
+
+            normalized = withoutSuffix;
+        }
+    }
 
     private static string RemoveB3Prefix(string symbol)
     {
