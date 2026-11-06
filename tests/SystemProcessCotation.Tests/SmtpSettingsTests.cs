@@ -18,6 +18,22 @@ public class SmtpSettingsTests
         Assert.True(settings.IsConfigured);
     }
 
+    [Fact]
+    public void IsConfigured_AcceptsAnIpv6SmtpHost()
+    {
+        var settings = new global::SmtpSettings
+        {
+            Host = "2001:db8::1",
+            Port = 587,
+            FromAddress = "alerts@example.com",
+            ToAddress = "user@example.com",
+            Username = "alerts@example.com",
+            Password = "secret"
+        };
+
+        Assert.True(settings.IsConfigured);
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]
