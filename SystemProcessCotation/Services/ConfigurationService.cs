@@ -115,7 +115,9 @@ public class ConfigurationService : IConfigurationService
 
     private static string CleanEnvValue(string value)
     {
-        var trimmed = RemoveInlineComment(value.Trim()).Trim();
+        var withoutFormatCharacters = string.Concat(value.Where(c =>
+            CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.Format));
+        var trimmed = RemoveInlineComment(withoutFormatCharacters.Trim()).Trim();
         return trimmed.Length >= 2 && IsQuoted(trimmed)
             ? trimmed[1..^1].Trim()
             : trimmed;

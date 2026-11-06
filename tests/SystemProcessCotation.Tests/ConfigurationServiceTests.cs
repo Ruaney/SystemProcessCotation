@@ -272,6 +272,28 @@ public class ConfigurationServiceTests
     }
 
     [Fact]
+    public void LoadSmtpSettings_RemovesCopiedFormatCharactersFromEnvironmentValues()
+    {
+        var previousValues = SaveEnvironment();
+
+        try
+        {
+            ClearEnvironment();
+            Environment.SetEnvironmentVariable("HOST", "smtp\u200B.example.com");
+            Environment.SetEnvironmentVariable("PORT", "5\u200B87");
+
+            var settings = new global::ConfigurationService().LoadSmtpSettings();
+
+            Assert.Equal("smtp.example.com", settings.Host);
+            Assert.Equal(587, settings.Port);
+        }
+        finally
+        {
+            RestoreEnvironment(previousValues);
+        }
+    }
+
+    [Fact]
     public void LoadSmtpSettings_UsesSmtpPortAliasWhenShortPortIsInvalid()
     {
         var previousValues = SaveEnvironment();
