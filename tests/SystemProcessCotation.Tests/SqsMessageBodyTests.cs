@@ -66,6 +66,20 @@ public class SqsMessageBodyTests
     }
 
     [Fact]
+    public void ExtractPayload_UnwrapsFourTimesEncodedSnsNotificationMessage()
+    {
+        var payload = "{\"symbol\":\"PETR4\",\"price\":31.42}";
+        for (var index = 0; index < 4; index++)
+        {
+            payload = System.Text.Json.JsonSerializer.Serialize(payload);
+        }
+
+        var body = System.Text.Json.JsonSerializer.Serialize(new { Type = "Notification", Message = payload });
+
+        Assert.Equal("{\"symbol\":\"PETR4\",\"price\":31.42}", global::SqsMessageBody.ExtractPayload(body));
+    }
+
+    [Fact]
     public void ExtractPayload_UnwrapsAQuotedArrayPayload()
     {
         const string body = """

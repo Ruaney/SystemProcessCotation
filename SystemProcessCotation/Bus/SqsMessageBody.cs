@@ -2,6 +2,8 @@ using System.Text.Json;
 
 internal static class SqsMessageBody
 {
+    private const int MaximumEnvelopeDepth = 5;
+
     public static string ExtractPayload(string? body)
     {
         if (body is null)
@@ -15,7 +17,7 @@ internal static class SqsMessageBody
         }
 
         var payload = body;
-        for (var attempt = 0; attempt < 3; attempt++)
+        for (var attempt = 0; attempt < MaximumEnvelopeDepth; attempt++)
         {
             var extractedPayload = TryExtractSnsPayload(payload);
             if (extractedPayload is null)
@@ -80,7 +82,7 @@ internal static class SqsMessageBody
 
         var trimmed = payload.Trim();
         var normalized = payload;
-        for (var attempt = 0; attempt < 3; attempt++)
+        for (var attempt = 0; attempt < MaximumEnvelopeDepth; attempt++)
         {
             var candidate = normalized.Trim();
             if (!IsJsonStringLiteral(candidate))
