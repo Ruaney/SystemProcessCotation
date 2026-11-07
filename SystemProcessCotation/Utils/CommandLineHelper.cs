@@ -15,7 +15,9 @@ public static class CommandLineHelper
             return false;
         }
 
-        var option = args[0].Trim();
+        var option = string.Concat(args[0]
+            .Where(c => char.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.Format))
+            .Trim();
         return option.Equals("help", StringComparison.OrdinalIgnoreCase)
             || option.Equals("-h", StringComparison.OrdinalIgnoreCase)
             || option.Equals("-?", StringComparison.OrdinalIgnoreCase)

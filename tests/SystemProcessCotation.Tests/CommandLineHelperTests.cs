@@ -21,6 +21,12 @@ public class CommandLineHelperTests
     }
 
     [Fact]
+    public void IsHelpRequest_AcceptsCopiedFormatWhitespace()
+    {
+        Assert.True(global::CommandLineHelper.IsHelpRequest(["\u200B --help \u200B"]));
+    }
+
+    [Fact]
     public void Usage_IncludesOptionalTimingArguments()
     {
         Assert.Contains("[intervaloMs]", global::CommandLineHelper.Usage);
