@@ -89,6 +89,22 @@ public class SmtpSettingsTests
     }
 
     [Fact]
+    public void IsConfigured_ReturnsFalseWhenDnsLabelExceedsLimit()
+    {
+        var settings = new global::SmtpSettings
+        {
+            Host = $"{new string('a', 64)}.example.com",
+            Port = 587,
+            FromAddress = "alerts@example.com",
+            ToAddress = "user@example.com",
+            Username = "alerts@example.com",
+            Password = "secret"
+        };
+
+        Assert.False(settings.IsConfigured);
+    }
+
+    [Fact]
     public void IsConfigured_ReturnsFalseWhenHostContainsInvisibleFormatCharacters()
     {
         var settings = new global::SmtpSettings
