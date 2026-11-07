@@ -217,6 +217,14 @@ public class PriceParserTests
     }
 
     [Fact]
+    public void TryParse_IgnoresDecimalEmbeddedInTickerText()
+    {
+        var parsed = global::PriceParser.TryParse("PETR31,42", out _);
+
+        Assert.False(parsed);
+    }
+
+    [Fact]
     public void TryParse_StillReadsPriceAfterTickerText()
     {
         var parsed = global::PriceParser.TryParse("PETR4 cotação 31,42", out var price);

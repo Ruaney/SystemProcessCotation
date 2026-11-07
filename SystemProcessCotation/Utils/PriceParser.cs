@@ -97,7 +97,7 @@ public static class PriceParser
             .Where(match => !IsDateCandidate(searchableValue, match))
             .Where(match => !IsTimeCandidate(searchableValue, match))
             .Where(match => !HasAdjacentApostropheSeparator(searchableValue, match))
-            .Where(match => ContainsSeparator(match.Value) || !IsEmbeddedInWord(searchableValue, match))
+            .Where(match => !IsEmbeddedInWord(searchableValue, match))
             .Select(match => match.Value)
             .ToArray();
 
