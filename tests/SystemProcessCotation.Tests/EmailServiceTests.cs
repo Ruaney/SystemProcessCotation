@@ -76,6 +76,7 @@ public class EmailServiceTests
     [Theory]
     [InlineData("")]
     [InlineData("https://smtp.example.com")]
+    [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.example.com")]
     public async Task SendAlertAsync_WrapsInvalidSmtpHostBeforeConnecting(string host)
     {
         var service = new global::EmailService();
