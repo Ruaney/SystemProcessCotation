@@ -29,9 +29,12 @@ public class SmtpSettings
             return false;
         }
 
-        return Uri.CheckHostName(host) != UriHostNameType.Unknown
-            && (Uri.CheckHostName(host) != UriHostNameType.Dns
-                || host.Split('.').All(label => label.Length is > 0 and <= 63));
+        var hostType = Uri.CheckHostName(host);
+        var dnsName = host.TrimEnd('.');
+        return hostType != UriHostNameType.Unknown
+            && (hostType != UriHostNameType.Dns
+                || dnsName.Length > 0
+                && dnsName.Split('.').All(label => label.Length is > 0 and <= 63));
     }
 
     private static bool IsValidAddress(string value)
