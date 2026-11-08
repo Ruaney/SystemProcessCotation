@@ -121,4 +121,17 @@ public class TradingAlertTests
 
         Assert.False(alert.IsValid);
     }
+
+    [Fact]
+    public void GetSubject_RemovesInvisibleFormatCharactersFromInvalidSymbols()
+    {
+        var alert = new global::TradingAlert
+        {
+            Type = global::AlertType.Buy,
+            Symbol = "PETR-\u200B4",
+            CurrentPrice = 29.90
+        };
+
+        Assert.Equal("Alerta COMPRA - PETR-4 - R$ 29,90", alert.GetSubject());
+    }
 }

@@ -42,10 +42,17 @@ public class TradingAlert : IValidatableMessage
         return $"Alerta {action} - {FormatSymbol(Symbol)} - R$ {FormatPrice(CurrentPrice)}";
     }
 
-    private static string FormatSymbol(string? symbol) =>
-        StockSymbol.TryNormalize(symbol, out var normalized)
-            ? normalized
-            : (symbol ?? string.Empty).Trim().ToUpperInvariant();
+    private static string FormatSymbol(string? symbol)
+    {
+        if (StockSymbol.TryNormalize(symbol, out var normalized))
+        {
+            return normalized;
+        }
+
+        var withoutFormatCharacters = string.Concat((symbol ?? string.Empty)
+            .Where(c => char.GetUnicodeCategory(c) != UnicodeCategory.Format));
+        return withoutFormatCharacters.Trim().ToUpperInvariant();
+    }
 
     private static string FormatPrice(double price) =>
         price.ToString("N2", BrazilianCulture);
