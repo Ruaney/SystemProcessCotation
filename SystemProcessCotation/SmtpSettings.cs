@@ -30,11 +30,9 @@ public class SmtpSettings
         }
 
         var hostType = Uri.CheckHostName(host);
-        var dnsName = host.TrimEnd('.');
         return hostType != UriHostNameType.Unknown
             && (hostType != UriHostNameType.Dns
-                || dnsName.Length > 0
-                && dnsName.Split('.').All(label => label.Length is > 0 and <= 63));
+                || HasValidDnsLabels(host));
     }
 
     private static bool IsValidAddress(string value)
@@ -52,7 +50,21 @@ public class SmtpSettings
         var parts = address.Address.Split('@', 2, StringSplitOptions.TrimEntries);
         return parts.Length == 2
             && !string.IsNullOrWhiteSpace(parts[0])
-            && !string.IsNullOrWhiteSpace(parts[1]);
+            && IsValidAddressDomain(parts[1]);
+    }
+
+    private static bool IsValidAddressDomain(string domain)
+    {
+        var hostType = Uri.CheckHostName(domain);
+        return hostType != UriHostNameType.Unknown
+            && (hostType != UriHostNameType.Dns || HasValidDnsLabels(domain));
+    }
+
+    private static bool HasValidDnsLabels(string host)
+    {
+        var dnsName = host.TrimEnd('.');
+        return dnsName.Length > 0
+            && dnsName.Split('.').All(label => label.Length is > 0 and <= 63);
     }
 
     private static bool IsValidUsername(string value) =>

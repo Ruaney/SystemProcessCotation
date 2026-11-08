@@ -247,4 +247,22 @@ public class SmtpSettingsTests
 
         Assert.False(settings.IsConfigured);
     }
+
+    [Theory]
+    [InlineData("alerts@invalid_domain.example")]
+    [InlineData("alerts@a..example.com")]
+    public void IsConfigured_ReturnsFalseWhenEmailDomainIsInvalid(string from)
+    {
+        var settings = new global::SmtpSettings
+        {
+            Host = "smtp.example.com",
+            Port = 587,
+            FromAddress = from,
+            ToAddress = "user@example.com",
+            Username = "alerts@example.com",
+            Password = "secret"
+        };
+
+        Assert.False(settings.IsConfigured);
+    }
 }
