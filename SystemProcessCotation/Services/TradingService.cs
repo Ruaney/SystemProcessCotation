@@ -23,6 +23,12 @@ public class TradingService : ITradingService
             return Task.FromResult<TradingAlert?>(null);
         }
 
+        if (!HasValidThresholds(settings))
+        {
+            _logger.LogWarning("Configuração de preços inválida; cotação ignorada.");
+            return Task.FromResult<TradingAlert?>(null);
+        }
+
         var symbol = StockSymbol.NormalizeOrThrow(cotation.Symbol);
         if (!string.IsNullOrWhiteSpace(settings.StockSymbol))
         {
@@ -70,4 +76,10 @@ public class TradingService : ITradingService
 
         return Task.FromResult(alert);
     }
+
+    private static bool HasValidThresholds(TradingSettings settings) =>
+        double.IsFinite(settings.PriceToSell)
+        && double.IsFinite(settings.PriceToBuy)
+        && settings.PriceToSell > settings.PriceToBuy
+        && settings.PriceToBuy > 0;
 }

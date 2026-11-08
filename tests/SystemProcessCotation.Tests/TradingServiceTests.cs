@@ -122,4 +122,14 @@ public class TradingServiceTests
 
         Assert.Null(alert);
     }
+
+    [Fact]
+    public async Task AnalyzeCotationAsync_ReturnsNullForInvalidThresholdConfiguration()
+    {
+        var alert = await _service.AnalyzeCotationAsync(
+            new global::CotationResult { Symbol = "PETR4", Price = 35.00 },
+            new global::TradingSettings { PriceToSell = 30.00, PriceToBuy = 35.00 });
+
+        Assert.Null(alert);
+    }
 }
