@@ -64,8 +64,14 @@ public class SmtpSettings
     {
         var dnsName = host.TrimEnd('.');
         return dnsName.Length > 0
-            && dnsName.Split('.').All(label => label.Length is > 0 and <= 63);
+            && dnsName.Split('.').All(IsValidDnsLabel);
     }
+
+    private static bool IsValidDnsLabel(string label) =>
+        label.Length is > 0 and <= 63
+        && label[0] != '-'
+        && label[^1] != '-'
+        && label.All(c => char.IsAsciiLetterOrDigit(c) || c == '-');
 
     private static bool IsValidUsername(string value) =>
         !string.IsNullOrWhiteSpace(value)
