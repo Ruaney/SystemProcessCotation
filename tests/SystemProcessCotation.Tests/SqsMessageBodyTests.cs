@@ -140,6 +140,16 @@ public class SqsMessageBodyTests
     }
 
     [Fact]
+    public void ExtractPayload_UnwrapsSnsNotificationTypeWithCopiedFormatCharacters()
+    {
+        const string body = """{"Type":"Notifi\u200Bcation","Message":"{\"symbol\":\"PETR4\",\"price\":31.42}"}""";
+
+        var payload = global::SqsMessageBody.ExtractPayload(body);
+
+        Assert.Equal("""{"symbol":"PETR4","price":31.42}""", payload);
+    }
+
+    [Fact]
     public void ExtractPayload_UnwrapsStructuredSnsNotificationMessage()
     {
         const string body = """{"Type":"Notification","Message":{"symbol":"PETR4","price":31.42}}""";

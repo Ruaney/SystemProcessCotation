@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Globalization;
 
 internal static class SqsMessageBody
 {
@@ -39,7 +40,7 @@ internal static class SqsMessageBody
             if (document.RootElement.ValueKind != JsonValueKind.Object
                 || !TryGetPropertyIgnoreCase(document.RootElement, "Type", out var type)
                 || type.ValueKind != JsonValueKind.String
-                || !string.Equals(type.GetString()?.Trim(), "Notification", StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(RemoveFormatCharacters(type.GetString()), "Notification", StringComparison.OrdinalIgnoreCase)
                 || !TryGetPropertyIgnoreCase(document.RootElement, "Message", out var message))
             {
                 return null;
@@ -107,4 +108,9 @@ internal static class SqsMessageBody
         value.Length >= 2
         && value[0] == '"'
         && value[^1] == '"';
+
+    private static string RemoveFormatCharacters(string? value) =>
+        string.Concat((value ?? string.Empty)
+            .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.Format))
+            .Trim();
 }
