@@ -19,9 +19,9 @@ public class SmtpSettings
         && IsValidUsername(Username)
         && IsValidPassword(Password);
 
-    private static bool IsValidHost(string value)
+    private static bool IsValidHost(string? value)
     {
-        var host = value.Trim();
+        var host = value?.Trim();
         if (string.IsNullOrWhiteSpace(host)
             || host.Length > 253
             || host.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format))

@@ -3,6 +3,15 @@ namespace SystemProcessCotation.Tests;
 public class SmtpSettingsTests
 {
     [Fact]
+    public void IsConfigured_ReturnsFalseWhenHostIsNull()
+    {
+        var settings = CreateConfiguredSettings();
+        settings.Host = null!;
+
+        Assert.False(settings.IsConfigured);
+    }
+
+    [Fact]
     public void IsConfigured_ReturnsTrueWhenRequiredFieldsArePresent()
     {
         var settings = new global::SmtpSettings
