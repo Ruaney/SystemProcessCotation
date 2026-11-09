@@ -35,9 +35,10 @@ public class SmtpSettings
                 || HasValidDnsLabels(host));
     }
 
-    private static bool IsValidAddress(string value)
+    private static bool IsValidAddress(string? value)
     {
-        if (value.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format))
+        if (string.IsNullOrWhiteSpace(value)
+            || value.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format))
         {
             return false;
         }
