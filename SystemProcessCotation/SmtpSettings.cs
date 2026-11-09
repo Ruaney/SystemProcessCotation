@@ -74,7 +74,7 @@ public class SmtpSettings
         && label[^1] != '-'
         && label.All(c => char.IsAsciiLetterOrDigit(c) || c == '-');
 
-    private static bool IsValidUsername(string value) =>
+    private static bool IsValidUsername(string? value) =>
         !string.IsNullOrWhiteSpace(value)
         && !value.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format);
 
