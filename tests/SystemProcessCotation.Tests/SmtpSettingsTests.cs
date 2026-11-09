@@ -39,6 +39,15 @@ public class SmtpSettingsTests
     }
 
     [Fact]
+    public void IsConfigured_ReturnsFalseWhenPasswordIsNull()
+    {
+        var settings = CreateConfiguredSettings();
+        settings.Password = null!;
+
+        Assert.False(settings.IsConfigured);
+    }
+
+    [Fact]
     public void IsConfigured_ReturnsTrueWhenRequiredFieldsArePresent()
     {
         var settings = new global::SmtpSettings
