@@ -57,7 +57,8 @@ public class EmailService : IEmailService
         var normalized = GetRequiredText(host, nameof(SmtpSettings.Host));
         var hostType = Uri.CheckHostName(normalized);
         var dnsName = normalized.TrimEnd('.');
-        if (normalized.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format)
+        if (normalized.Length > 253
+            || normalized.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format)
             || hostType == UriHostNameType.Unknown
             || hostType == UriHostNameType.Dns
                 && (dnsName.Length == 0 || dnsName.Split('.').Any(label =>

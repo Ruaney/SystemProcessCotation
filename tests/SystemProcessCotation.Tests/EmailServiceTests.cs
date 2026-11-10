@@ -144,6 +144,24 @@ public class EmailServiceTests
     }
 
     [Fact]
+    public async Task SendAlertAsync_RejectsSmtpHostBeyondDnsLimit()
+    {
+        var service = new global::EmailService();
+        var settings = new global::SmtpSettings
+        {
+            Host = $"{new string('a', 63)}.{new string('b', 63)}.{new string('c', 63)}.{new string('d', 63)}",
+            Port = 587,
+            Username = "alerts@example.com",
+            Password = "secret"
+        };
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            service.SendAlertAsync("user@example.com", "alerts@example.com", "Subject", "Message", settings));
+
+        Assert.IsType<FormatException>(exception.InnerException);
+    }
+
+    [Fact]
     public async Task SendAlertAsync_RejectsInvisibleFormatCharactersInCredentialsBeforeConnecting()
     {
         var service = new global::EmailService();
