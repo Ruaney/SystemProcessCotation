@@ -74,6 +74,26 @@ public class EmailServiceTests
     }
 
     [Theory]
+    [InlineData("alerts@a..example.com")]
+    [InlineData("alerts@-example.com")]
+    public async Task SendAlertAsync_RejectsMailboxWithInvalidDnsDomain(string from)
+    {
+        var service = new global::EmailService();
+        var settings = new global::SmtpSettings
+        {
+            Host = "smtp.example.com",
+            Port = 587,
+            Username = "alerts@example.com",
+            Password = "secret"
+        };
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            service.SendAlertAsync("user@example.com", from, "Subject", "Message", settings));
+
+        Assert.IsType<FormatException>(exception.InnerException);
+    }
+
+    [Theory]
     [InlineData("")]
     [InlineData("https://smtp.example.com")]
     [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.example.com")]

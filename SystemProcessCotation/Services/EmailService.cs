@@ -49,27 +49,40 @@ public class EmailService : IEmailService
             throw new FormatException($"O endereço de email '{parameterName}' é obrigatório.");
         }
 
-        return MailboxAddress.Parse(address.Trim());
+        var mailbox = MailboxAddress.Parse(address.Trim());
+        var domain = mailbox.Address.Split('@', 2).ElementAtOrDefault(1);
+        if (string.IsNullOrWhiteSpace(domain)
+            || !HasValidHostName(domain))
+        {
+            throw new FormatException($"O endereço de email '{parameterName}' é inválido.");
+        }
+
+        return mailbox;
     }
 
     private static string GetRequiredHost(string host)
     {
         var normalized = GetRequiredText(host, nameof(SmtpSettings.Host));
-        var hostType = Uri.CheckHostName(normalized);
-        var dnsName = normalized.TrimEnd('.');
-        if (normalized.Length > 253
-            || normalized.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format)
-            || hostType == UriHostNameType.Unknown
-            || hostType == UriHostNameType.Dns
-                && (dnsName.Length == 0 || dnsName.Split('.').Any(label =>
-                    label.Length is 0 or > 63
-                    || label[0] == '-'
-                    || label[^1] == '-')))
+        if (!HasValidHostName(normalized))
         {
             throw new FormatException("O host SMTP deve ser um nome DNS ou endereço IP válido.");
         }
 
         return normalized;
+    }
+
+    private static bool HasValidHostName(string value)
+    {
+        var hostType = Uri.CheckHostName(value);
+        var dnsName = value.TrimEnd('.');
+        return value.Length <= 253
+            && !value.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format)
+            && hostType != UriHostNameType.Unknown
+            && (hostType != UriHostNameType.Dns
+                || dnsName.Length > 0 && dnsName.Split('.').All(label =>
+                    label.Length is > 0 and <= 63
+                    && label[0] != '-'
+                    && label[^1] != '-'));
     }
 
     private static string GetRequiredText(string value, string fieldName)
