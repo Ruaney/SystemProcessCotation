@@ -2,6 +2,12 @@ namespace SystemProcessCotation.Tests;
 
 public class CommandLineHelperTests
 {
+    [Fact]
+    public void ParseArguments_ThrowsArgumentNullExceptionForNullArguments()
+    {
+        Assert.Throws<ArgumentNullException>(() => global::CommandLineHelper.ParseArguments(null!));
+    }
+
     [Theory]
     [InlineData("help")]
     [InlineData("-h")]

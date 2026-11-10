@@ -28,6 +28,8 @@ public static class CommandLineHelper
 
     public static TradingSettings ParseArguments(string[] args)
     {
+        ArgumentNullException.ThrowIfNull(args);
+
         if (args.Length is < 3 or > 5)
         {
             throw new ArgumentException("Número incorreto de parâmetros. Esperado: 3 a 5 parâmetros. Use --help para ver exemplos.");
