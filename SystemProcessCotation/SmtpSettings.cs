@@ -56,6 +56,11 @@ public class SmtpSettings
 
     private static bool IsValidAddressDomain(string domain)
     {
+        if (domain.Length > 253)
+        {
+            return false;
+        }
+
         var hostType = Uri.CheckHostName(domain);
         return hostType != UriHostNameType.Unknown
             && (hostType != UriHostNameType.Dns || HasValidDnsLabels(domain));

@@ -150,6 +150,15 @@ public class SmtpSettingsTests
     }
 
     [Fact]
+    public void IsConfigured_ReturnsFalseWhenEmailDomainExceedsDnsLimit()
+    {
+        var settings = CreateConfiguredSettings();
+        settings.FromAddress = $"alerts@{new string('a', 63)}.{new string('b', 63)}.{new string('c', 63)}.{new string('d', 63)}";
+
+        Assert.False(settings.IsConfigured);
+    }
+
+    [Fact]
     public void IsConfigured_ReturnsFalseWhenDnsLabelExceedsLimit()
     {
         var settings = new global::SmtpSettings
@@ -328,4 +337,14 @@ public class SmtpSettingsTests
 
         Assert.False(settings.IsConfigured);
     }
+
+    private static global::SmtpSettings CreateConfiguredSettings() => new()
+    {
+        Host = "smtp.example.com",
+        Port = 587,
+        FromAddress = "alerts@example.com",
+        ToAddress = "user@example.com",
+        Username = "alerts@example.com",
+        Password = "secret"
+    };
 }
