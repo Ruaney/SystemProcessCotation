@@ -60,7 +60,10 @@ public class EmailService : IEmailService
         if (normalized.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format)
             || hostType == UriHostNameType.Unknown
             || hostType == UriHostNameType.Dns
-                && (dnsName.Length == 0 || dnsName.Split('.').Any(label => label.Length is 0 or > 63)))
+                && (dnsName.Length == 0 || dnsName.Split('.').Any(label =>
+                    label.Length is 0 or > 63
+                    || label[0] == '-'
+                    || label[^1] == '-')))
         {
             throw new FormatException("O host SMTP deve ser um nome DNS ou endereço IP válido.");
         }

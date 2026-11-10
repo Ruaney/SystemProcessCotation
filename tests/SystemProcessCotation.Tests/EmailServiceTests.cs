@@ -123,6 +123,26 @@ public class EmailServiceTests
         Assert.IsType<FormatException>(exception.InnerException);
     }
 
+    [Theory]
+    [InlineData("-smtp.example.com")]
+    [InlineData("smtp-.example.com")]
+    public async Task SendAlertAsync_RejectsDnsHostWithInvalidHyphenPlacement(string host)
+    {
+        var service = new global::EmailService();
+        var settings = new global::SmtpSettings
+        {
+            Host = host,
+            Port = 587,
+            Username = "alerts@example.com",
+            Password = "secret"
+        };
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            service.SendAlertAsync("user@example.com", "alerts@example.com", "Subject", "Message", settings));
+
+        Assert.IsType<FormatException>(exception.InnerException);
+    }
+
     [Fact]
     public async Task SendAlertAsync_RejectsInvisibleFormatCharactersInCredentialsBeforeConnecting()
     {
