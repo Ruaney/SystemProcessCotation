@@ -8,6 +8,12 @@ public class CommandLineHelperTests
         Assert.Throws<ArgumentNullException>(() => global::CommandLineHelper.ParseArguments(null!));
     }
 
+    [Fact]
+    public void IsHelpRequest_ThrowsArgumentNullExceptionForNullArguments()
+    {
+        Assert.Throws<ArgumentNullException>(() => global::CommandLineHelper.IsHelpRequest(null!));
+    }
+
     [Theory]
     [InlineData("help")]
     [InlineData("-h")]

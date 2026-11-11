@@ -10,6 +10,8 @@ public static class CommandLineHelper
 
     public static bool IsHelpRequest(string[] args)
     {
+        ArgumentNullException.ThrowIfNull(args);
+
         if (args.Length != 1)
         {
             return false;
