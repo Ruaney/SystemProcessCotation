@@ -145,8 +145,11 @@ public class SnsSqsEventBus : IEventBus
         return true;
     }
 
-    internal static bool CanDeleteSqsMessage(Message sqsMessage) =>
-        !string.IsNullOrWhiteSpace(sqsMessage.ReceiptHandle);
+    internal static bool CanDeleteSqsMessage(Message sqsMessage)
+    {
+        ArgumentNullException.ThrowIfNull(sqsMessage);
+        return !string.IsNullOrWhiteSpace(sqsMessage.ReceiptHandle);
+    }
 
     /// <summary>
     /// Garante (de forma idempotente, com retry para o cold start do LocalStack) que o

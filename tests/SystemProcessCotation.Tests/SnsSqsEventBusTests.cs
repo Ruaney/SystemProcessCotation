@@ -248,4 +248,10 @@ public class SnsSqsEventBusTests
 
         Assert.Equal(expected, canDelete);
     }
+
+    [Fact]
+    public void CanDeleteSqsMessage_RejectsMissingMessage()
+    {
+        Assert.Throws<ArgumentNullException>(() => global::SnsSqsEventBus.CanDeleteSqsMessage(null!));
+    }
 }
