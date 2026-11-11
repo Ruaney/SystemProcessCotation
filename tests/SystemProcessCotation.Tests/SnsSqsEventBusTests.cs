@@ -161,6 +161,18 @@ public class SnsSqsEventBusTests
     }
 
     [Fact]
+    public async Task TryHandleSqsMessageAsync_RejectsMissingLogger()
+    {
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
+            global::SnsSqsEventBus.TryHandleSqsMessageAsync<CotationResult>(
+                new Message { Body = "{}" },
+                (_, _) => Task.CompletedTask,
+                null!,
+                "cotations",
+                CancellationToken.None));
+    }
+
+    [Fact]
     public async Task TryHandleSqsMessageAsync_DispatchesValidPayload()
     {
         CotationResult? handled = null;

@@ -109,6 +109,7 @@ public class SnsSqsEventBus : IEventBus
     {
         ArgumentNullException.ThrowIfNull(sqsMessage);
         ArgumentNullException.ThrowIfNull(handler);
+        ArgumentNullException.ThrowIfNull(logger);
 
         if (string.IsNullOrWhiteSpace(sqsMessage.Body))
         {
