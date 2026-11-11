@@ -108,6 +108,7 @@ public class SnsSqsEventBus : IEventBus
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(sqsMessage);
+        ArgumentNullException.ThrowIfNull(handler);
 
         if (string.IsNullOrWhiteSpace(sqsMessage.Body))
         {
