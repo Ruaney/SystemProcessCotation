@@ -704,6 +704,20 @@ public class CotationServiceTests
         Assert.Equal(31.42, result.Price);
     }
 
+    [Fact]
+    public async Task GetCotationAsync_ParsesGenericValueLabel()
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("""
+                <table><tr><th>Valor</th><td>31,42</td></tr></table>
+                """)
+        }));
+        var result = await new global::CotationService(client).GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
     [Theory]
     [InlineData("Último")]
     [InlineData("Preço (R$)")]

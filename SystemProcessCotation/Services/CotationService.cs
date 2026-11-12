@@ -476,6 +476,7 @@ public class CotationService : ICotationService
             or "price"
             or "quote"
             or "quoteprice"
+            or "valor"
             or "valoratual";
 
     private static string RemoveCurrencySuffix(string value)
