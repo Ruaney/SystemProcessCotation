@@ -363,6 +363,18 @@ public class CotationServiceTests
     }
 
     [Fact]
+    public async Task GetCotationAsync_ParsesMarketPriceFromJsonLd()
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("""<script type="application/ld+json">{"marketPrice":31.42}</script>""")
+        }));
+        var result = await new global::CotationService(client).GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
+    [Fact]
     public async Task GetCotationAsync_IgnoresMalformedJsonLdAndFallsBack()
     {
         using var client = new HttpClient(new StubHttpMessageHandler(_ =>
