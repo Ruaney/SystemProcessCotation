@@ -289,6 +289,7 @@ public class CotationService : ICotationService
         || name.Equals("currentPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("lastPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("marketPrice", StringComparison.OrdinalIgnoreCase)
+        || name.Equals("regularMarketPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("lowPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("highPrice", StringComparison.OrdinalIgnoreCase);
 
