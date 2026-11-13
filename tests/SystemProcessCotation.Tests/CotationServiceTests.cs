@@ -751,6 +751,8 @@ public class CotationServiceTests
     [InlineData("Valor atual")]
     [InlineData("Último preço")]
     [InlineData("Ultimo valor")]
+    [InlineData("Fechamento")]
+    [InlineData("Preço de fechamento")]
     public async Task GetCotationAsync_ParsesCurrentPriceLabelVariants(string label)
     {
         using var client = new HttpClient(new StubHttpMessageHandler(_ =>
@@ -781,6 +783,7 @@ public class CotationServiceTests
     [InlineData("Current price")]
     [InlineData("Last price")]
     [InlineData("Market price (BRL)")]
+    [InlineData("Closing price")]
     public async Task GetCotationAsync_ParsesEnglishPriceLabelVariants(string label)
     {
         using var client = new HttpClient(new StubHttpMessageHandler(_ =>

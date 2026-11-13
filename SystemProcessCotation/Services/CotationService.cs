@@ -475,13 +475,16 @@ public class CotationService : ICotationService
             or "last"
             or "lastprice"
             or "marketprice"
+            or "closingprice"
             or "preco"
             or "precoatual"
+            or "precodefechamento"
             or "price"
             or "quote"
             or "quoteprice"
             or "valor"
-            or "valoratual";
+            or "valoratual"
+            or "fechamento";
 
     private static string RemoveCurrencySuffix(string value)
     {
