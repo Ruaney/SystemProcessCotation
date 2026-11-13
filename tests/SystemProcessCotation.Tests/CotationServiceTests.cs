@@ -199,6 +199,7 @@ public class CotationServiceTests
 
     [Theory]
     [InlineData("data-current-price")]
+    [InlineData("data-last-price")]
     [InlineData("data-quote")]
     public async Task GetCotationAsync_ParsesPriceFromSemanticDataAttribute(string attribute)
     {
