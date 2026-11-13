@@ -20,6 +20,7 @@ public class CotationService : ICotationService
         "data-price",
         "data-current-price",
         "data-last-price",
+        "data-market-price",
         "data-quote",
         "data-value",
         "aria-label",
