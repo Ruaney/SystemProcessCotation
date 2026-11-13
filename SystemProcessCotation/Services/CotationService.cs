@@ -290,6 +290,7 @@ public class CotationService : ICotationService
         || name.Equals("lastPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("marketPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("regularMarketPrice", StringComparison.OrdinalIgnoreCase)
+        || name.Equals("regularMarketPreviousClose", StringComparison.OrdinalIgnoreCase)
         || name.Equals("previousClose", StringComparison.OrdinalIgnoreCase)
         || name.Equals("closePrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("lowPrice", StringComparison.OrdinalIgnoreCase)
