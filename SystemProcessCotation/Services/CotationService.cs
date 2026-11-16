@@ -297,6 +297,7 @@ public class CotationService : ICotationService
         || name.Equals("closePrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("bidPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("askPrice", StringComparison.OrdinalIgnoreCase)
+        || name.Equals("postMarketPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("lowPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("highPrice", StringComparison.OrdinalIgnoreCase);
 
