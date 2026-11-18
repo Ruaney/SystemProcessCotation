@@ -307,7 +307,8 @@ public class CotationService : ICotationService
         || name.Equals("dayLow", StringComparison.OrdinalIgnoreCase)
         || name.Equals("regularMarketDayLow", StringComparison.OrdinalIgnoreCase)
         || name.Equals("highPrice", StringComparison.OrdinalIgnoreCase)
-        || name.Equals("dayHigh", StringComparison.OrdinalIgnoreCase);
+        || name.Equals("dayHigh", StringComparison.OrdinalIgnoreCase)
+        || name.Equals("regularMarketDayHigh", StringComparison.OrdinalIgnoreCase);
 
     private static bool HasPriceMetadataName(HtmlNode node) =>
         IsPriceMetadataName(node.GetAttributeValue("itemprop", string.Empty))
