@@ -305,6 +305,7 @@ public class CotationService : ICotationService
         || name.Equals("regularMarketOpen", StringComparison.OrdinalIgnoreCase)
         || name.Equals("lowPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("dayLow", StringComparison.OrdinalIgnoreCase)
+        || name.Equals("regularMarketDayLow", StringComparison.OrdinalIgnoreCase)
         || name.Equals("highPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("dayHigh", StringComparison.OrdinalIgnoreCase);
 
