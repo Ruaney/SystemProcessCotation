@@ -302,6 +302,7 @@ public class CotationService : ICotationService
         || name.Equals("extendedMarketPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("delayedPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("settlementPrice", StringComparison.OrdinalIgnoreCase)
+        || name.Equals("navPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("preMarketPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("averagePrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("openPrice", StringComparison.OrdinalIgnoreCase)
