@@ -299,6 +299,7 @@ public class CotationService : ICotationService
         || name.Equals("askPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("postMarketPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("afterHoursPrice", StringComparison.OrdinalIgnoreCase)
+        || name.Equals("extendedMarketPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("preMarketPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("averagePrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("openPrice", StringComparison.OrdinalIgnoreCase)
