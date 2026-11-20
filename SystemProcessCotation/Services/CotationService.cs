@@ -314,6 +314,7 @@ public class CotationService : ICotationService
         || name.Equals("fiftyTwoWeekLow", StringComparison.OrdinalIgnoreCase)
         || name.Equals("fiftyTwoWeekHigh", StringComparison.OrdinalIgnoreCase)
         || name.Equals("targetMeanPrice", StringComparison.OrdinalIgnoreCase)
+        || name.Equals("targetHighPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("highPrice", StringComparison.OrdinalIgnoreCase)
         || name.Equals("dayHigh", StringComparison.OrdinalIgnoreCase)
         || name.Equals("regularMarketDayHigh", StringComparison.OrdinalIgnoreCase);
