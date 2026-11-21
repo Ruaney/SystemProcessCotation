@@ -3,6 +3,22 @@ namespace SystemProcessCotation.Tests;
 public class RedisAlertStateStoreTests
 {
     [Fact]
+    public async Task ShouldAlertAsync_RejectsNonPositiveCooldownBeforeAccessingRedis()
+    {
+        var store = new global::RedisAlertStateStore((StackExchange.Redis.IDatabase)null!);
+        var alert = new global::TradingAlert
+        {
+            Type = global::AlertType.Buy,
+            Symbol = "PETR4",
+            CurrentPrice = 29.90,
+            TargetPrice = 30.00
+        };
+
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+            () => store.ShouldAlertAsync(alert, TimeSpan.Zero));
+    }
+
+    [Fact]
     public void BuildKeys_NormalizesSymbolBeforeCreatingRedisKeys()
     {
         var alert = new global::TradingAlert

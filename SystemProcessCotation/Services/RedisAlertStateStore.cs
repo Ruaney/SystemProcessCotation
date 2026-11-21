@@ -11,13 +11,22 @@ public class RedisAlertStateStore : IAlertStateStore
     private readonly IDatabase _db;
 
     public RedisAlertStateStore(IConnectionMultiplexer connection)
+        : this(ArgumentNullException.ThrowIfNull(connection).GetDatabase())
     {
-        _db = connection.GetDatabase();
+    }
+
+    internal RedisAlertStateStore(IDatabase database)
+    {
+        _db = database;
     }
 
     public async Task<bool> ShouldAlertAsync(TradingAlert alert, TimeSpan cooldown, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        if (cooldown <= TimeSpan.Zero)
+        {
+            throw new ArgumentOutOfRangeException(nameof(cooldown), "O cooldown deve ser maior que zero.");
+        }
 
         var keys = BuildKeys(alert);
         var priceText = alert.CurrentPrice.ToString("R", CultureInfo.InvariantCulture);
