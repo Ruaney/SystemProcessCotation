@@ -8,6 +8,7 @@ public class EmailService : IEmailService
     public async Task SendAlertAsync(string to, string from, string subject, string message, SmtpSettings settings, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(settings);
 
         try
         {

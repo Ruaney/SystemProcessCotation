@@ -3,6 +3,15 @@ namespace SystemProcessCotation.Tests;
 public class EmailServiceTests
 {
     [Fact]
+    public async Task SendAlertAsync_ThrowsForNullSettings()
+    {
+        var service = new global::EmailService();
+
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
+            service.SendAlertAsync("user@example.com", "alerts@example.com", "Subject", "Message", null!));
+    }
+
+    [Fact]
     public async Task SendAlertAsync_ThrowsWhenCancellationAlreadyRequested()
     {
         var service = new global::EmailService();
