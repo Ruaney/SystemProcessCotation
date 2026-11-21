@@ -146,4 +146,19 @@ public class TradingServiceTests
 
         Assert.Null(alert);
     }
+
+    [Fact]
+    public async Task AnalyzeCotationAsync_ReturnsNullForAnInvalidConfiguredSymbol()
+    {
+        var alert = await _service.AnalyzeCotationAsync(
+            new global::CotationResult { Symbol = "PETR4", Price = 35.00 },
+            new global::TradingSettings
+            {
+                StockSymbol = "PETR4.BR",
+                PriceToSell = 35.00,
+                PriceToBuy = 30.00
+            });
+
+        Assert.Null(alert);
+    }
 }

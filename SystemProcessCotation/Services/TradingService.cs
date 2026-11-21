@@ -34,7 +34,12 @@ public class TradingService : ITradingService
         var symbol = StockSymbol.NormalizeOrThrow(cotation.Symbol);
         if (!string.IsNullOrWhiteSpace(settings.StockSymbol))
         {
-            var configuredSymbol = StockSymbol.NormalizeOrThrow(settings.StockSymbol, nameof(settings.StockSymbol));
+            if (!StockSymbol.TryNormalize(settings.StockSymbol, out var configuredSymbol))
+            {
+                _logger.LogWarning("Ativo configurado inválido; cotação ignorada.");
+                return Task.FromResult<TradingAlert?>(null);
+            }
+
             if (!string.Equals(symbol, configuredSymbol, StringComparison.Ordinal))
             {
                 _logger.LogDebug(
