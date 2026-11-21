@@ -5,6 +5,12 @@ namespace SystemProcessCotation.Tests;
 public class CotationServiceTests
 {
     [Fact]
+    public void Constructor_ThrowsForNullHttpClient()
+    {
+        Assert.Throws<ArgumentNullException>(() => new global::CotationService(null!));
+    }
+
+    [Fact]
     public async Task GetCotationAsync_ParsesBrazilianPriceAndNormalizesSymbol()
     {
         using var client = new HttpClient(new StubHttpMessageHandler(_ =>

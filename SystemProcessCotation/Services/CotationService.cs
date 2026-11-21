@@ -33,7 +33,7 @@ public class CotationService : ICotationService
 
     public CotationService(HttpClient httpClient)
     {
-        _httpClient = httpClient;
+        _httpClient = ArgumentNullException.ThrowIfNull(httpClient);
     }
 
     public async Task<CotationResult> GetCotationAsync(string symbol, CancellationToken cancellationToken = default)
