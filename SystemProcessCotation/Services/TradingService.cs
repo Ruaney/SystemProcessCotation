@@ -17,6 +17,8 @@ public class TradingService : ITradingService
     public Task<TradingAlert?> AnalyzeCotationAsync(CotationResult cotation, TradingSettings settings, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(cotation);
+        ArgumentNullException.ThrowIfNull(settings);
 
         if (!cotation.IsValid)
         {

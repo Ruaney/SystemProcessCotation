@@ -7,6 +7,20 @@ public class TradingServiceTests
     private readonly global::TradingService _service = new(NullLogger<global::TradingService>.Instance);
 
     [Fact]
+    public async Task AnalyzeCotationAsync_ThrowsForNullCotation()
+    {
+        await Assert.ThrowsAsync<ArgumentNullException>(
+            () => _service.AnalyzeCotationAsync(null!, new global::TradingSettings()));
+    }
+
+    [Fact]
+    public async Task AnalyzeCotationAsync_ThrowsForNullSettings()
+    {
+        await Assert.ThrowsAsync<ArgumentNullException>(
+            () => _service.AnalyzeCotationAsync(new global::CotationResult(), null!));
+    }
+
+    [Fact]
     public async Task AnalyzeCotationAsync_ReturnsSellAlertWhenPriceReachesSellThreshold()
     {
         var alert = await _service.AnalyzeCotationAsync(
