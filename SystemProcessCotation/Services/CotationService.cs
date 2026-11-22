@@ -112,6 +112,11 @@ public class CotationService : ICotationService
             yield return jsonLdPrice;
         }
 
+        foreach (var attributePrice in ExtractSemanticDataAttributePrices(doc))
+        {
+            yield return attributePrice;
+        }
+
         foreach (var testIdPrice in ExtractTestIdPrices(doc))
         {
             yield return testIdPrice;
@@ -137,6 +142,23 @@ public class CotationService : ICotationService
             foreach (var text in ExtractPriceTexts(cell))
             {
                 yield return text;
+            }
+        }
+    }
+
+    private static IEnumerable<string> ExtractSemanticDataAttributePrices(HtmlDocument doc)
+    {
+        var priceNodes = doc.DocumentNode.SelectNodes("//*[@data-price]");
+        if (priceNodes is null)
+        {
+            yield break;
+        }
+
+        foreach (var node in priceNodes)
+        {
+            if (!IsHidden(node))
+            {
+                yield return node.GetAttributeValue("data-price", string.Empty);
             }
         }
     }
