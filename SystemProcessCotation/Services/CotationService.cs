@@ -148,7 +148,7 @@ public class CotationService : ICotationService
 
     private static IEnumerable<string> ExtractSemanticDataAttributePrices(HtmlDocument doc)
     {
-        var priceNodes = doc.DocumentNode.SelectNodes("//*[@data-price or @data-current-price or @data-last-price or @data-market-price or @data-quote or @data-value or @data-bid or @data-ask or @data-close or @data-settlement or @data-open or @data-high]");
+        var priceNodes = doc.DocumentNode.SelectNodes("//*[@data-price or @data-current-price or @data-last-price or @data-market-price or @data-quote or @data-value or @data-bid or @data-ask or @data-close or @data-settlement or @data-open or @data-high or @data-low]");
         if (priceNodes is null)
         {
             yield break;
@@ -170,6 +170,7 @@ public class CotationService : ICotationService
                 yield return node.GetAttributeValue("data-settlement", string.Empty);
                 yield return node.GetAttributeValue("data-open", string.Empty);
                 yield return node.GetAttributeValue("data-high", string.Empty);
+                yield return node.GetAttributeValue("data-low", string.Empty);
             }
         }
     }
