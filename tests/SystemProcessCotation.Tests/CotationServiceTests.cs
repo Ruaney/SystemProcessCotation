@@ -1524,6 +1524,19 @@ public class CotationServiceTests
         Assert.Equal(31.42, result.Price);
     }
 
+    [Fact]
+    public async Task GetCotationAsync_ParsesPriceFromStandaloneAdjustedCloseAttribute()
+    {
+        using var client = new HttpClient(new StubHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("""<span data-adjusted-close="31,42"></span>""")
+        }));
+
+        var result = await new global::CotationService(client).GetCotationAsync("PETR4");
+
+        Assert.Equal(31.42, result.Price);
+    }
+
     private sealed class StubHttpMessageHandler : HttpMessageHandler
     {
         private readonly Func<HttpRequestMessage, HttpResponseMessage> _factory;
