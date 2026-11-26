@@ -158,6 +158,7 @@ public class SnsSqsEventBus : IEventBus
     public Task<string> EnsureChannelAsync(string channel, CancellationToken cancellationToken)
     {
         channel = ValidateChannel(channel);
+        cancellationToken.ThrowIfCancellationRequested();
         return RetryAsync(() => SetupChannelAsync(channel, cancellationToken), channel, cancellationToken);
     }
 

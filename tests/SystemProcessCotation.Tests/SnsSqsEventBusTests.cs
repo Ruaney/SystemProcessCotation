@@ -67,6 +67,16 @@ public class SnsSqsEventBusTests
     }
 
     [Fact]
+    public async Task EnsureChannelAsync_HonorsCancellationBeforeCallingAws()
+    {
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+            _bus.EnsureChannelAsync("cotations", cancellation.Token));
+    }
+
+    [Fact]
     public void CreateQueueRequest_ConfiguresFifoQueues()
     {
         var request = global::SnsSqsEventBus.CreateQueueRequest("cotations.fifo");
