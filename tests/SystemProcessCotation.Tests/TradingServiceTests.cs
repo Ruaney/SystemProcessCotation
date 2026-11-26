@@ -7,6 +7,12 @@ public class TradingServiceTests
     private readonly global::TradingService _service = new(NullLogger<global::TradingService>.Instance);
 
     [Fact]
+    public void Constructor_ThrowsForNullLogger()
+    {
+        Assert.Throws<ArgumentNullException>(() => new global::TradingService(null!));
+    }
+
+    [Fact]
     public async Task AnalyzeCotationAsync_ThrowsForNullCotation()
     {
         await Assert.ThrowsAsync<ArgumentNullException>(

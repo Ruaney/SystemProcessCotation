@@ -11,7 +11,7 @@ public class TradingService : ITradingService
 
     public TradingService(ILogger<TradingService> logger)
     {
-        _logger = logger;
+        _logger = ArgumentNullException.ThrowIfNull(logger);
     }
 
     public Task<TradingAlert?> AnalyzeCotationAsync(CotationResult cotation, TradingSettings settings, CancellationToken cancellationToken = default)
