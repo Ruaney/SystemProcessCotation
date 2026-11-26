@@ -1,3 +1,5 @@
+using System.Globalization;
+
 public static class CommandLineHelper
 {
     public const string Usage = """
@@ -69,7 +71,12 @@ public static class CommandLineHelper
 
     private static int ParsePositiveInt(string value, string fieldName)
     {
-        if (int.TryParse(value, out var parsed) && parsed > 0)
+        var normalizedValue = string.Concat((value ?? string.Empty)
+            .Where(c => char.GetUnicodeCategory(c) != UnicodeCategory.Format))
+            .Trim();
+
+        if (int.TryParse(normalizedValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
+            && parsed > 0)
         {
             return parsed;
         }

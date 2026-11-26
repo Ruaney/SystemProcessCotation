@@ -98,6 +98,16 @@ public class CommandLineHelperTests
         Assert.Equal(15, settings.AlertCooldownSeconds);
     }
 
+    [Fact]
+    public void ParseArguments_AcceptsCopiedFormatCharactersInTimingArguments()
+    {
+        var settings = global::CommandLineHelper.ParseArguments(
+            ["PETR4", "35.50", "30.25", "1\u200B000", "\u200B15"]);
+
+        Assert.Equal(1000, settings.CheckIntervalMs);
+        Assert.Equal(15, settings.AlertCooldownSeconds);
+    }
+
     [Theory]
     [InlineData("0")]
     [InlineData("-1")]
