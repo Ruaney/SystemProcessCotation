@@ -11,6 +11,18 @@ public class CotationServiceTests
     }
 
     [Fact]
+    public async Task GetCotationAsync_HonorsCancellationBeforeValidatingTheSymbol()
+    {
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+        using var client = new HttpClient(new StubHttpMessageHandler(_ =>
+            throw new InvalidOperationException("HTTP should not be called after cancellation.")));
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+            new global::CotationService(client).GetCotationAsync("invalid symbol", cancellation.Token));
+    }
+
+    [Fact]
     public async Task GetCotationAsync_ParsesBrazilianPriceAndNormalizesSymbol()
     {
         using var client = new HttpClient(new StubHttpMessageHandler(_ =>

@@ -38,6 +38,7 @@ public class CotationService : ICotationService
 
     public async Task<CotationResult> GetCotationAsync(string symbol, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var normalizedSymbol = StockSymbol.NormalizeOrThrow(symbol);
 
         try
