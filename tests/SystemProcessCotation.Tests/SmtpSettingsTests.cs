@@ -209,6 +209,15 @@ public class SmtpSettingsTests
     }
 
     [Fact]
+    public void IsConfigured_ReturnsFalseWhenHostContainsUnicodeLineSeparator()
+    {
+        var settings = CreateConfiguredSettings();
+        settings.Host = "smtp\u2028.example.com";
+
+        Assert.False(settings.IsConfigured);
+    }
+
+    [Fact]
     public void IsConfigured_ReturnsFalseWhenCredentialsAreMissing()
     {
         var settings = new global::SmtpSettings

@@ -24,7 +24,7 @@ public class SmtpSettings
         var host = value?.Trim();
         if (string.IsNullOrWhiteSpace(host)
             || host.Length > 253
-            || host.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format))
+            || host.Any(IsUnsafeSmtpCharacter))
         {
             return false;
         }
@@ -38,7 +38,7 @@ public class SmtpSettings
     private static bool IsValidAddress(string? value)
     {
         if (string.IsNullOrWhiteSpace(value)
-            || value.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format))
+            || value.Any(IsUnsafeSmtpCharacter))
         {
             return false;
         }
@@ -81,9 +81,15 @@ public class SmtpSettings
 
     private static bool IsValidUsername(string? value) =>
         !string.IsNullOrWhiteSpace(value)
-        && !value.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format);
+        && !value.Any(IsUnsafeSmtpCharacter);
 
     private static bool IsValidPassword(string? value) =>
         !string.IsNullOrWhiteSpace(value)
-        && !value.Any(c => char.IsControl(c) || char.GetUnicodeCategory(c) == UnicodeCategory.Format);
+        && !value.Any(IsUnsafeSmtpCharacter);
+
+    private static bool IsUnsafeSmtpCharacter(char value) =>
+        char.IsControl(value)
+        || char.GetUnicodeCategory(value) is UnicodeCategory.Format
+            or UnicodeCategory.LineSeparator
+            or UnicodeCategory.ParagraphSeparator;
 }
