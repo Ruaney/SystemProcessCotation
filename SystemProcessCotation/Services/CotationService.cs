@@ -149,7 +149,7 @@ public class CotationService : ICotationService
 
     private static IEnumerable<string> ExtractSemanticDataAttributePrices(HtmlDocument doc)
     {
-        var priceNodes = doc.DocumentNode.SelectNodes("//*[@data-price or @data-price-value or @data-last-trade-price or @data-regular-market-price or @data-current-price or @data-last-price or @data-market-price or @data-quote or @data-value or @data-bid or @data-ask or @data-close or @data-settlement or @data-open or @data-high or @data-low or @data-previous-close or @data-adjusted-close or @data-last or @data-current or @data-closing-price or @data-opening-price or @data-final-price]");
+        var priceNodes = doc.DocumentNode.SelectNodes("//*[@data-price or @data-price-value or @data-last-trade-price or @data-regular-market-price or @data-post-market-price or @data-current-price or @data-last-price or @data-market-price or @data-quote or @data-value or @data-bid or @data-ask or @data-close or @data-settlement or @data-open or @data-high or @data-low or @data-previous-close or @data-adjusted-close or @data-last or @data-current or @data-closing-price or @data-opening-price or @data-final-price]");
         if (priceNodes is null)
         {
             yield break;
@@ -163,6 +163,7 @@ public class CotationService : ICotationService
                 yield return node.GetAttributeValue("data-price-value", string.Empty);
                 yield return node.GetAttributeValue("data-last-trade-price", string.Empty);
                 yield return node.GetAttributeValue("data-regular-market-price", string.Empty);
+                yield return node.GetAttributeValue("data-post-market-price", string.Empty);
                 yield return node.GetAttributeValue("data-current-price", string.Empty);
                 yield return node.GetAttributeValue("data-last-price", string.Empty);
                 yield return node.GetAttributeValue("data-market-price", string.Empty);
